@@ -3,9 +3,9 @@ import {
   signInWithPopup,
   signOut as firebaseSignOut,
   onAuthStateChanged,
-  sendSignInLinkToEmail,
-  isSignInWithEmailLink,
-  signInWithEmailLink,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  updateProfile,
   type User as FirebaseUser,
 } from 'firebase/auth';
 import { auth, googleProvider, githubProvider } from '../../services/firebase';
@@ -18,20 +18,14 @@ interface AuthContextValue {
   loading: boolean;
   signInWithGoogle: () => Promise<void>;
   signInWithGithub: () => Promise<void>;
-  sendEmailOTP: (email: string) => Promise<void>;
-  verifyEmailOTP: (email: string) => Promise<void>;
+  signUpWithEmail: (email: string, password: string) => Promise<void>;
+  signInWithEmail: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   getIdToken: () => Promise<string | null>;
   createSession: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
-
-// ─── Email Action Code Settings ───────────────────────────────────────────
-const actionCodeSettings = {
-  url: window.location.origin + '/login?emailVerification=true',
-  handleCodeInApp: true,
-};
 
 // ─── Provider ────────────────────────────────────────────────────────────
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -82,8 +76,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [firebaseUser, createSession]);
 
-  // Link verification is handled directly in Login.tsx for better UI and error handling
-
   const signInWithGoogle = async () => {
     await signInWithPopup(auth, googleProvider);
   };
@@ -92,21 +84,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await signInWithPopup(auth, githubProvider);
   };
 
-  const sendEmailOTP = async (email: string) => {
-    await sendSignInLinkToEmail(auth, email, actionCodeSettings);
-    localStorage.setItem('emailForSignIn', email);
+  const signUpWithEmail = async (email: string, password: string) => {
+    const cred = await createUserWithEmailAndPassword(auth, email, password);
+    // Set a default display name from the email
+    await updateProfile(cred.user, { displayName: email.split('@')[0] });
   };
 
-  const verifyEmailOTP = async (email: string) => {
-    await signInWithEmailLink(auth, email, window.location.href);
+  const signInWithEmail = async (email: string, password: string) => {
+    await signInWithEmailAndPassword(auth, email, password);
   };
 
   const signOut = async () => {
     await firebaseSignOut(auth);
-    await fetch('/api/auth/session', {
-      method: 'DELETE',
-      credentials: 'include',
-    });
+    try {
+      await fetch('/api/auth/session', {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+    } catch {
+      // ignore session destroy errors
+    }
   };
 
   const getIdToken = async () => {
@@ -121,8 +118,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       loading,
       signInWithGoogle,
       signInWithGithub,
-      sendEmailOTP,
-      verifyEmailOTP,
+      signUpWithEmail,
+      signInWithEmail,
       signOut,
       getIdToken,
       createSession,

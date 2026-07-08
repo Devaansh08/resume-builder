@@ -1,55 +1,28 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../features/auth/AuthContext';
-import { FileText, Github, Mail, ArrowLeft, Sparkles, Loader2, CheckCircle2 } from 'lucide-react';
+import { FileText, Github, Mail, ArrowLeft, Sparkles, Loader2, Eye, EyeOff } from 'lucide-react';
 
 export default function LoginPage() {
-  const { user, signInWithGoogle, signInWithGithub, sendEmailOTP, verifyEmailOTP, loading } = useAuth();
+  const { user, signInWithGoogle, signInWithGithub, signUpWithEmail, signInWithEmail, loading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/dashboard';
 
-  const [mode, setMode] = useState<'choose' | 'email' | 'sent' | 'verifying' | 'confirmEmail'>('choose');
+  const [mode, setMode] = useState<'choose' | 'email'>('choose');
+  const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
-  const [confirmingEmailAddress, setConfirmingEmailAddress] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  // Check for email verification link on mount
   useEffect(() => {
-    const checkEmailLink = async () => {
-      const { isSignInWithEmailLink } = await import('firebase/auth');
-      const { auth } = await import('../services/firebase');
-
-      if (isSignInWithEmailLink(auth, window.location.href)) {
-        const storedEmail = localStorage.getItem('emailForSignIn');
-        if (storedEmail) {
-          setMode('verifying');
-          setIsLoading(true);
-          try {
-            await verifyEmailOTP(storedEmail);
-            localStorage.removeItem('emailForSignIn');
-            navigate(from, { replace: true });
-          } catch (err: unknown) {
-            setError(err instanceof Error ? err.message : 'Verification failed. The link may have expired or already been used.');
-            setMode('choose');
-          } finally {
-            setIsLoading(false);
-          }
-        } else {
-          // Email missing from localStorage (e.g. user clicked link on another device)
-          setMode('confirmEmail');
-        }
-      }
-    };
-    checkEmailLink();
-  }, [verifyEmailOTP, navigate, from]);
-
-  useEffect(() => {
-    if (user && !loading && mode !== 'verifying') {
+    if (user && !loading) {
       navigate(from, { replace: true });
     }
-  }, [user, loading, navigate, from, mode]);
+  }, [user, loading, navigate, from]);
 
   const handleGoogle = async () => {
     setError('');
@@ -57,7 +30,12 @@ export default function LoginPage() {
     try {
       await signInWithGoogle();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Google sign-in failed');
+      const msg = err instanceof Error ? err.message : 'Google sign-in failed';
+      if (msg.includes('operation-not-allowed')) {
+        setError('Google sign-in is not enabled. Please enable it in Firebase Console > Authentication > Sign-in method.');
+      } else {
+        setError(msg);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -69,41 +47,53 @@ export default function LoginPage() {
     try {
       await signInWithGithub();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'GitHub sign-in failed');
+      const msg = err instanceof Error ? err.message : 'GitHub sign-in failed';
+      if (msg.includes('operation-not-allowed')) {
+        setError('GitHub sign-in is not enabled. Please enable it in Firebase Console > Authentication > Sign-in method.');
+      } else {
+        setError(msg);
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleEmailSend = async (e: React.FormEvent) => {
+  const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
-    setError('');
-    setIsLoading(true);
-    try {
-      await sendEmailOTP(email);
-      setMode('sent');
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to send email link');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    if (!email || !password) return;
 
-  const handleEmailConfirm = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!confirmingEmailAddress) return;
+    if (isSignUp && password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters');
+      return;
+    }
+
     setError('');
     setIsLoading(true);
-    const prevMode = mode;
-    setMode('verifying');
     try {
-      await verifyEmailOTP(confirmingEmailAddress);
-      localStorage.removeItem('emailForSignIn');
-      navigate(from, { replace: true });
+      if (isSignUp) {
+        await signUpWithEmail(email, password);
+      } else {
+        await signInWithEmail(email, password);
+      }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Verification failed. Please check the email address and try again.');
-      setMode(prevMode);
+      const msg = err instanceof Error ? err.message : 'Authentication failed';
+      if (msg.includes('email-already-in-use')) {
+        setError('An account with this email already exists. Please sign in instead.');
+      } else if (msg.includes('invalid-credential') || msg.includes('wrong-password') || msg.includes('user-not-found')) {
+        setError('Invalid email or password. Please try again or create an account.');
+      } else if (msg.includes('weak-password')) {
+        setError('Password is too weak. Use at least 6 characters.');
+      } else if (msg.includes('invalid-email')) {
+        setError('Please enter a valid email address.');
+      } else if (msg.includes('operation-not-allowed')) {
+        setError('Email/Password sign-in is not enabled. Please enable it in Firebase Console > Authentication > Sign-in method.');
+      } else {
+        setError(msg);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -141,46 +131,10 @@ export default function LoginPage() {
             {mode === 'email' && (
               <>
                 <h1 className="font-display font-bold text-2xl text-gray-900 dark:text-white mb-1">
-                  Sign in with Email
-                </h1>
-                <p className="text-sm text-gray-500">We'll send a magic link to your inbox</p>
-              </>
-            )}
-
-            {mode === 'sent' && (
-              <>
-                <div className="w-16 h-16 bg-green-100 dark:bg-green-950 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <CheckCircle2 size={32} className="text-green-500" />
-                </div>
-                <h1 className="font-display font-bold text-2xl text-gray-900 dark:text-white mb-1">
-                  Check your inbox!
+                  {isSignUp ? 'Create Account' : 'Sign in with Email'}
                 </h1>
                 <p className="text-sm text-gray-500">
-                  We sent a magic link to <strong>{email}</strong>.<br />
-                  Click it to sign in instantly.
-                </p>
-              </>
-            )}
-
-            {mode === 'verifying' && (
-              <>
-                <div className="w-16 h-16 bg-brand-50 dark:bg-brand-950/50 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Loader2 size={32} className="text-brand-500 animate-spin" />
-                </div>
-                <h1 className="font-display font-bold text-2xl text-gray-900 dark:text-white mb-1">
-                  Verifying Link
-                </h1>
-                <p className="text-sm text-gray-500">Signing you in securely, please wait...</p>
-              </>
-            )}
-
-            {mode === 'confirmEmail' && (
-              <>
-                <h1 className="font-display font-bold text-2xl text-gray-900 dark:text-white mb-1">
-                  Confirm your Email
-                </h1>
-                <p className="text-sm text-gray-500">
-                  Please enter the email address where you received the sign-in link.
+                  {isSignUp ? 'Enter your details to get started' : 'Enter your email and password'}
                 </p>
               </>
             )}
@@ -256,9 +210,9 @@ export default function LoginPage() {
             </div>
           )}
 
-          {/* Email form */}
+          {/* Email/Password form */}
           {mode === 'email' && (
-            <form onSubmit={handleEmailSend} className="space-y-4">
+            <form onSubmit={handleEmailSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                   Email address
@@ -274,51 +228,67 @@ export default function LoginPage() {
                 />
               </div>
 
-              <button type="submit" disabled={isLoading || !email} className="btn btn-primary btn-md w-full">
-                {isLoading ? <><Loader2 size={16} className="animate-spin" /> Sending...</> : 'Send Magic Link'}
-              </button>
-
-              <button type="button" onClick={() => setMode('choose')} className="btn btn-ghost btn-md w-full">
-                <ArrowLeft size={16} /> Back to options
-              </button>
-            </form>
-          )}
-
-          {/* Sent confirmation */}
-          {mode === 'sent' && (
-            <div className="space-y-3">
-              <button onClick={() => setMode('email')} className="btn btn-secondary btn-md w-full">
-                Try different email
-              </button>
-              <button onClick={() => setMode('choose')} className="btn btn-ghost btn-md w-full">
-                <ArrowLeft size={16} /> Back
-              </button>
-            </div>
-          )}
-
-          {/* Confirm Email Form */}
-          {mode === 'confirmEmail' && (
-            <form onSubmit={handleEmailConfirm} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                  Email address
+                  Password
                 </label>
-                <input
-                  type="email"
-                  value={confirmingEmailAddress}
-                  onChange={(e) => setConfirmingEmailAddress(e.target.value)}
-                  className="input"
-                  placeholder="you@example.com"
-                  required
-                  autoFocus
-                />
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="input pr-10"
+                    placeholder="••••••••"
+                    required
+                    minLength={6}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
               </div>
 
-              <button type="submit" disabled={isLoading || !confirmingEmailAddress} className="btn btn-primary btn-md w-full">
-                {isLoading ? <><Loader2 size={16} className="animate-spin" /> Verifying...</> : 'Confirm and Sign In'}
+              {isSignUp && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                    Confirm Password
+                  </label>
+                  <input
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="input"
+                    placeholder="••••••••"
+                    required
+                    minLength={6}
+                  />
+                </div>
+              )}
+
+              <button type="submit" disabled={isLoading || !email || !password} className="btn btn-primary btn-md w-full">
+                {isLoading ? (
+                  <><Loader2 size={16} className="animate-spin" /> {isSignUp ? 'Creating Account...' : 'Signing In...'}</>
+                ) : (
+                  isSignUp ? 'Create Account' : 'Sign In'
+                )}
               </button>
 
-              <button type="button" onClick={() => setMode('choose')} className="btn btn-ghost btn-md w-full">
+              {/* Toggle Sign Up / Sign In */}
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={() => { setIsSignUp(!isSignUp); setError(''); setConfirmPassword(''); }}
+                  className="text-sm text-brand-500 hover:text-brand-600 font-medium transition-colors"
+                >
+                  {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
+                </button>
+              </div>
+
+              <button type="button" onClick={() => { setMode('choose'); setError(''); }} className="btn btn-ghost btn-md w-full">
                 <ArrowLeft size={16} /> Back to options
               </button>
             </form>
