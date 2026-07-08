@@ -82,17 +82,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [firebaseUser, createSession]);
 
-  // Handle email link verification on page load
-  useEffect(() => {
-    if (isSignInWithEmailLink(auth, window.location.href)) {
-      const email = localStorage.getItem('emailForSignIn');
-      if (email) {
-        signInWithEmailLink(auth, email, window.location.href)
-          .then(() => localStorage.removeItem('emailForSignIn'))
-          .catch(console.error);
-      }
-    }
-  }, []);
+  // Link verification is handled directly in Login.tsx for better UI and error handling
 
   const signInWithGoogle = async () => {
     await signInWithPopup(auth, googleProvider);

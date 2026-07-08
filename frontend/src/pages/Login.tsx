@@ -4,21 +4,52 @@ import { useAuth } from '../features/auth/AuthContext';
 import { FileText, Github, Mail, ArrowLeft, Sparkles, Loader2, CheckCircle2 } from 'lucide-react';
 
 export default function LoginPage() {
-  const { user, signInWithGoogle, signInWithGithub, sendEmailOTP, loading } = useAuth();
+  const { user, signInWithGoogle, signInWithGithub, sendEmailOTP, verifyEmailOTP, loading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/dashboard';
 
-  const [mode, setMode] = useState<'choose' | 'email' | 'sent'>('choose');
+  const [mode, setMode] = useState<'choose' | 'email' | 'sent' | 'verifying' | 'confirmEmail'>('choose');
   const [email, setEmail] = useState('');
+  const [confirmingEmailAddress, setConfirmingEmailAddress] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  // Check for email verification link on mount
   useEffect(() => {
-    if (user && !loading) {
+    const checkEmailLink = async () => {
+      const { isSignInWithEmailLink } = await import('firebase/auth');
+      const { auth } = await import('../services/firebase');
+
+      if (isSignInWithEmailLink(auth, window.location.href)) {
+        const storedEmail = localStorage.getItem('emailForSignIn');
+        if (storedEmail) {
+          setMode('verifying');
+          setIsLoading(true);
+          try {
+            await verifyEmailOTP(storedEmail);
+            localStorage.removeItem('emailForSignIn');
+            navigate(from, { replace: true });
+          } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Verification failed. The link may have expired or already been used.');
+            setMode('choose');
+          } finally {
+            setIsLoading(false);
+          }
+        } else {
+          // Email missing from localStorage (e.g. user clicked link on another device)
+          setMode('confirmEmail');
+        }
+      }
+    };
+    checkEmailLink();
+  }, [verifyEmailOTP, navigate, from]);
+
+  useEffect(() => {
+    if (user && !loading && mode !== 'verifying') {
       navigate(from, { replace: true });
     }
-  }, [user, loading, navigate, from]);
+  }, [user, loading, navigate, from, mode]);
 
   const handleGoogle = async () => {
     setError('');
@@ -54,6 +85,25 @@ export default function LoginPage() {
       setMode('sent');
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to send email link');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleEmailConfirm = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!confirmingEmailAddress) return;
+    setError('');
+    setIsLoading(true);
+    const prevMode = mode;
+    setMode('verifying');
+    try {
+      await verifyEmailOTP(confirmingEmailAddress);
+      localStorage.removeItem('emailForSignIn');
+      navigate(from, { replace: true });
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Verification failed. Please check the email address and try again.');
+      setMode(prevMode);
     } finally {
       setIsLoading(false);
     }
@@ -108,6 +158,29 @@ export default function LoginPage() {
                 <p className="text-sm text-gray-500">
                   We sent a magic link to <strong>{email}</strong>.<br />
                   Click it to sign in instantly.
+                </p>
+              </>
+            )}
+
+            {mode === 'verifying' && (
+              <>
+                <div className="w-16 h-16 bg-brand-50 dark:bg-brand-950/50 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Loader2 size={32} className="text-brand-500 animate-spin" />
+                </div>
+                <h1 className="font-display font-bold text-2xl text-gray-900 dark:text-white mb-1">
+                  Verifying Link
+                </h1>
+                <p className="text-sm text-gray-500">Signing you in securely, please wait...</p>
+              </>
+            )}
+
+            {mode === 'confirmEmail' && (
+              <>
+                <h1 className="font-display font-bold text-2xl text-gray-900 dark:text-white mb-1">
+                  Confirm your Email
+                </h1>
+                <p className="text-sm text-gray-500">
+                  Please enter the email address where you received the sign-in link.
                 </p>
               </>
             )}
@@ -221,6 +294,34 @@ export default function LoginPage() {
                 <ArrowLeft size={16} /> Back
               </button>
             </div>
+          )}
+
+          {/* Confirm Email Form */}
+          {mode === 'confirmEmail' && (
+            <form onSubmit={handleEmailConfirm} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                  Email address
+                </label>
+                <input
+                  type="email"
+                  value={confirmingEmailAddress}
+                  onChange={(e) => setConfirmingEmailAddress(e.target.value)}
+                  className="input"
+                  placeholder="you@example.com"
+                  required
+                  autoFocus
+                />
+              </div>
+
+              <button type="submit" disabled={isLoading || !confirmingEmailAddress} className="btn btn-primary btn-md w-full">
+                {isLoading ? <><Loader2 size={16} className="animate-spin" /> Verifying...</> : 'Confirm and Sign In'}
+              </button>
+
+              <button type="button" onClick={() => setMode('choose')} className="btn btn-ghost btn-md w-full">
+                <ArrowLeft size={16} /> Back to options
+              </button>
+            </form>
           )}
         </div>
 
