@@ -1,0 +1,63 @@
+{
+  "systemSetup": [],
+  "templateName": "custom",
+  "projectDependencies": [
+    {
+      "name": "Install Backend Dependencies",
+      "command": "npm install --prefix backend"
+    },
+    {
+      "name": "Install Frontend Dependencies",
+      "command": "npm install --prefix frontend"
+    }
+  ],
+  "codeChecks": [
+    {
+      "name": "Lint Frontend",
+      "command": "npm --prefix frontend run lint"
+    }
+  ],
+  "buildSteps": [
+    {
+      "name": "Build Backend",
+      "command": "npm --prefix backend run build"
+    },
+    {
+      "name": "Build Frontend",
+      "command": "npm --prefix frontend run build"
+    }
+  ],
+  "runStep": [
+    {
+      "name": "Run Backend Dev Server",
+      "command": "PORT=3001 npm --prefix backend run dev -- --port 3001",
+      "port": "3001"
+    },
+    {
+      "name": "Run Frontend Dev Server",
+      "command": "npm --prefix frontend run dev -- --host 0.0.0.0 --port 5173",
+      "port": "5173"
+    }
+  ],
+  "deploySteps": [],
+  "cleanupFiles": [
+    "backend/node_modules",
+    "frontend/node_modules",
+    "backend/dist",
+    "frontend/dist",
+    "frontend/dist-ssr",
+    "backend/.env",
+    "frontend/.env"
+  ],
+  "packageManager": "npm",
+  "envPaths": [
+    {
+      "name": "backend",
+      "path": "backend/.env"
+    },
+    {
+      "name": "frontend",
+      "path": "frontend/.env"
+    }
+  ]
+}
