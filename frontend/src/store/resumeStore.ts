@@ -9,8 +9,6 @@ import type {
   ATSResult,
 } from '../types';
 import { defaultResumeSections, defaultTheme } from '../utils/defaults';
-import { db } from '../services/firebase';
-import { doc, setDoc } from 'firebase/firestore';
 import { debounce, uuidv4 } from '../utils/helpers';
 
 // ─── Store Shape ──────────────────────────────────────────────────────────
@@ -34,15 +32,13 @@ interface ResumeStore {
   setAtsResult: (result: ATSResult) => void;
   setThemeMode: (mode: ThemeMode) => void;
   setZoomLevel: (level: number) => void;
-  saveToFirestore: () => Promise<void>;
   markDirty: () => void;
   markSaved: () => void;
-  createNewResume: (userId: string, title?: string) => Resume;
+  createNewResume: (title?: string) => Resume;
 }
 
-// ─── Debounced Firestore/Local save ───────────────────────────────────────
-const debouncedSave = debounce(async (resume: Resume) => {
-  // Always update local backup in localStorage so changes are not lost
+// ─── Debounced Local save ─────────────────────────────────────────────────
+const debouncedSave = debounce((resume: Resume) => {
   try {
     const localResumes = JSON.parse(localStorage.getItem('resumeai_local_resumes') || '{}');
     localResumes[resume.id] = resume;
@@ -50,17 +46,7 @@ const debouncedSave = debounce(async (resume: Resume) => {
   } catch (err) {
     console.error('[ResumeStore] Local auto-save failed:', err);
   }
-
-  if (resume.userId === 'guest') {
-    localStorage.setItem('resumeai_guest_resume', JSON.stringify(resume));
-    return;
-  }
-  try {
-    await setDoc(doc(db, 'resumes', resume.id), resume, { merge: true });
-  } catch (err) {
-    console.error('[ResumeStore] Firestore auto-save failed:', err);
-  }
-}, 5000);
+}, 1000);
 
 // ─── Store ────────────────────────────────────────────────────────────────
 export const useResumeStore = create<ResumeStore>()(
@@ -76,7 +62,10 @@ export const useResumeStore = create<ResumeStore>()(
         themeMode: 'system' as ThemeMode,
         zoomLevel: 100,
 
-        setCurrentResume: (resume) => set({ currentResume: resume, isDirty: false }),
+        setCurrentResume: (resume) => {
+          set({ currentResume: resume, isDirty: false });
+          debouncedSave(resume);
+        },
 
         setResumes: (resumes) => set({ resumes }),
 
@@ -89,7 +78,7 @@ export const useResumeStore = create<ResumeStore>()(
               updatedAt: new Date().toISOString(),
             };
             debouncedSave(updated);
-            return { currentResume: updated, isDirty: true };
+            return { currentResume: updated, isDirty: true, lastSaved: new Date() };
           }),
 
         updateSection: (key, value) =>
@@ -101,7 +90,7 @@ export const useResumeStore = create<ResumeStore>()(
               updatedAt: new Date().toISOString(),
             };
             debouncedSave(updated);
-            return { currentResume: updated, isDirty: true };
+            return { currentResume: updated, isDirty: true, lastSaved: new Date() };
           }),
 
         updateTemplate: (template) =>
@@ -109,7 +98,7 @@ export const useResumeStore = create<ResumeStore>()(
             if (!state.currentResume) return state;
             const updated = { ...state.currentResume, template };
             debouncedSave(updated);
-            return { currentResume: updated, isDirty: true };
+            return { currentResume: updated, isDirty: true, lastSaved: new Date() };
           }),
 
         updateTheme: (theme) =>
@@ -117,7 +106,7 @@ export const useResumeStore = create<ResumeStore>()(
             if (!state.currentResume) return state;
             const updated = { ...state.currentResume, theme: { ...state.currentResume.theme, ...theme } };
             debouncedSave(updated);
-            return { currentResume: updated, isDirty: true };
+            return { currentResume: updated, isDirty: true, lastSaved: new Date() };
           }),
 
         setSectionOrder: (order) =>
@@ -125,7 +114,7 @@ export const useResumeStore = create<ResumeStore>()(
             if (!state.currentResume) return state;
             const updated = { ...state.currentResume, sectionOrder: order };
             debouncedSave(updated);
-            return { currentResume: updated, isDirty: true };
+            return { currentResume: updated, isDirty: true, lastSaved: new Date() };
           }),
 
         setAtsResult: (atsResult) => set({ atsResult }),
@@ -134,53 +123,30 @@ export const useResumeStore = create<ResumeStore>()(
 
         setZoomLevel: (zoomLevel) => set({ zoomLevel }),
 
-        saveToFirestore: async () => {
-          const { currentResume } = get();
-          if (!currentResume) return;
-          set({ isSaving: true });
-          
-          // Always save to localStorage as an instant local backup
-          try {
-            const localResumes = JSON.parse(localStorage.getItem('resumeai_local_resumes') || '{}');
-            localResumes[currentResume.id] = currentResume;
-            localStorage.setItem('resumeai_local_resumes', JSON.stringify(localResumes));
-          } catch {
-            // ignore localStorage quota errors
-          }
-
-          if (currentResume.userId === 'guest') {
-            localStorage.setItem('resumeai_guest_resume', JSON.stringify(currentResume));
-            set({ isSaving: false, isDirty: false, lastSaved: new Date() });
-            return;
-          }
-          try {
-            await setDoc(doc(db, 'resumes', currentResume.id), currentResume, { merge: true });
-            set({ isSaving: false, isDirty: false, lastSaved: new Date() });
-          } catch (err) {
-            console.error('[saveToFirestore] Firestore sync failed, saved locally:', err);
-            set({ isSaving: false, isDirty: false, lastSaved: new Date() });
-          }
-        },
-
         markDirty: () => set({ isDirty: true }),
 
         markSaved: () => set({ isDirty: false, lastSaved: new Date() }),
 
-        createNewResume: (userId, title = 'Untitled Resume') => ({
-          id: uuidv4(),
-          userId,
-          title,
-          template: 'modern' as TemplateId,
-          theme: defaultTheme,
-          sections: defaultResumeSections(),
-          sectionOrder: [
-            'personalInfo', 'experience', 'education', 'projects',
-            'skills', 'certificates', 'achievements', 'languages',
-            'interests', 'references'
-          ],
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        }),
+        createNewResume: (title = 'Untitled Resume') => {
+          const resume: Resume = {
+            id: uuidv4(),
+            userId: 'local-user',
+            title,
+            template: 'modern' as TemplateId,
+            theme: defaultTheme,
+            sections: defaultResumeSections(),
+            sectionOrder: [
+              'personalInfo', 'experience', 'education', 'projects',
+              'skills', 'certificates', 'achievements', 'languages',
+              'interests', 'references'
+            ],
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          };
+          // Save immediately to local storage
+          debouncedSave(resume);
+          return resume;
+        },
       }),
       {
         name: 'resumeai-store',

@@ -1,9 +1,5 @@
 // Firebase Configuration
-// Replace these values with your Firebase project config
-// Firebase Console > Project Settings > Your apps > Web app > Config
-
 import { initializeApp, getApps } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, GithubAuthProvider } from 'firebase/auth';
 import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
@@ -18,15 +14,6 @@ const firebaseConfig = {
 
 // Initialize Firebase (avoid duplicate apps)
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
-
-// Auth
-export const auth = getAuth(app);
-export const googleProvider = new GoogleAuthProvider();
-export const githubProvider = new GithubAuthProvider();
-
-googleProvider.addScope('email');
-googleProvider.addScope('profile');
-githubProvider.addScope('user:email');
 
 // Firestore with modern multi-tab persistence
 export const db = initializeFirestore(app, {

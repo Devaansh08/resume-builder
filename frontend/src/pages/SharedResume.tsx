@@ -100,7 +100,7 @@ export default function SharedResumePage() {
             >
               <Download size={14} /> Download PDF
             </button>
-            <Link to="/login" className="btn btn-secondary btn-sm">
+            <Link to="/" className="btn btn-secondary btn-sm">
               Build Yours Free →
             </Link>
           </div>
@@ -124,7 +124,7 @@ export default function SharedResumePage() {
           Create your own resume — it's free!
         </h3>
         <p className="text-brand-100 mb-6">ATS-optimized templates, live preview, PDF download</p>
-        <Link to="/login" className="inline-flex items-center gap-2 bg-white text-brand-600 font-semibold px-6 py-3 rounded-2xl hover:bg-brand-50 transition-colors">
+        <Link to="/" className="inline-flex items-center gap-2 bg-white text-brand-600 font-semibold px-6 py-3 rounded-2xl hover:bg-brand-50 transition-colors">
           Get Started Free →
         </Link>
       </div>

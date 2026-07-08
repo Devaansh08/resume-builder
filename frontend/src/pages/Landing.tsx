@@ -1,16 +1,19 @@
-import { Link } from 'react-router-dom';
-import { useAuth } from '../features/auth/AuthContext';
+import { useState, useRef } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useResumeStore } from '../store/resumeStore';
+import { parseFile } from '../utils/fileParser';
 import {
   FileText, Zap, Shield, Download, Eye, BarChart3,
-  Sparkles, ChevronRight, Star, Check, ArrowRight, Github, Globe
+  Sparkles, ChevronRight, Star, Check, ArrowRight, Github, Globe,
+  Upload, Loader2
 } from 'lucide-react';
 
 const FEATURES = [
   { icon: <Zap size={22} />, title: 'ATS Optimized', desc: 'Every template is built to pass Applicant Tracking Systems with 90%+ scores' },
   { icon: <Eye size={22} />, title: 'Live Preview', desc: 'See your resume update in real-time as you type — no refresh needed' },
-  { icon: <Sparkles size={22} />, title: 'AI-Powered', desc: 'Generate professional summaries, bullet points & descriptions with AI' },
+  { icon: <Sparkles size={22} />, title: 'AI-Powered & Parsed', desc: 'Upload your existing PDF or DOCX and let our smart parser fill out your sections automatically' },
   { icon: <Download size={22} />, title: 'Free PDF Export', desc: 'Download print-perfect A4/Letter PDFs with no watermarks, forever free' },
-  { icon: <Shield size={22} />, title: 'Secure & Private', desc: 'Your data is encrypted and stored securely on Firebase with full GDPR compliance' },
+  { icon: <Shield size={22} />, title: '100% Local & Private', desc: 'Your data stays right in your browser. No account needed, complete privacy guaranteed' },
   { icon: <BarChart3 size={22} />, title: 'Resume Score', desc: 'Get detailed ATS analysis with actionable suggestions to improve your resume' },
 ];
 
@@ -25,23 +28,87 @@ const STATS = [
   { value: '50K+', label: 'Resumes Created' },
   { value: '94%', label: 'ATS Pass Rate' },
   { value: '8', label: 'Free Templates' },
-  { value: '< 3s', label: 'PDF Export' },
+  { value: 'Instant', label: 'No Sign-up' },
 ];
 
 const TESTIMONIALS = [
-  { name: 'Priya S.', role: 'Software Engineer at Google', text: 'Landed my dream job using ResumeAI. The ATS score feature helped me optimize my resume perfectly!' },
-  { name: 'Rahul M.', role: 'Product Manager at Flipkart', text: 'Best free resume builder out there. The live preview and templates are incredible.' },
-  { name: 'Ananya K.', role: 'Data Scientist at Microsoft', text: 'The AI bullet point generator saved me hours. My resume score jumped from 62 to 91!' },
+  { name: 'Priya S.', role: 'Software Engineer at Google', text: 'Landed my dream job using ResumeAI. The ATS score feature and zero sign-up required is amazing!' },
+  { name: 'Rahul M.', role: 'Product Manager at Flipkart', text: 'Best free resume builder out there. The live preview and instant PDF upload save so much time.' },
+  { name: 'Ananya K.', role: 'Data Scientist at Microsoft', text: 'Uploaded my old resume and the parser filled everything out. Downloaded a clean modern PDF in 3 minutes!' },
 ];
 
 export default function LandingPage() {
-  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { createNewResume, setCurrentResume } = useResumeStore();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isParsing, setIsParsing] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const handleCreateNew = () => {
+    const resume = createNewResume('My Resume');
+    setCurrentResume(resume);
+    navigate('/builder');
+  };
+
+  const handleUploadClick = () => {
+    setErrorMsg(null);
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsParsing(true);
+    setErrorMsg(null);
+
+    try {
+      const parsedSections = await parseFile(file);
+      const title = file.name.replace(/\.[^/.]+$/, '') || 'My Resume';
+      const resume = createNewResume(title);
+      resume.sections = parsedSections;
+      setCurrentResume(resume);
+      navigate('/builder');
+    } catch (err: unknown) {
+      console.error('[File Upload Parse Error]', err);
+      setErrorMsg(err instanceof Error ? err.message : 'Failed to parse file. Please try again or create from scratch.');
+    } finally {
+      setIsParsing(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
 
   return (
     <div className="min-h-screen bg-white dark:bg-surface-950 overflow-x-hidden">
 
+      {/* Hidden File Input */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        accept=".pdf,.docx,.txt"
+        className="hidden"
+      />
+
+      {/* Parsing Overlay */}
+      {isParsing && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-surface-900 rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl border border-gray-100 dark:border-surface-800 animate-scale-in">
+            <div className="w-16 h-16 rounded-2xl bg-brand-50 dark:bg-brand-950/50 text-brand-500 flex items-center justify-center mx-auto mb-4 animate-bounce">
+              <Loader2 size={32} className="animate-spin" />
+            </div>
+            <h3 className="font-display font-bold text-xl text-gray-900 dark:text-white mb-2">
+              Parsing Your Resume...
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Extracting text and organizing your sections into our ATS-optimized builder.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* ── Navbar ─────────────────────────────────────────────────────── */}
-      <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-white/20 dark:border-surface-800/50">
+      <nav className="fixed top-0 left-0 right-0 z-40 glass border-b border-white/20 dark:border-surface-800/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
@@ -63,18 +130,12 @@ export default function LandingPage() {
 
             {/* CTA */}
             <div className="flex items-center gap-3">
-              {user ? (
-                <Link to="/dashboard" className="btn btn-primary btn-md">
-                  Go to Dashboard <ArrowRight size={16} />
-                </Link>
-              ) : (
-                <>
-                  <Link to="/login" className="btn btn-ghost btn-md hidden md:inline-flex">Sign In</Link>
-                  <Link to="/login" className="btn btn-primary btn-md">
-                    Get Started Free <ChevronRight size={16} />
-                  </Link>
-                </>
-              )}
+              <button onClick={handleUploadClick} className="btn btn-ghost btn-md hidden md:inline-flex gap-2">
+                <Upload size={16} /> Upload Resume
+              </button>
+              <button onClick={handleCreateNew} className="btn btn-primary btn-md gap-1.5">
+                Build Resume <ChevronRight size={16} />
+              </button>
             </div>
           </div>
         </div>
@@ -94,35 +155,48 @@ export default function LandingPage() {
           {/* Badge */}
           <div className="inline-flex items-center gap-2 bg-brand-50 dark:bg-brand-950/50 border border-brand-200 dark:border-brand-900 rounded-full px-4 py-1.5 mb-8 animate-fade-in">
             <Sparkles size={14} className="text-brand-500" />
-            <span className="text-xs font-semibold text-brand-600 dark:text-brand-400 uppercase tracking-wide">100% Free — No Credit Card Required</span>
+            <span className="text-xs font-semibold text-brand-600 dark:text-brand-400 uppercase tracking-wide">Instant & Free — No Sign-in Required</span>
           </div>
 
           {/* Headline */}
           <h1 className="font-display font-extrabold text-5xl sm:text-6xl lg:text-7xl text-gray-900 dark:text-white mb-6 leading-tight animate-slide-up text-balance">
-            Build Your{' '}
+            Upload & Edit Your{' '}
             <span className="gradient-text">ATS-Ready</span>{' '}
             Resume<br />In Minutes
           </h1>
 
-          <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-10 animate-slide-up leading-relaxed" style={{ animationDelay: '0.1s' }}>
-            Professional resume builder with 8 templates, live preview, AI assistance,
-            and instant PDF download. 100% free. No watermarks ever.
+          <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-8 animate-slide-up leading-relaxed" style={{ animationDelay: '0.1s' }}>
+            Upload an existing PDF or DOCX to auto-fill the editor, or build from scratch using our 8 professional templates. Download instantly as print-perfect PDF.
           </p>
+
+          {/* Error message */}
+          {errorMsg && (
+            <div className="max-w-md mx-auto mb-6 p-3.5 rounded-xl bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-900 text-sm text-red-600 dark:text-red-400">
+              {errorMsg}
+            </div>
+          )}
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up" style={{ animationDelay: '0.2s' }}>
-            <Link to="/login" className="btn btn-primary btn-xl shadow-glow-brand">
-              <Sparkles size={20} />
-              Create My Resume Free
-            </Link>
-            <Link to="/templates" className="btn btn-secondary btn-xl">
-              View Templates <ArrowRight size={18} />
-            </Link>
+            <button
+              onClick={handleUploadClick}
+              className="btn btn-primary btn-xl shadow-glow-brand gap-2.5 w-full sm:w-auto"
+            >
+              <Upload size={20} />
+              Upload Resume (PDF/DOCX)
+            </button>
+            <button
+              onClick={handleCreateNew}
+              className="btn btn-secondary btn-xl gap-2 w-full sm:w-auto"
+            >
+              <Sparkles size={18} />
+              Create from Scratch
+            </button>
           </div>
 
           {/* Trust indicators */}
-          <div className="flex items-center justify-center gap-6 mt-8 text-sm text-gray-500 animate-fade-in" style={{ animationDelay: '0.4s' }}>
-            {['No credit card', 'No watermarks', 'Free PDF export', 'ATS-optimized'].map((item) => (
+          <div className="flex flex-wrap items-center justify-center gap-6 mt-8 text-sm text-gray-500 animate-fade-in" style={{ animationDelay: '0.4s' }}>
+            {['No sign-in or account', 'No watermarks ever', 'Upload PDF/DOCX/TXT', 'Instant A4 PDF download'].map((item) => (
               <span key={item} className="flex items-center gap-1.5">
                 <Check size={14} className="text-green-500" />
                 {item}
@@ -154,7 +228,7 @@ export default function LandingPage() {
               <span className="gradient-text">dream job</span>
             </h2>
             <p className="text-gray-600 dark:text-gray-400 max-w-xl mx-auto">
-              Premium features that other builders charge for — all completely free.
+              Premium features that other builders charge for — all completely free without sign-up.
             </p>
           </div>
 
@@ -185,7 +259,7 @@ export default function LandingPage() {
               8 <span className="gradient-text">Professional</span> Templates
             </h2>
             <p className="text-gray-600 dark:text-gray-400">
-              All free. Switch anytime without losing your data.
+              All free. Switch anytime with a single click right in the editor.
             </p>
           </div>
 
@@ -253,12 +327,12 @@ export default function LandingPage() {
                 Ready to land your dream job?
               </h2>
               <p className="text-brand-100 mb-8 text-lg">
-                Join 50,000+ professionals who built their career with ResumeAI
+                No sign-in required. Upload your file or start fresh now.
               </p>
-              <Link to="/login" className="inline-flex items-center gap-2 bg-white text-brand-600 font-semibold px-8 py-4 rounded-2xl hover:bg-brand-50 transition-colors shadow-lg text-base">
-                <Sparkles size={20} />
-                Build My Resume — It's Free
-              </Link>
+              <button onClick={handleUploadClick} className="inline-flex items-center gap-2 bg-white text-brand-600 font-semibold px-8 py-4 rounded-2xl hover:bg-brand-50 transition-colors shadow-lg text-base">
+                <Upload size={20} />
+                Upload Resume & Start Editing
+              </button>
             </div>
           </div>
         </div>

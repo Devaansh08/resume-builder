@@ -55,17 +55,8 @@ export async function generatePDF(resumeId: string, title: string = 'Resume'): P
     const fileName = `${title.replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, '_')}_Resume.pdf`;
     pdf.save(fileName);
 
-    // Log to backend
-    try {
-      await fetch('/api/export/pdf', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ resumeId, format: 'A4' }),
-      });
-    } catch {
-      // ignore backend logging errors
-    }
+    // PDF downloaded successfully
+
   } catch (err) {
     console.error('[PDF Export]', err);
     alert('Failed to generate PDF. Please try again.');

@@ -1,10 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../features/auth/AuthContext';
+import { Link } from 'react-router-dom';
 import { useResumeStore } from '../store/resumeStore';
-import { db } from '../services/firebase';
-import { doc, getDoc } from 'firebase/firestore';
-import type { Resume } from '../types';
 import { SectionSidebar } from '../components/builder/SectionSidebar';
 import { EditorPanel } from '../components/builder/EditorPanel';
 import { PreviewPanel } from '../components/builder/PreviewPanel';
@@ -12,14 +8,11 @@ import { BuilderNavbar } from '../components/builder/BuilderNavbar';
 import { ATSPanel } from '../components/builder/ATSPanel';
 import { scoreResume } from '../utils/ats';
 import {
-  FileText, Loader2, PanelRightOpen, PanelRightClose
+  FileText, Loader2, PanelRightClose
 } from 'lucide-react';
 
 export default function BuilderPage() {
-  const { id } = useParams<{ id: string }>();
-  const { user } = useAuth();
   const { currentResume, setCurrentResume, createNewResume, setAtsResult } = useResumeStore();
-  const navigate = useNavigate();
 
   const [isLoading, setIsLoading] = useState(true);
   const [showATS, setShowATS] = useState(false);
@@ -27,55 +20,29 @@ export default function BuilderPage() {
   const [isMobilePreview, setIsMobilePreview] = useState(false);
   const atsTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
-  // Load resume
+  // Ensure there is always a valid currentResume loaded in the builder
   useEffect(() => {
-    const load = async () => {
-      setIsLoading(true);
+    setIsLoading(true);
+    if (!currentResume) {
+      // Try loading the most recent resume from local storage
       try {
-        if (id === 'new') {
-          // Create in-memory resume for guest/new
-          const userId = user ? user.uid : 'guest';
-          const resume = createNewResume(userId, 'My Resume');
-          setCurrentResume(resume);
-        } else if (id && user) {
-          // If current resume matches, use it
-          if (currentResume?.id === id) {
-            setIsLoading(false);
-            return;
-          }
-          // Fetch from Firestore with localStorage fallback
-          let resumeLoaded = false;
-          try {
-            const docRef = doc(db, 'resumes', id);
-            const snap = await getDoc(docRef);
-            if (snap.exists()) {
-              setCurrentResume({ id: snap.id, ...snap.data() } as Resume);
-              resumeLoaded = true;
-            }
-          } catch (fireErr) {
-            console.warn('[Builder] Firestore load failed, trying localStorage:', fireErr);
-          }
-
-          if (!resumeLoaded) {
-            const localResumesMap = JSON.parse(localStorage.getItem('resumeai_local_resumes') || '{}');
-            const localResume = localResumesMap[id];
-            if (localResume && (localResume.userId === user.uid || localResume.userId === 'guest')) {
-              setCurrentResume(localResume);
-            } else {
-              navigate('/dashboard');
-            }
-          }
+        const localResumesMap = JSON.parse(localStorage.getItem('resumeai_local_resumes') || '{}');
+        const resumesList = Object.values(localResumesMap) as Array<typeof currentResume>;
+        if (resumesList.length > 0 && resumesList[0]) {
+          setCurrentResume(resumesList[0]);
+        } else {
+          // No local resume found, create a fresh one automatically
+          const newResume = createNewResume('My Resume');
+          setCurrentResume(newResume);
         }
-      } catch (err) {
-        console.error('[Builder] Load failed:', err);
-        navigate('/dashboard');
-      } finally {
-        setIsLoading(false);
+      } catch {
+        const newResume = createNewResume('My Resume');
+        setCurrentResume(newResume);
       }
-    };
-    load();
+    }
+    setIsLoading(false);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, user?.uid]);
+  }, []);
 
   // Update ATS score on resume change
   useEffect(() => {
@@ -84,7 +51,7 @@ export default function BuilderPage() {
     atsTimerRef.current = setTimeout(() => {
       const result = scoreResume(currentResume.sections);
       setAtsResult(result);
-    }, 800);
+    }, 500);
     return () => clearTimeout(atsTimerRef.current);
   }, [currentResume, setAtsResult]);
 
@@ -108,8 +75,8 @@ export default function BuilderPage() {
     return (
       <div className="flex h-screen items-center justify-center">
         <div className="text-center">
-          <p className="text-gray-500 mb-4">Resume not found</p>
-          <Link to="/dashboard" className="btn btn-primary btn-md">Back to Dashboard</Link>
+          <p className="text-gray-500 mb-4">No resume found</p>
+          <Link to="/" className="btn btn-primary btn-md">Back to Home</Link>
         </div>
       </div>
     );

@@ -32,6 +32,8 @@
     "immer": "^11.1.11",
     "jspdf": "^4.2.1",
     "lucide-react": "^0.474.0",
+    "mammoth": "^1.12.0",
+    "pdfjs-dist": "^6.1.200",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-hook-form": "^7.81.0",

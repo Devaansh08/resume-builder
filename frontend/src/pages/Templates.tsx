@@ -1,4 +1,6 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useResumeStore } from '../store/resumeStore';
+import type { TemplateId } from '../types';
 import { FileText, ArrowRight } from 'lucide-react';
 
 const TEMPLATES = [
@@ -13,6 +15,20 @@ const TEMPLATES = [
 ];
 
 export default function TemplatesPage() {
+  const navigate = useNavigate();
+  const { currentResume, createNewResume, setCurrentResume, updateTemplate } = useResumeStore();
+
+  const handleSelectTemplate = (templateId: string) => {
+    if (currentResume) {
+      updateTemplate(templateId as TemplateId);
+    } else {
+      const newResume = createNewResume('My Resume');
+      newResume.template = templateId as TemplateId;
+      setCurrentResume(newResume);
+    }
+    navigate('/builder');
+  };
+
   return (
     <div className="min-h-screen bg-white dark:bg-surface-950">
       {/* Navbar */}
@@ -26,9 +42,9 @@ export default function TemplatesPage() {
               Resume<span className="gradient-text">AI</span>
             </span>
           </Link>
-          <Link to="/login" className="btn btn-primary btn-md">
-            Use This Template <ArrowRight size={16} />
-          </Link>
+          <button onClick={() => navigate('/builder')} className="btn btn-primary btn-md gap-1.5">
+            Open Builder <ArrowRight size={16} />
+          </button>
         </div>
       </nav>
 
@@ -39,16 +55,16 @@ export default function TemplatesPage() {
           </h1>
           <p className="text-gray-600 dark:text-gray-400 max-w-xl mx-auto">
             8 professionally designed, ATS-optimized templates. All free.
-            Switch anytime without losing your data.
+            Switch anytime right inside the editor without losing your data.
           </p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {TEMPLATES.map((t, i) => (
-            <Link
+            <div
               key={t.id}
-              to="/login"
-              className="group card-hover overflow-hidden animate-slide-up"
+              onClick={() => handleSelectTemplate(t.id)}
+              className="group card-hover overflow-hidden animate-slide-up cursor-pointer"
               style={{ animationDelay: `${i * 0.05}s` }}
             >
               {/* Preview */}
@@ -78,16 +94,16 @@ export default function TemplatesPage() {
                 </div>
                 <p className="text-xs text-gray-500 leading-relaxed">{t.desc}</p>
               </div>
-            </Link>
+            </div>
           ))}
         </div>
 
         {/* CTA */}
         <div className="text-center mt-16">
           <p className="text-gray-500 mb-4">Not sure which to pick?</p>
-          <Link to="/login" className="btn btn-primary btn-xl shadow-glow-brand">
+          <button onClick={() => navigate('/builder')} className="btn btn-primary btn-xl shadow-glow-brand gap-2">
             Start Building — Switch Templates Anytime
-          </Link>
+          </button>
         </div>
       </div>
     </div>
