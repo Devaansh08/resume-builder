@@ -1,10 +1,11 @@
 import * as pdfjsLib from 'pdfjs-dist';
+import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import mammoth from 'mammoth';
 import type { ResumeSections } from '../types';
 import { defaultResumeSections } from './defaults';
 
-// Configure PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
+// Configure PDF.js local worker via Vite URL import
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 
 // ─── Public API ───────────────────────────────────────────────────────────
 
@@ -24,20 +25,29 @@ export function detectFileType(file: File): SupportedFileType | null {
  */
 export async function parseFile(file: File): Promise<ResumeSections> {
   const type = detectFileType(file);
-  if (!type) throw new Error(`Unsupported file type: ${file.name}`);
+  if (!type) throw new Error(`Unsupported file type: "${file.name}". Please upload a .pdf, .docx, or .txt file.`);
 
   let rawText = '';
 
-  switch (type) {
-    case 'pdf':
-      rawText = await extractTextFromPDF(file);
-      break;
-    case 'docx':
-      rawText = await extractTextFromDOCX(file);
-      break;
-    case 'txt':
-      rawText = await file.text();
-      break;
+  try {
+    switch (type) {
+      case 'pdf':
+        rawText = await extractTextFromPDF(file);
+        break;
+      case 'docx':
+        rawText = await extractTextFromDOCX(file);
+        break;
+      case 'txt':
+        rawText = await file.text();
+        break;
+    }
+  } catch (err) {
+    console.error('[FileParser] Extraction failed:', err);
+    throw new Error(`Could not read text from "${file.name}". The file might be password-protected or scanned/image-based.`);
+  }
+
+  if (!rawText || rawText.trim().length === 0) {
+    throw new Error(`No readable text found in "${file.name}". Please ensure it contains selectable text, or create from scratch.`);
   }
 
   return textToSections(rawText);
@@ -218,7 +228,6 @@ function textToSections(rawText: string): ResumeSections {
         break;
 
       default:
-        // Header or unrecognized — try to extract title from early lines
         if (!sections.personalInfo.title && block.type === 'header') {
           const titleLine = block.lines.find(
             (l) => l.length < 60 && !EMAIL_RE.test(l) && !PHONE_RE.test(l) && !URL_RE.test(l)
@@ -248,7 +257,6 @@ function parseExperienceBlock(lines: string[]) {
     if (isBullet && current) {
       current.bullets.push(line.replace(/^[•\-–—*▸▹◦]\s*/, ''));
     } else if (!isBullet && line.length > 2) {
-      // Heuristic: non-bullet lines start new entries or are position/company
       if (!current || (current.company && current.position && current.bullets.length > 0)) {
         if (current) entries.push(current);
         current = {

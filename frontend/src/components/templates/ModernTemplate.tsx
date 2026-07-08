@@ -1,6 +1,6 @@
 import { useResumeStore } from '../../store/resumeStore';
 import { formatDate } from '../../utils/helpers';
-import { Mail, Phone, MapPin, Linkedin, Github, Globe } from 'lucide-react';
+import { FONT_OPTIONS } from '../../utils/defaults';
 
 export function ModernTemplate() {
   const { currentResume } = useResumeStore();
@@ -10,13 +10,8 @@ export function ModernTemplate() {
   const pi = sections.personalInfo;
   const primary = theme?.primaryColor || '#3b5bff';
 
-  const fontStyle = theme?.fontFamily === 'Georgia'
-    ? 'Georgia, Times New Roman, serif'
-    : theme?.fontFamily === 'JetBrains Mono'
-    ? 'JetBrains Mono, Courier New, monospace'
-    : theme?.fontFamily === 'Plus Jakarta Sans'
-    ? 'Plus Jakarta Sans, sans-serif'
-    : 'Inter, system-ui, sans-serif';
+  const fontObj = FONT_OPTIONS.find((f) => f.id === theme?.fontFamily);
+  const fontStyle = fontObj ? fontObj.family : theme?.fontFamily || 'Inter, sans-serif';
 
   const sizeStyles = {
     compact: { text: '10px', leading: '1.4', margin: '8px', padding: '12px' },
@@ -27,23 +22,32 @@ export function ModernTemplate() {
   return (
     <div className="text-gray-900" style={{ fontFamily: fontStyle, fontSize: sizeStyles.text, lineHeight: sizeStyles.leading }}>
       {/* Header */}
-      <div className="px-10 pt-10 pb-6" style={{ borderBottom: `3px solid ${primary}` }}>
-        <h1 className="text-3xl font-bold tracking-tight text-gray-900" style={{ fontSize: '28px', fontWeight: 700, marginBottom: '4px' }}>
-          {pi.name || 'Your Name'}
-        </h1>
-        {pi.title && (
-          <p style={{ fontSize: '14px', color: primary, fontWeight: 500, marginBottom: '10px' }}>
-            {pi.title}
-          </p>
-        )}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px', fontSize: '10px', color: '#6b7280' }}>
-          {pi.email && <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>✉ {pi.email}</span>}
-          {pi.phone && <span>📞 {pi.phone}</span>}
-          {pi.address && <span>📍 {pi.address}</span>}
-          {pi.linkedin && <span>in {pi.linkedin}</span>}
-          {pi.github && <span>⌥ {pi.github}</span>}
-          {pi.portfolio && <span>🌐 {pi.portfolio}</span>}
+      <div className="px-10 pt-10 pb-6" style={{ borderBottom: `3px solid ${primary}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '24px' }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <h1 className="text-3xl font-bold tracking-tight text-gray-900" style={{ fontSize: '28px', fontWeight: 700, marginBottom: '4px' }}>
+            {pi.name || 'Your Name'}
+          </h1>
+          {pi.title && (
+            <p style={{ fontSize: '14px', color: primary, fontWeight: 500, marginBottom: '10px' }}>
+              {pi.title}
+            </p>
+          )}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px', fontSize: '10px', color: '#6b7280' }}>
+            {pi.email && <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>✉ {pi.email}</span>}
+            {pi.phone && <span>📞 {pi.phone}</span>}
+            {pi.address && <span>📍 {pi.address}</span>}
+            {pi.linkedin && <span>in {pi.linkedin}</span>}
+            {pi.github && <span>⌥ {pi.github}</span>}
+            {pi.portfolio && <span>🌐 {pi.portfolio}</span>}
+          </div>
         </div>
+        {pi.photo && (
+          <img
+            src={pi.photo}
+            alt={pi.name}
+            style={{ width: '84px', height: '84px', borderRadius: '50%', objectFit: 'cover', border: `3px solid ${primary}`, flexShrink: 0 }}
+          />
+        )}
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '0' }}>

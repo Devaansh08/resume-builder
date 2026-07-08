@@ -1,5 +1,6 @@
 import { useResumeStore } from '../../store/resumeStore';
 import { formatDate } from '../../utils/helpers';
+import { FONT_OPTIONS } from '../../utils/defaults';
 
 export function ShrineTemplate() {
   const { currentResume } = useResumeStore();
@@ -14,7 +15,8 @@ export function ShrineTemplate() {
   const textDark = '#442C2E'; // Primary 900 (Deep brown)
   const primaryColor = theme.primaryColor || '#442C2E';
 
-  const fontStyle = 'Plus Jakarta Sans, system-ui, sans-serif';
+  const fontObj = FONT_OPTIONS.find((f) => f.id === theme?.fontFamily);
+  const fontStyle = fontObj ? fontObj.family : 'Plus Jakarta Sans, system-ui, sans-serif';
 
   return (
     <div
@@ -36,34 +38,47 @@ export function ShrineTemplate() {
           borderBottom: `2px solid ${primaryColor}20`,
           position: 'relative',
           clipPath: 'polygon(0 0, 100% 0, 100% 85%, 95% 100%, 0 100%)', // Slanted edge style like Shrine UI sheets
+          display: 'flex',
+          alignItems: 'flex-start',
+          justifyContent: 'space-between',
+          gap: '20px',
         }}
       >
-        {/* Shrine emblem branding */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', opacity: 0.8 }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={textDark} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M6 3h12l4 6-10 13L2 9z" />
-          </svg>
-          <span style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase' }}>
-            SHRINE PROFILE
-          </span>
-        </div>
+        <div style={{ flex: 1 }}>
+          {/* Shrine emblem branding */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', opacity: 0.8 }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={textDark} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M6 3h12l4 6-10 13L2 9z" />
+            </svg>
+            <span style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase' }}>
+              SHRINE PROFILE
+            </span>
+          </div>
 
-        <h1 style={{ fontSize: '28px', fontWeight: 300, letterSpacing: '-0.02em', margin: '0 0 4px', textTransform: 'uppercase', color: textDark }}>
-          {pi.name || 'Your Name'}
-        </h1>
-        {pi.title && (
-          <p style={{ fontSize: '12px', fontWeight: 600, letterSpacing: '0.05em', color: textDark, opacity: 0.8, margin: '0 0 16px', textTransform: 'uppercase' }}>
-            {pi.title}
-          </p>
+          <h1 style={{ fontSize: '28px', fontWeight: 300, letterSpacing: '-0.02em', margin: '0 0 4px', textTransform: 'uppercase', color: textDark }}>
+            {pi.name || 'Your Name'}
+          </h1>
+          {pi.title && (
+            <p style={{ fontSize: '12px', fontWeight: 600, letterSpacing: '0.05em', color: textDark, opacity: 0.8, margin: '0 0 16px', textTransform: 'uppercase' }}>
+              {pi.title}
+            </p>
+          )}
+
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', fontSize: '9.5px', opacity: 0.9 }}>
+            {pi.email && <span>✉ {pi.email}</span>}
+            {pi.phone && <span>📞 {pi.phone}</span>}
+            {pi.address && <span>📍 {pi.address}</span>}
+            {pi.linkedin && <span>in/{pi.linkedin}</span>}
+            {pi.github && <span>git/{pi.github}</span>}
+          </div>
+        </div>
+        {pi.photo && (
+          <img
+            src={pi.photo}
+            alt={pi.name}
+            style={{ width: '84px', height: '84px', borderRadius: '12px', objectFit: 'cover', border: `2px solid ${textDark}`, flexShrink: 0 }}
+          />
         )}
-
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', fontSize: '9.5px', opacity: 0.9 }}>
-          {pi.email && <span>✉ {pi.email}</span>}
-          {pi.phone && <span>📞 {pi.phone}</span>}
-          {pi.address && <span>📍 {pi.address}</span>}
-          {pi.linkedin && <span>in/{pi.linkedin}</span>}
-          {pi.github && <span>git/{pi.github}</span>}
-        </div>
       </div>
 
       {/* ── Main Layout Grid ─────────────────────────────────────────────── */}

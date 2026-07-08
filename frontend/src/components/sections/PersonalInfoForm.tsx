@@ -1,8 +1,9 @@
 import { useForm } from 'react-hook-form';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useResumeStore } from '../../store/resumeStore';
 import type { PersonalInfo } from '../../types';
-import { User, Mail, Phone, MapPin, Linkedin, Github, Globe, Sparkles } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Linkedin, Github, Globe, Sparkles, Upload, Trash2, Image as ImageIcon } from 'lucide-react';
+import { RichTextToolbar } from '../builder/RichTextToolbar';
 
 const FIELDS = [
   { name: 'name', label: 'Full Name', placeholder: 'John Doe', icon: <User size={16} />, required: true },
@@ -18,9 +19,13 @@ const FIELDS = [
 
 export function PersonalInfoForm() {
   const { currentResume, updateSection } = useResumeStore();
-  const { register, watch, reset } = useForm<PersonalInfo>({
+  const { register, watch, reset, setValue } = useForm<PersonalInfo>({
     defaultValues: currentResume?.sections.personalInfo,
   });
+
+  const summaryRef = useRef<HTMLTextAreaElement>(null);
+  const photoInputRef = useRef<HTMLInputElement>(null);
+  const photoVal = watch('photo');
 
   // Reset when resume changes
   useEffect(() => {
@@ -37,8 +42,104 @@ export function PersonalInfoForm() {
     return () => sub.unsubscribe();
   }, [watch, updateSection]);
 
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const maxSize = 300;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxSize) {
+            height = Math.round((height * maxSize) / width);
+            width = maxSize;
+          }
+        } else {
+          if (height > maxSize) {
+            width = Math.round((width * maxSize) / height);
+            height = maxSize;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+          setValue('photo', dataUrl);
+          updateSection('personalInfo', { ...watch(), photo: dataUrl } as PersonalInfo);
+        }
+      };
+      if (typeof event.target?.result === 'string') {
+        img.src = event.target.result;
+      }
+    };
+    reader.readAsDataURL(file);
+    if (photoInputRef.current) photoInputRef.current.value = '';
+  };
+
+  const handleRemovePhoto = () => {
+    setValue('photo', '');
+    updateSection('personalInfo', { ...watch(), photo: '' } as PersonalInfo);
+  };
+
+  const registerSummary = register('summary');
+
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
+      {/* ── Profile Photo Upload Area ── */}
+      <div className="bg-white dark:bg-surface-900 border border-gray-200 dark:border-surface-800 rounded-2xl p-4 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3.5">
+          <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100 dark:bg-surface-800 border-2 border-brand-500/20 flex items-center justify-center flex-shrink-0 relative">
+            {photoVal ? (
+              <img src={photoVal} alt="Profile" className="w-full h-full object-cover" />
+            ) : (
+              <ImageIcon size={24} className="text-gray-400 dark:text-gray-600" />
+            )}
+          </div>
+          <div>
+            <h4 className="font-semibold text-sm text-gray-900 dark:text-white">Profile Photo</h4>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+              Recommended for creative, European, or modern resume styles.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <input
+            type="file"
+            ref={photoInputRef}
+            onChange={handlePhotoUpload}
+            accept="image/png,image/jpeg,image/webp"
+            style={{ position: 'absolute', opacity: 0, pointerEvents: 'none', width: '1px', height: '1px' }}
+          />
+          {photoVal ? (
+            <button
+              type="button"
+              onClick={handleRemovePhoto}
+              className="btn btn-outline border-red-200 text-red-600 hover:bg-red-50 dark:border-red-900/50 dark:text-red-400 btn-sm gap-1.5"
+            >
+              <Trash2 size={14} /> Remove
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => photoInputRef.current?.click()}
+              className="btn btn-secondary btn-sm gap-1.5"
+            >
+              <Upload size={14} /> Upload Photo
+            </button>
+          )}
+        </div>
+      </div>
+
       {/* Grid fields */}
       <div className="grid grid-cols-1 gap-4">
         {FIELDS.slice(0, 2).map((field) => (
@@ -71,10 +172,24 @@ export function PersonalInfoForm() {
             {watch('summary')?.length || 0} chars
           </span>
         </div>
+
+        <RichTextToolbar
+          value={watch('summary') || ''}
+          onChange={(val: string) => {
+            setValue('summary', val);
+            updateSection('personalInfo', { ...watch(), summary: val } as PersonalInfo);
+          }}
+          inputRef={summaryRef}
+        />
+
         <textarea
-          {...register('summary')}
+          {...registerSummary}
+          ref={(e) => {
+            registerSummary.ref(e);
+            summaryRef.current = e;
+          }}
           rows={5}
-          className="input resize-none"
+          className="input resize-none rounded-t-none border-t-0 focus:ring-0"
           placeholder="Write a compelling professional summary that highlights your key achievements and value proposition..."
         />
         <div className="mt-2 flex items-center gap-2">

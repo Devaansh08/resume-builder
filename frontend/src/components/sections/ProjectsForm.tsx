@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useResumeStore } from '../../store/resumeStore';
 import type { Project } from '../../types';
 import { newProject } from '../../utils/defaults';
-import { Plus, Trash2, ChevronDown, ChevronUp, Code, X } from 'lucide-react';
+import { Plus, Trash2, ChevronDown, ChevronUp, Code, X, ArrowUp, ArrowDown } from 'lucide-react';
+import { RichTextToolbar } from '../builder/RichTextToolbar';
 
 export function ProjectsForm() {
   const { currentResume, updateSection } = useResumeStore();
@@ -35,6 +36,23 @@ export function ProjectsForm() {
     const bullets = [...proj.bullets];
     bullets[idx] = value;
     updateProj(id, 'bullets', bullets);
+  };
+
+  const moveBullet = (id: string, idx: number, direction: 'up' | 'down') => {
+    const proj = projects.find((p) => p.id === id);
+    if (!proj) return;
+    const targetIdx = direction === 'up' ? idx - 1 : idx + 1;
+    if (targetIdx < 0 || targetIdx >= proj.bullets.length) return;
+    const bullets = [...proj.bullets];
+    const temp = bullets[idx];
+    bullets[idx] = bullets[targetIdx];
+    bullets[targetIdx] = temp;
+    updateProj(id, 'bullets', bullets);
+  };
+
+  const handleToolbarChange = (id: string, val: string) => {
+    const lines = val.split('\n').map((l) => l.replace(/^[•\-–—*]\s*/, '')).filter(Boolean);
+    updateProj(id, 'bullets', lines.length ? lines : ['']);
   };
 
   return (
@@ -85,7 +103,7 @@ export function ProjectsForm() {
 
               {/* Technologies */}
               <div>
-                <label className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2 block">Technologies</label>
+                <label className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2 block">Technologies Used</label>
                 <div className="flex flex-wrap gap-2 mb-2">
                   {proj.technologies.map((tech) => (
                     <span key={tech} className="badge bg-brand-50 dark:bg-brand-950/50 text-brand-600 dark:text-brand-400 pr-1.5">
@@ -101,37 +119,62 @@ export function ProjectsForm() {
                     className="input text-sm"
                     value={techInput[proj.id] || ''}
                     onChange={(e) => setTechInput((prev) => ({ ...prev, [proj.id]: e.target.value }))}
-                    onKeyDown={(e) => e.key === 'Enter' && addTech(proj.id)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        addTech(proj.id);
+                      }
+                    }}
                     placeholder="React, Node.js, Python... (press Enter)"
                   />
                   <button onClick={() => addTech(proj.id)} className="btn btn-secondary btn-sm px-3">Add</button>
                 </div>
               </div>
 
-              {/* Bullets */}
+              {/* Bullets with Toolbar */}
               <div>
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center justify-between mb-1.5">
                   <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Description / Key Features</label>
-                  <button onClick={() => updateProj(proj.id, 'bullets', [...proj.bullets, ''])} className="text-xs text-brand-500 flex items-center gap-1">
+                  <button onClick={() => updateProj(proj.id, 'bullets', [...proj.bullets, ''])} className="text-xs text-brand-500 hover:text-brand-600 flex items-center gap-1 font-semibold">
                     <Plus size={12} /> Add bullet
                   </button>
                 </div>
-                {proj.bullets.map((bullet, idx) => (
-                  <div key={idx} className="flex items-start gap-2 mb-2">
-                    <span className="mt-3 text-gray-400">•</span>
-                    <input
-                      className="input flex-1 text-sm"
-                      value={bullet}
-                      onChange={(e) => updateBullet(proj.id, idx, e.target.value)}
-                      placeholder="Built real-time collaboration using WebSockets..."
-                    />
-                    {proj.bullets.length > 1 && (
-                      <button onClick={() => updateProj(proj.id, 'bullets', proj.bullets.filter((_, i) => i !== idx))} className="mt-2.5 btn btn-ghost p-1 text-red-400">
-                        <Trash2 size={12} />
-                      </button>
-                    )}
-                  </div>
-                ))}
+
+                <RichTextToolbar
+                  value={proj.bullets.map((b) => `• ${b}`).join('\n')}
+                  onChange={(val: string) => handleToolbarChange(proj.id, val)}
+                />
+
+                <div className="space-y-2 mt-2">
+                  {proj.bullets.map((bullet, idx) => (
+                    <div key={idx} className="flex items-start gap-1.5 group">
+                      <span className="mt-3 text-brand-500 font-bold text-sm select-none">•</span>
+                      <input
+                        className="input flex-1 text-sm"
+                        value={bullet}
+                        onChange={(e) => updateBullet(proj.id, idx, e.target.value)}
+                        placeholder="Built real-time collaboration using WebSockets..."
+                      />
+                      <div className="flex items-center opacity-70 group-hover:opacity-100 transition-opacity">
+                        {idx > 0 && (
+                          <button type="button" onClick={() => moveBullet(proj.id, idx, 'up')} className="btn btn-ghost p-1 text-gray-400 hover:text-gray-600" title="Move up">
+                            <ArrowUp size={14} />
+                          </button>
+                        )}
+                        {idx < proj.bullets.length - 1 && (
+                          <button type="button" onClick={() => moveBullet(proj.id, idx, 'down')} className="btn btn-ghost p-1 text-gray-400 hover:text-gray-600" title="Move down">
+                            <ArrowDown size={14} />
+                          </button>
+                        )}
+                        {proj.bullets.length > 1 && (
+                          <button type="button" onClick={() => updateProj(proj.id, 'bullets', proj.bullets.filter((_, i) => i !== idx))} className="btn btn-ghost p-1 text-red-400 hover:text-red-600" title="Delete bullet">
+                            <Trash2 size={14} />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           )}

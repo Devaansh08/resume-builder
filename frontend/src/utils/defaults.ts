@@ -1,6 +1,17 @@
 import type { ResumeSections, ResumeTheme } from '../types';
 import { uuidv4 } from './helpers';
 
+export const FONT_OPTIONS = [
+  { id: 'Inter', name: 'Inter (Modern Sans)', family: 'Inter, sans-serif' },
+  { id: 'Outfit', name: 'Outfit (Geometric Sans)', family: 'Outfit, sans-serif' },
+  { id: 'Plus Jakarta Sans', name: 'Jakarta (Clean Tech)', family: '"Plus Jakarta Sans", sans-serif' },
+  { id: 'Roboto', name: 'Roboto (Standard Sans)', family: 'Roboto, sans-serif' },
+  { id: 'Merriweather', name: 'Merriweather (Classic Serif)', family: 'Merriweather, serif' },
+  { id: 'Playfair Display', name: 'Playfair (Elegant Serif)', family: '"Playfair Display", serif' },
+  { id: 'Lora', name: 'Lora (Editorial Serif)', family: 'Lora, serif' },
+  { id: 'Fira Code', name: 'Fira Code (Monospace)', family: '"Fira Code", monospace' },
+];
+
 export const defaultTheme: ResumeTheme = {
   primaryColor: '#3b5bff',
   accentColor: '#7c3aed',
@@ -19,6 +30,7 @@ export const defaultResumeSections = (): ResumeSections => ({
     github: '',
     portfolio: '',
     website: '',
+    photo: '',
     summary: '',
   },
   education: [],

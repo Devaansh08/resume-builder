@@ -17,8 +17,10 @@ export interface PersonalInfo {
   github: string;
   portfolio: string;
   website: string;
+  photo?: string;
   summary: string;
 }
+
 
 export interface Education {
   id: string;

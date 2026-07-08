@@ -6,6 +6,7 @@ import { MinimalTemplate } from '../templates/MinimalTemplate';
 import { ShrineTemplate } from '../templates/ShrineTemplate';
 import { ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
 import type { TemplateId } from '../../types';
+import { FONT_OPTIONS } from '../../utils/defaults';
 
 const TEMPLATE_MAP: Record<TemplateId, React.ComponentType> = {
   modern: ModernTemplate,
@@ -27,6 +28,8 @@ export function PreviewPanel() {
   if (!currentResume) return null;
 
   const TemplateComponent = TEMPLATE_MAP[currentResume.template] || ModernTemplate;
+  const fontObj = FONT_OPTIONS.find((f) => f.id === currentResume.theme.fontFamily);
+  const fontFamilyCss = fontObj ? fontObj.family : currentResume.theme.fontFamily || 'Inter, sans-serif';
 
   const handleZoomIn = () => setZoomLevel(Math.min(zoomLevel + 10, 150));
   const handleZoomOut = () => setZoomLevel(Math.max(zoomLevel - 10, 50));
@@ -63,10 +66,11 @@ export function PreviewPanel() {
           <div
             ref={previewRef}
             id="resume-preview"
-            className="bg-white shadow-2xl"
+            className="bg-white shadow-2xl text-gray-900"
             style={{
               width: '794px', // A4 width at 96dpi
               minHeight: '1123px', // A4 height at 96dpi
+              fontFamily: fontFamilyCss,
             }}
           >
             <TemplateComponent />

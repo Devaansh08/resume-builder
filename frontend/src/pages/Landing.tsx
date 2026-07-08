@@ -87,7 +87,7 @@ export default function LandingPage() {
         ref={fileInputRef}
         onChange={handleFileChange}
         accept=".pdf,.docx,.txt"
-        className="hidden"
+        style={{ position: 'absolute', top: 0, left: 0, opacity: 0, pointerEvents: 'none', width: '1px', height: '1px', overflow: 'hidden' }}
       />
 
       {/* Parsing Overlay */}

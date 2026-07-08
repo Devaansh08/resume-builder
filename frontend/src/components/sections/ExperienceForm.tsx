@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useResumeStore } from '../../store/resumeStore';
 import type { Experience } from '../../types';
 import { newExperience } from '../../utils/defaults';
-import { Plus, Trash2, ChevronDown, ChevronUp, Briefcase } from 'lucide-react';
+import { Plus, Trash2, ChevronDown, ChevronUp, Briefcase, ArrowUp, ArrowDown } from 'lucide-react';
+import { RichTextToolbar } from '../builder/RichTextToolbar';
 
 export function ExperienceForm() {
   const { currentResume, updateSection } = useResumeStore();
@@ -22,7 +23,14 @@ export function ExperienceForm() {
   };
 
   const updateExp = (id: string, field: keyof Experience, value: unknown) => {
-    update(experiences.map((e) => e.id === id ? { ...e, [field]: value } : e));
+    update(experiences.map((e) => {
+      if (e.id !== id) return e;
+      const updated = { ...e, [field]: value };
+      if (field === 'current') {
+        updated.endDate = value ? 'Present' : '';
+      }
+      return updated;
+    }));
   };
 
   const updateBullet = (id: string, idx: number, value: string) => {
@@ -30,19 +38,37 @@ export function ExperienceForm() {
     if (!exp) return;
     const bullets = [...exp.bullets];
     bullets[idx] = value;
-    updateExp(id, 'bullets', bullets);
+    update(experiences.map((e) => e.id === id ? { ...e, bullets } : e));
   };
 
   const addBullet = (id: string) => {
     const exp = experiences.find((e) => e.id === id);
     if (!exp) return;
-    updateExp(id, 'bullets', [...exp.bullets, '']);
+    update(experiences.map((e) => e.id === id ? { ...e, bullets: [...exp.bullets, ''] } : e));
   };
 
   const removeBullet = (id: string, idx: number) => {
     const exp = experiences.find((e) => e.id === id);
     if (!exp) return;
-    updateExp(id, 'bullets', exp.bullets.filter((_, i) => i !== idx));
+    const next = exp.bullets.filter((_, i) => i !== idx);
+    update(experiences.map((e) => e.id === id ? { ...e, bullets: next.length ? next : [''] } : e));
+  };
+
+  const moveBullet = (id: string, idx: number, direction: 'up' | 'down') => {
+    const exp = experiences.find((e) => e.id === id);
+    if (!exp) return;
+    const targetIdx = direction === 'up' ? idx - 1 : idx + 1;
+    if (targetIdx < 0 || targetIdx >= exp.bullets.length) return;
+    const bullets = [...exp.bullets];
+    const temp = bullets[idx];
+    bullets[idx] = bullets[targetIdx];
+    bullets[targetIdx] = temp;
+    update(experiences.map((e) => e.id === id ? { ...e, bullets } : e));
+  };
+
+  const handleToolbarChange = (id: string, val: string) => {
+    const lines = val.split('\n').map((l) => l.replace(/^[•\-–—*]\s*/, '')).filter(Boolean);
+    updateExp(id, 'bullets', lines.length ? lines : ['']);
   };
 
   return (
@@ -106,7 +132,11 @@ export function ExperienceForm() {
                 </div>
                 <div>
                   <label className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1 block">End Date</label>
-                  <input className="input" type="month" value={exp.endDate} disabled={exp.current} onChange={(e) => updateExp(exp.id, 'endDate', e.target.value)} />
+                  {exp.current ? (
+                    <input className="input bg-gray-100 dark:bg-surface-800 text-gray-500 font-medium" type="text" value="Present" disabled />
+                  ) : (
+                    <input className="input" type="month" value={exp.endDate} onChange={(e) => updateExp(exp.id, 'endDate', e.target.value)} />
+                  )}
                 </div>
                 <div className="flex items-center gap-2 pt-5">
                   <input type="checkbox" id={`current-${exp.id}`} checked={exp.current} onChange={(e) => updateExp(exp.id, 'current', e.target.checked)} className="w-4 h-4 rounded border-gray-300 text-brand-500" />
@@ -114,33 +144,51 @@ export function ExperienceForm() {
                 </div>
               </div>
 
-              {/* Bullet points */}
+              {/* Bullet points area with toolbar */}
               <div>
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center justify-between mb-1.5">
                   <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Key Achievements / Responsibilities</label>
-                  <button onClick={() => addBullet(exp.id)} className="text-xs text-brand-500 hover:text-brand-600 flex items-center gap-1">
+                  <button onClick={() => addBullet(exp.id)} className="text-xs text-brand-500 hover:text-brand-600 flex items-center gap-1 font-semibold">
                     <Plus size={12} /> Add bullet
                   </button>
                 </div>
-                <div className="space-y-2">
+
+                <RichTextToolbar
+                  value={exp.bullets.map((b) => `• ${b}`).join('\n')}
+                  onChange={(val: string) => handleToolbarChange(exp.id, val)}
+                />
+
+                <div className="space-y-2 mt-2">
                   {exp.bullets.map((bullet, idx) => (
-                    <div key={idx} className="flex items-start gap-2">
-                      <span className="mt-3 text-gray-400 text-sm">•</span>
+                    <div key={idx} className="flex items-start gap-1.5 group">
+                      <span className="mt-3 text-brand-500 font-bold text-sm select-none">•</span>
                       <input
                         className="input flex-1 text-sm"
                         value={bullet}
                         onChange={(e) => updateBullet(exp.id, idx, e.target.value)}
-                        placeholder="Increased sales by 30% by implementing..."
+                        placeholder="Increased sales by 30% by implementing high-concurrency architecture..."
                       />
-                      {exp.bullets.length > 1 && (
-                        <button onClick={() => removeBullet(exp.id, idx)} className="mt-2.5 btn btn-ghost p-1 text-red-400">
-                          <Trash2 size={12} />
-                        </button>
-                      )}
+                      <div className="flex items-center opacity-70 group-hover:opacity-100 transition-opacity">
+                        {idx > 0 && (
+                          <button type="button" onClick={() => moveBullet(exp.id, idx, 'up')} className="btn btn-ghost p-1 text-gray-400 hover:text-gray-600" title="Move up">
+                            <ArrowUp size={14} />
+                          </button>
+                        )}
+                        {idx < exp.bullets.length - 1 && (
+                          <button type="button" onClick={() => moveBullet(exp.id, idx, 'down')} className="btn btn-ghost p-1 text-gray-400 hover:text-gray-600" title="Move down">
+                            <ArrowDown size={14} />
+                          </button>
+                        )}
+                        {exp.bullets.length > 1 && (
+                          <button type="button" onClick={() => removeBullet(exp.id, idx)} className="btn btn-ghost p-1 text-red-400 hover:text-red-600" title="Delete bullet">
+                            <Trash2 size={14} />
+                          </button>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
-                <p className="text-xs text-gray-400 mt-2">💡 Start each bullet with an action verb (Developed, Led, Built, Increased...)</p>
+                <p className="text-xs text-gray-400 mt-2">💡 Tip: Use the Rich Toolbar above for quick action phrases ("Spearheaded...", "Engineered...").</p>
               </div>
             </div>
           )}

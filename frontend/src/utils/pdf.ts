@@ -16,6 +16,7 @@ export async function generatePDF(resumeId: string, title: string = 'Resume'): P
     loadingEl.innerHTML = '<div style="text-align:center"><div>Generating PDF...</div><div style="font-size:12px;opacity:0.7;margin-top:8px">This may take a moment</div></div>';
     document.body.appendChild(loadingEl);
 
+    await document.fonts.ready;
     const canvas = await html2canvas(element, {
       scale: 2,
       useCORS: true,

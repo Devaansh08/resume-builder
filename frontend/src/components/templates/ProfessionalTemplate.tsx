@@ -1,5 +1,6 @@
 import { useResumeStore } from '../../store/resumeStore';
 import { formatDate } from '../../utils/helpers';
+import { FONT_OPTIONS } from '../../utils/defaults';
 
 export function ProfessionalTemplate() {
   const { currentResume } = useResumeStore();
@@ -7,13 +8,8 @@ export function ProfessionalTemplate() {
   const { sections, theme } = currentResume;
   const pi = sections.personalInfo;
 
-  const fontStyle = theme?.fontFamily === 'Georgia'
-    ? 'Georgia, Times New Roman, serif'
-    : theme?.fontFamily === 'JetBrains Mono'
-    ? 'JetBrains Mono, Courier New, monospace'
-    : theme?.fontFamily === 'Plus Jakarta Sans'
-    ? 'Plus Jakarta Sans, sans-serif'
-    : 'Inter, system-ui, sans-serif';
+  const fontObj = FONT_OPTIONS.find((f) => f.id === theme?.fontFamily);
+  const fontStyle = fontObj ? fontObj.family : theme?.fontFamily || 'Inter, sans-serif';
 
   const sizeStyles = {
     compact: { text: '9.5px', leading: '1.4', padding: '12px' },
@@ -23,18 +19,27 @@ export function ProfessionalTemplate() {
 
   return (
     <div style={{ fontFamily: fontStyle, color: '#1a1a1a', padding: '50px 50px 40px', fontSize: sizeStyles.text, lineHeight: sizeStyles.leading }}>
-      {/* Header — centered */}
-      <div style={{ textAlign: 'center', marginBottom: '20px', borderBottom: '2px solid #1a1a1a', paddingBottom: '16px' }}>
-        <h1 style={{ fontSize: '26px', fontWeight: 700, letterSpacing: '0.05em', marginBottom: '6px', textTransform: 'uppercase' }}>
-          {pi.name || 'Your Name'}
-        </h1>
-        <div style={{ fontSize: '10px', color: '#4b5563', display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '16px' }}>
-          {pi.email && <span>{pi.email}</span>}
-          {pi.phone && <span>{pi.phone}</span>}
-          {pi.address && <span>{pi.address}</span>}
-          {pi.linkedin && <span>{pi.linkedin}</span>}
-          {pi.github && <span>{pi.github}</span>}
+      {/* Header — centered or split if photo */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: pi.photo ? 'space-between' : 'center', marginBottom: '20px', borderBottom: '2px solid #1a1a1a', paddingBottom: '16px', gap: '20px' }}>
+        <div style={{ flex: 1, textAlign: pi.photo ? 'left' : 'center' }}>
+          <h1 style={{ fontSize: '26px', fontWeight: 700, letterSpacing: '0.05em', marginBottom: '6px', textTransform: 'uppercase' }}>
+            {pi.name || 'Your Name'}
+          </h1>
+          <div style={{ fontSize: '10px', color: '#4b5563', display: 'flex', justifyContent: pi.photo ? 'flex-start' : 'center', flexWrap: 'wrap', gap: '16px' }}>
+            {pi.email && <span>{pi.email}</span>}
+            {pi.phone && <span>{pi.phone}</span>}
+            {pi.address && <span>{pi.address}</span>}
+            {pi.linkedin && <span>{pi.linkedin}</span>}
+            {pi.github && <span>{pi.github}</span>}
+          </div>
         </div>
+        {pi.photo && (
+          <img
+            src={pi.photo}
+            alt={pi.name}
+            style={{ width: '80px', height: '80px', borderRadius: '4px', objectFit: 'cover', border: '1px solid #333', flexShrink: 0 }}
+          />
+        )}
       </div>
 
       {/* Summary */}

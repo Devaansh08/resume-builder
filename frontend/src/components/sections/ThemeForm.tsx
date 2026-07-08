@@ -1,5 +1,6 @@
 import { useResumeStore } from '../../store/resumeStore';
-import type { TemplateId, ThemeMode } from '../../types';
+import type { TemplateId } from '../../types';
+import { FONT_OPTIONS } from '../../utils/defaults';
 import { Palette, Sparkles, Check, LayoutGrid, Type, AlignLeft } from 'lucide-react';
 
 const PRESETS = [
@@ -18,7 +19,7 @@ const PRESETS = [
     template: 'modern' as TemplateId,
     primaryColor: '#3b5bff',
     accentColor: '#7c3aed',
-    fontFamily: 'Plus Jakarta Sans',
+    fontFamily: 'Inter',
     fontSize: 'normal' as const,
   },
   {
@@ -27,7 +28,7 @@ const PRESETS = [
     template: 'professional' as TemplateId,
     primaryColor: '#1e293b',
     accentColor: '#475569',
-    fontFamily: 'Georgia',
+    fontFamily: 'Merriweather',
     fontSize: 'normal' as const,
   },
   {
@@ -36,7 +37,7 @@ const PRESETS = [
     template: 'minimal' as TemplateId,
     primaryColor: '#09090b',
     accentColor: '#71717a',
-    fontFamily: 'Inter',
+    fontFamily: 'Roboto',
     fontSize: 'compact' as const,
   },
   {
@@ -45,7 +46,7 @@ const PRESETS = [
     template: 'modern' as TemplateId,
     primaryColor: '#ec4899',
     accentColor: '#f43f5e',
-    fontFamily: 'Plus Jakarta Sans',
+    fontFamily: 'Outfit',
     fontSize: 'normal' as const,
   },
 ];
@@ -57,13 +58,6 @@ const COLORS = [
   { label: 'Crimson Red', primary: '#be123c', accent: '#e11d48' },
   { label: 'Amber Orange', primary: '#d97706', accent: '#f59e0b' },
   { label: 'Deep Pink', primary: '#db2777', accent: '#ec4899' },
-];
-
-const FONTS = [
-  { label: 'Inter (Clean Sans)', value: 'Inter' },
-  { label: 'Plus Jakarta (Modern Display)', value: 'Plus Jakarta Sans' },
-  { label: 'Georgia (Elegant Serif)', value: 'Georgia' },
-  { label: 'JetBrains Mono (Tech)', value: 'JetBrains Mono' },
 ];
 
 const TEMPLATES = [
@@ -135,7 +129,7 @@ export function ThemeForm() {
           <LayoutGrid size={16} className="text-brand-500" />
           <h3 className="section-label text-[10px]">SELECT TEMPLATE</h3>
         </div>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-2 gap-2">
           {TEMPLATES.map((t) => {
             const isSelected = activeTemplate === t.id;
             return (
@@ -215,27 +209,28 @@ export function ThemeForm() {
 
       <div className="divider" />
 
-      {/* ── Section 4: Typography ─────────────────────────────────────── */}
+      {/* ── Section 4: Typography (8 Custom Fonts) ────────────────────── */}
       <div>
         <div className="flex items-center gap-2 mb-3">
           <Type size={16} className="text-brand-500" />
-          <h3 className="section-label text-[10px]">FONT STYLE</h3>
+          <h3 className="section-label text-[10px]">FONT STYLE (REAL-TIME PREVIEW & PDF)</h3>
         </div>
-        <div className="space-y-1.5">
-          {FONTS.map((f) => {
-            const isSelected = theme.fontFamily === f.value;
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          {FONT_OPTIONS.map((f) => {
+            const isSelected = theme.fontFamily === f.id;
             return (
               <button
-                key={f.value}
-                onClick={() => updateTheme({ fontFamily: f.value })}
+                key={f.id}
+                onClick={() => updateTheme({ fontFamily: f.id })}
                 className={`w-full flex items-center justify-between p-3 rounded-xl border text-xs text-left transition-all ${
                   isSelected
                     ? 'border-brand-500 bg-brand-50 dark:bg-brand-950/20 font-semibold text-brand-600 dark:text-brand-400'
                     : 'border-gray-200 dark:border-surface-800 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-surface-700'
                 }`}
+                style={{ fontFamily: f.family }}
               >
-                <span>{f.label}</span>
-                {isSelected && <Check size={12} className="text-brand-500" />}
+                <span>{f.name}</span>
+                {isSelected && <Check size={14} className="text-brand-500 flex-shrink-0" />}
               </button>
             );
           })}

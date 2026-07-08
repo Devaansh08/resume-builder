@@ -1,5 +1,6 @@
 import { useResumeStore } from '../../store/resumeStore';
 import { formatDate } from '../../utils/helpers';
+import { FONT_OPTIONS } from '../../utils/defaults';
 
 export function MinimalTemplate() {
   const { currentResume } = useResumeStore();
@@ -7,13 +8,8 @@ export function MinimalTemplate() {
   const { sections, theme } = currentResume;
   const pi = sections.personalInfo;
 
-  const fontStyle = theme?.fontFamily === 'Georgia'
-    ? 'Georgia, Times New Roman, serif'
-    : theme?.fontFamily === 'JetBrains Mono'
-    ? 'JetBrains Mono, Courier New, monospace'
-    : theme?.fontFamily === 'Plus Jakarta Sans'
-    ? 'Plus Jakarta Sans, sans-serif'
-    : 'Inter, system-ui, sans-serif';
+  const fontObj = FONT_OPTIONS.find((f) => f.id === theme?.fontFamily);
+  const fontStyle = fontObj ? fontObj.family : theme?.fontFamily || 'Inter, sans-serif';
 
   const sizeStyles = {
     compact: { text: '9px', leading: '1.45', padding: '16px' },
@@ -24,18 +20,27 @@ export function MinimalTemplate() {
   return (
     <div style={{ fontFamily: fontStyle, color: '#18181b', padding: '48px 52px', fontSize: sizeStyles.text, lineHeight: sizeStyles.leading, backgroundColor: '#fff' }}>
       {/* Header */}
-      <div style={{ marginBottom: '28px' }}>
-        <h1 style={{ fontSize: '24px', fontWeight: 300, letterSpacing: '-0.02em', marginBottom: '6px', color: '#09090b' }}>
-          {pi.name || 'Your Name'}
-        </h1>
-        {pi.title && <p style={{ fontSize: '12px', color: '#71717a', marginBottom: '10px' }}>{pi.title}</p>}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', fontSize: '9.5px', color: '#71717a' }}>
-          {pi.email && <span>{pi.email}</span>}
-          {pi.phone && <span>{pi.phone}</span>}
-          {pi.address && <span>{pi.address}</span>}
-          {pi.linkedin && <a href={`https://${pi.linkedin}`} style={{ color: '#3b5bff' }}>{pi.linkedin}</a>}
-          {pi.github && <a href={`https://${pi.github}`} style={{ color: '#3b5bff' }}>{pi.github}</a>}
+      <div style={{ marginBottom: '28px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '20px' }}>
+        <div style={{ flex: 1 }}>
+          <h1 style={{ fontSize: '24px', fontWeight: 300, letterSpacing: '-0.02em', marginBottom: '6px', color: '#09090b' }}>
+            {pi.name || 'Your Name'}
+          </h1>
+          {pi.title && <p style={{ fontSize: '12px', color: '#71717a', marginBottom: '10px' }}>{pi.title}</p>}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', fontSize: '9.5px', color: '#71717a' }}>
+            {pi.email && <span>{pi.email}</span>}
+            {pi.phone && <span>{pi.phone}</span>}
+            {pi.address && <span>{pi.address}</span>}
+            {pi.linkedin && <a href={`https://${pi.linkedin}`} style={{ color: '#3b5bff' }}>{pi.linkedin}</a>}
+            {pi.github && <a href={`https://${pi.github}`} style={{ color: '#3b5bff' }}>{pi.github}</a>}
+          </div>
         </div>
+        {pi.photo && (
+          <img
+            src={pi.photo}
+            alt={pi.name}
+            style={{ width: '70px', height: '70px', borderRadius: '50%', objectFit: 'cover', border: '1px solid #e4e4e7', flexShrink: 0 }}
+          />
+        )}
       </div>
 
       {pi.summary && (

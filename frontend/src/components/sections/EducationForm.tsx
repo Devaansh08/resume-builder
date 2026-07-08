@@ -3,6 +3,7 @@ import { useResumeStore } from '../../store/resumeStore';
 import type { Education } from '../../types';
 import { newEducation } from '../../utils/defaults';
 import { Plus, Trash2, ChevronDown, ChevronUp, GraduationCap } from 'lucide-react';
+import { RichTextToolbar } from '../builder/RichTextToolbar';
 
 export function EducationForm() {
   const { currentResume, updateSection } = useResumeStore();
@@ -20,7 +21,14 @@ export function EducationForm() {
   const remove = (id: string) => update(educations.filter((e) => e.id !== id));
 
   const updateEdu = (id: string, field: keyof Education, value: unknown) => {
-    update(educations.map((e) => e.id === id ? { ...e, [field]: value } : e));
+    update(educations.map((e) => {
+      if (e.id !== id) return e;
+      const updated = { ...e, [field]: value };
+      if (field === 'current') {
+        updated.endDate = value ? 'Present' : '';
+      }
+      return updated;
+    }));
   };
 
   return (
@@ -77,12 +85,32 @@ export function EducationForm() {
                 </div>
                 <div>
                   <label className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1 block">End Date</label>
-                  <input className="input" type="month" value={edu.endDate} disabled={edu.current} onChange={(e) => updateEdu(edu.id, 'endDate', e.target.value)} />
+                  {edu.current ? (
+                    <input className="input bg-gray-100 dark:bg-surface-800 text-gray-500 font-medium" type="text" value="Present" disabled />
+                  ) : (
+                    <input className="input" type="month" value={edu.endDate} onChange={(e) => updateEdu(edu.id, 'endDate', e.target.value)} />
+                  )}
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <input type="checkbox" id={`edu-current-${edu.id}`} checked={edu.current} onChange={(e) => updateEdu(edu.id, 'current', e.target.checked)} className="w-4 h-4 rounded" />
+                <input type="checkbox" id={`edu-current-${edu.id}`} checked={edu.current} onChange={(e) => updateEdu(edu.id, 'current', e.target.checked)} className="w-4 h-4 rounded border-gray-300 text-brand-500" />
                 <label htmlFor={`edu-current-${edu.id}`} className="text-sm text-gray-600 dark:text-gray-400">Currently studying</label>
+              </div>
+
+              {/* Coursework & Honors description */}
+              <div>
+                <label className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5 block">Additional Details (Coursework, Honors, Thesis)</label>
+                <RichTextToolbar
+                  value={edu.description || ''}
+                  onChange={(val: string) => updateEdu(edu.id, 'description', val)}
+                />
+                <textarea
+                  className="input resize-none rounded-t-none border-t-0 focus:ring-0 text-sm"
+                  rows={3}
+                  value={edu.description || ''}
+                  onChange={(e) => updateEdu(edu.id, 'description', e.target.value)}
+                  placeholder="Dean's List, Relevant Coursework: Algorithms, Operating Systems, Machine Learning..."
+                />
               </div>
             </div>
           )}

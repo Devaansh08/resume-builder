@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useResumeStore } from '../store/resumeStore';
 import { SectionSidebar } from '../components/builder/SectionSidebar';
@@ -20,18 +20,23 @@ export default function BuilderPage() {
   const [isMobilePreview, setIsMobilePreview] = useState(false);
   const atsTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
+  // Panel sizing
+  const [editorPct, setEditorPct] = useState<number>(() => {
+    const saved = localStorage.getItem('resumeai_editor_pct');
+    return saved ? Number(saved) : 48;
+  });
+  const [isDragging, setIsDragging] = useState(false);
+
   // Ensure there is always a valid currentResume loaded in the builder
   useEffect(() => {
     setIsLoading(true);
     if (!currentResume) {
-      // Try loading the most recent resume from local storage
       try {
         const localResumesMap = JSON.parse(localStorage.getItem('resumeai_local_resumes') || '{}');
         const resumesList = Object.values(localResumesMap) as Array<typeof currentResume>;
         if (resumesList.length > 0 && resumesList[0]) {
           setCurrentResume(resumesList[0]);
         } else {
-          // No local resume found, create a fresh one automatically
           const newResume = createNewResume('My Resume');
           setCurrentResume(newResume);
         }
@@ -54,6 +59,43 @@ export default function BuilderPage() {
     }, 500);
     return () => clearTimeout(atsTimerRef.current);
   }, [currentResume, setAtsResult]);
+
+  // Drag resizing handlers
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isDragging) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const sidebarWidth = 220;
+      const availableWidth = window.innerWidth - sidebarWidth - (showATS ? 320 : 0);
+      if (availableWidth <= 0) return;
+      const x = e.clientX - sidebarWidth;
+      let pct = (x / availableWidth) * 100;
+      pct = Math.min(75, Math.max(25, pct));
+      setEditorPct(pct);
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+      localStorage.setItem('resumeai_editor_pct', String(editorPct));
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging, editorPct, showATS]);
+
+  const handleSetRatio = (pct: number) => {
+    setEditorPct(pct);
+    localStorage.setItem('resumeai_editor_pct', String(pct));
+  };
 
   if (isLoading) {
     return (
@@ -83,7 +125,7 @@ export default function BuilderPage() {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-gray-100 dark:bg-surface-950 overflow-hidden">
+    <div className={`flex flex-col h-screen bg-gray-100 dark:bg-surface-950 overflow-hidden ${isDragging ? 'select-none cursor-col-resize' : ''}`}>
       {/* ── Builder Navbar ─────────────────────────────────────────── */}
       <BuilderNavbar
         resume={currentResume}
@@ -91,13 +133,15 @@ export default function BuilderPage() {
         onToggleATS={() => setShowATS(!showATS)}
         isMobilePreview={isMobilePreview}
         onToggleMobilePreview={() => setIsMobilePreview(!isMobilePreview)}
+        onSetLayoutRatio={handleSetRatio}
+        currentRatio={editorPct}
       />
 
       {/* ── 3-Panel Layout ─────────────────────────────────────────── */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden relative">
 
         {/* Left: Section Sidebar */}
-        <div className={`${isMobilePreview ? 'hidden' : 'flex'} w-[220px] flex-shrink-0 bg-white dark:bg-surface-900 border-r border-gray-100 dark:border-surface-800 flex-col`}>
+        <div className={`${isMobilePreview ? 'hidden' : 'flex'} w-[220px] flex-shrink-0 bg-white dark:bg-surface-900 border-r border-gray-100 dark:border-surface-800 flex-col z-10`}>
           <SectionSidebar
             activeSection={activeSection}
             onSectionChange={setActiveSection}
@@ -105,21 +149,38 @@ export default function BuilderPage() {
         </div>
 
         {/* Center: Editor Form */}
-        <div className={`${isMobilePreview ? 'hidden' : 'flex'} flex-1 min-w-0 flex-col overflow-hidden bg-gray-50 dark:bg-surface-950`}>
+        <div
+          className={`${isMobilePreview ? 'hidden' : 'flex'} min-w-0 flex-col overflow-hidden bg-gray-50 dark:bg-surface-950`}
+          style={{ width: isMobilePreview ? '100%' : `${editorPct}%` }}
+        >
           <EditorPanel
             activeSection={activeSection}
             onSectionChange={setActiveSection}
           />
         </div>
 
+        {/* Drag Splitter */}
+        {!isMobilePreview && (
+          <div
+            onMouseDown={handleMouseDown}
+            className={`w-1.5 hover:w-2 hover:bg-brand-500 cursor-col-resize transition-colors flex-shrink-0 z-20 flex items-center justify-center ${isDragging ? 'bg-brand-500 w-2' : 'bg-gray-200 dark:bg-surface-800'}`}
+            title="Drag to resize Editor / Preview split"
+          >
+            <div className="w-0.5 h-8 bg-gray-400 dark:bg-gray-600 rounded-full" />
+          </div>
+        )}
+
         {/* Right: Live Preview */}
-        <div className={`${isMobilePreview ? 'flex flex-1' : 'hidden lg:flex'} w-[480px] xl:w-[520px] flex-shrink-0 flex-col bg-gray-200 dark:bg-surface-800 border-l border-gray-200 dark:border-surface-700 overflow-hidden`}>
+        <div
+          className={`${isMobilePreview ? 'flex flex-1' : 'hidden lg:flex'} flex-col bg-gray-200 dark:bg-surface-800 overflow-hidden min-w-0`}
+          style={isMobilePreview ? { width: '100%' } : { width: `${100 - editorPct}%` }}
+        >
           <PreviewPanel />
         </div>
 
         {/* ATS Panel — overlay on right */}
         {showATS && (
-          <div className="w-[320px] flex-shrink-0 bg-white dark:bg-surface-900 border-l border-gray-100 dark:border-surface-800 overflow-y-auto animate-slide-in-right">
+          <div className="w-[320px] flex-shrink-0 bg-white dark:bg-surface-900 border-l border-gray-100 dark:border-surface-800 overflow-y-auto animate-slide-in-right z-30">
             <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-surface-800">
               <h3 className="font-semibold text-sm text-gray-900 dark:text-white">ATS Analysis</h3>
               <button onClick={() => setShowATS(false)} className="btn btn-ghost p-1.5">
