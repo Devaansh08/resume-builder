@@ -42,6 +42,15 @@ interface ResumeStore {
 
 // ─── Debounced Firestore/Local save ───────────────────────────────────────
 const debouncedSave = debounce(async (resume: Resume) => {
+  // Always update local backup in localStorage so changes are not lost
+  try {
+    const localResumes = JSON.parse(localStorage.getItem('resumeai_local_resumes') || '{}');
+    localResumes[resume.id] = resume;
+    localStorage.setItem('resumeai_local_resumes', JSON.stringify(localResumes));
+  } catch (err) {
+    console.error('[ResumeStore] Local auto-save failed:', err);
+  }
+
   if (resume.userId === 'guest') {
     localStorage.setItem('resumeai_guest_resume', JSON.stringify(resume));
     return;
@@ -49,7 +58,7 @@ const debouncedSave = debounce(async (resume: Resume) => {
   try {
     await setDoc(doc(db, 'resumes', resume.id), resume, { merge: true });
   } catch (err) {
-    console.error('[ResumeStore] Auto-save failed:', err);
+    console.error('[ResumeStore] Firestore auto-save failed:', err);
   }
 }, 5000);
 

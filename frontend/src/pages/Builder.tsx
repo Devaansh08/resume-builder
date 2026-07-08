@@ -43,13 +43,27 @@ export default function BuilderPage() {
             setIsLoading(false);
             return;
           }
-          // Fetch from Firestore
-          const docRef = doc(db, 'resumes', id);
-          const snap = await getDoc(docRef);
-          if (snap.exists()) {
-            setCurrentResume({ id: snap.id, ...snap.data() } as Resume);
-          } else {
-            navigate('/dashboard');
+          // Fetch from Firestore with localStorage fallback
+          let resumeLoaded = false;
+          try {
+            const docRef = doc(db, 'resumes', id);
+            const snap = await getDoc(docRef);
+            if (snap.exists()) {
+              setCurrentResume({ id: snap.id, ...snap.data() } as Resume);
+              resumeLoaded = true;
+            }
+          } catch (fireErr) {
+            console.warn('[Builder] Firestore load failed, trying localStorage:', fireErr);
+          }
+
+          if (!resumeLoaded) {
+            const localResumesMap = JSON.parse(localStorage.getItem('resumeai_local_resumes') || '{}');
+            const localResume = localResumesMap[id];
+            if (localResume && (localResume.userId === user.uid || localResume.userId === 'guest')) {
+              setCurrentResume(localResume);
+            } else {
+              navigate('/dashboard');
+            }
           }
         }
       } catch (err) {
