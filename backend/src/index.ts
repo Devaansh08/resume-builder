@@ -16,6 +16,9 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Trust proxy for Vercel / nginx reverse-proxies
+app.set('trust proxy', 1);
+
 // ─── Security & Middleware ───────────────────────────────────────────────────
 app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' },
@@ -92,9 +95,10 @@ app.use((_req, res) => {
 });
 
 // ─── Error Handler ───────────────────────────────────────────────────────────
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-  console.error('[Error]', err.message);
-  res.status(500).json({ error: 'Internal server error' });
+  console.error('[Error]', err?.message || 'Unknown error');
+  res.status(500).json({ error: 'Internal server error', message: process.env.NODE_ENV === 'development' ? err?.message : undefined });
 });
 
 // ─── Start Server ─────────────────────────────────────────────────────────────

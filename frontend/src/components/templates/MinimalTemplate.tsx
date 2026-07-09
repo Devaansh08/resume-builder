@@ -114,6 +114,48 @@ export function MinimalTemplate() {
           </div>
         </MinSection>
       )}
+
+      {/* Custom Sections */}
+      {sections.customSections && sections.customSections.length > 0 && sections.customSections.map((cs) => (
+        cs.items && cs.items.length > 0 ? (
+          <MinSection key={cs.id} title={cs.title}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {cs.items.map((item) => (
+                <div key={item.id}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                    <span style={{ fontWeight: 500, color: '#18181b' }}>{item.title}{item.subtitle ? ` · ${item.subtitle}` : ''}</span>
+                    {item.date && <span style={{ fontSize: '9px', color: '#a1a1aa' }}>{item.date}</span>}
+                  </div>
+                  {item.description && <div style={{ fontSize: '9.5px', color: '#52525b', marginTop: '2px', lineHeight: '1.5' }}>{item.description}</div>}
+                </div>
+              ))}
+            </div>
+          </MinSection>
+        ) : null
+      ))}
+
+      {/* Interests */}
+      {sections.interests && sections.interests.length > 0 && (
+        <MinSection title="Interests">
+          <div style={{ color: '#52525b', fontSize: '9.5px' }}>
+            {sections.interests.map((i) => i.name).join('  ·  ')}
+          </div>
+        </MinSection>
+      )}
+
+      {/* References */}
+      {sections.references && sections.references.length > 0 && (
+        <MinSection title="References">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {sections.references.map((r) => (
+              <div key={r.id} style={{ fontSize: '9.5px', color: '#52525b' }}>
+                <span style={{ fontWeight: 500, color: '#18181b' }}>{r.name}</span> — {r.title}{r.company ? ` (${r.company})` : ''}
+                {(r.email || r.phone) && <span style={{ color: '#a1a1aa', marginLeft: '6px' }}>[{[r.email, r.phone].filter(Boolean).join(' | ')}]</span>}
+              </div>
+            ))}
+          </div>
+        </MinSection>
+      )}
     </div>
   );
 }

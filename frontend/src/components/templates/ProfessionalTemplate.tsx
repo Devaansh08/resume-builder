@@ -121,6 +121,46 @@ export function ProfessionalTemplate() {
           ))}
         </ProfSection>
       )}
+
+      {/* Custom Sections */}
+      {sections.customSections && sections.customSections.length > 0 && sections.customSections.map((cs) => (
+        cs.items && cs.items.length > 0 ? (
+          <ProfSection key={cs.id} title={cs.title}>
+            {cs.items.map((item) => (
+              <div key={item.id} style={{ marginBottom: '10px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                  <span><strong>{item.title}</strong>{item.subtitle ? ` — ${item.subtitle}` : ''}</span>
+                  {item.date && <span style={{ fontSize: '9.5px', color: '#6b7280' }}>{item.date}</span>}
+                </div>
+                {item.description && <div style={{ fontSize: '10px', color: '#374151', marginTop: '2px', lineHeight: '1.4' }}>{item.description}</div>}
+              </div>
+            ))}
+          </ProfSection>
+        ) : null
+      ))}
+
+      {/* Interests */}
+      {sections.interests && sections.interests.length > 0 && (
+        <ProfSection title="Interests & Hobbies">
+          <div style={{ fontSize: '10px', color: '#374151' }}>
+            {sections.interests.map((i) => i.name).join(' • ')}
+          </div>
+        </ProfSection>
+      )}
+
+      {/* References */}
+      {sections.references && sections.references.length > 0 && (
+        <ProfSection title="References">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+            {sections.references.map((r) => (
+              <div key={r.id} style={{ fontSize: '9.5px', color: '#374151' }}>
+                <div><strong>{r.name}</strong> — {r.title}{r.company ? `, ${r.company}` : ''}</div>
+                {(r.email || r.phone) && <div style={{ color: '#6b7280' }}>{[r.email, r.phone].filter(Boolean).join(' | ')}</div>}
+              </div>
+            ))}
+          </div>
+        </ProfSection>
+      )}
     </div>
   );
 }

@@ -1,7 +1,10 @@
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useResumeStore } from '../store/resumeStore';
 import type { TemplateId } from '../types';
-import { FileText, ArrowRight } from 'lucide-react';
+import { FileText, ArrowRight, Upload } from 'lucide-react';
+import { ImportModal } from '../components/builder/ImportModal';
+import { Footer } from '../components/layout/Footer';
 
 const TEMPLATES = [
   { id: 'modern', name: 'Modern', gradient: 'from-blue-500 via-indigo-500 to-purple-600', desc: 'Two-column layout with vibrant accent colors. Perfect for tech & design roles.' },
@@ -17,6 +20,7 @@ const TEMPLATES = [
 export default function TemplatesPage() {
   const navigate = useNavigate();
   const { currentResume, createNewResume, setCurrentResume, updateTemplate } = useResumeStore();
+  const [showImportModal, setShowImportModal] = useState(false);
 
   const handleSelectTemplate = (templateId: string) => {
     if (currentResume) {
@@ -42,11 +46,21 @@ export default function TemplatesPage() {
               Resume<span className="gradient-text">AI</span>
             </span>
           </Link>
-          <button onClick={() => navigate('/builder')} className="btn btn-primary btn-md gap-1.5">
-            Open Builder <ArrowRight size={16} />
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowImportModal(true)}
+              className="btn btn-outline btn-md gap-1.5 border-brand-300 text-brand-600 dark:border-brand-700 dark:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-950/40"
+            >
+              <Upload size={16} /> Upload (`.pdf / .docx`)
+            </button>
+            <button onClick={() => navigate('/builder')} className="btn btn-primary btn-md gap-1.5">
+              Open Builder <ArrowRight size={16} />
+            </button>
+          </div>
         </div>
       </nav>
+
+      <ImportModal isOpen={showImportModal} onClose={() => setShowImportModal(false)} onSuccess={() => navigate('/builder')} />
 
       <div className="max-w-7xl mx-auto px-4 py-16">
         <div className="text-center mb-12">
@@ -99,13 +113,14 @@ export default function TemplatesPage() {
         </div>
 
         {/* CTA */}
-        <div className="text-center mt-16">
+        <div className="text-center mt-16 pb-12">
           <p className="text-gray-500 mb-4">Not sure which to pick?</p>
           <button onClick={() => navigate('/builder')} className="btn btn-primary btn-xl shadow-glow-brand gap-2">
             Start Building — Switch Templates Anytime
           </button>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

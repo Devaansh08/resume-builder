@@ -8,6 +8,9 @@ import { CertificatesForm } from '../sections/CertificatesForm';
 import { AchievementsForm } from '../sections/AchievementsForm';
 import { LanguagesForm } from '../sections/LanguagesForm';
 import { ThemeForm } from '../sections/ThemeForm';
+import { InterestsForm } from '../sections/InterestsForm';
+import { ReferencesForm } from '../sections/ReferencesForm';
+import { CustomSectionForm } from '../sections/CustomSectionForm';
 import { sectionLabels } from '../../utils/defaults';
 
 interface EditorPanelProps {
@@ -25,6 +28,8 @@ const SECTION_COMPONENTS: Record<string, React.ComponentType> = {
   certificates: CertificatesForm,
   achievements: AchievementsForm,
   languages: LanguagesForm,
+  interests: InterestsForm,
+  references: ReferencesForm,
 };
 
 export function EditorPanel({ activeSection }: EditorPanelProps) {
@@ -32,8 +37,18 @@ export function EditorPanel({ activeSection }: EditorPanelProps) {
 
   if (!currentResume) return null;
 
-  const SectionComponent = SECTION_COMPONENTS[activeSection];
-  const label = activeSection === 'theme' ? 'Theme & Styling' : (sectionLabels[activeSection] || activeSection);
+  const isCustom = activeSection.startsWith('custom_');
+  const rawId = isCustom ? activeSection.replace(/^custom_/, '') : activeSection;
+  const customObj = isCustom
+    ? currentResume.sections.customSections?.find((s) => s.id === rawId)
+    : null;
+
+  const SectionComponent = isCustom ? null : SECTION_COMPONENTS[activeSection];
+  const label = isCustom
+    ? (customObj?.title || 'Custom Section')
+    : activeSection === 'theme'
+    ? 'Theme & Styling'
+    : (sectionLabels[activeSection] || activeSection);
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
@@ -47,7 +62,9 @@ export function EditorPanel({ activeSection }: EditorPanelProps) {
 
       {/* Form area */}
       <div className="flex-1 overflow-y-auto p-6">
-        {SectionComponent ? (
+        {isCustom ? (
+          <CustomSectionForm sectionId={activeSection} />
+        ) : SectionComponent ? (
           <SectionComponent />
         ) : (
           <div className="flex flex-col items-center justify-center h-full text-center">

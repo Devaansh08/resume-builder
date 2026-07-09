@@ -107,6 +107,24 @@ export function ModernTemplate() {
               ))}
             </Section>
           )}
+
+          {/* Custom Sections (Left / Main Column) */}
+          {sections.customSections && sections.customSections.length > 0 && sections.customSections.map((cs) => (
+            cs.items && cs.items.length > 0 ? (
+              <Section key={cs.id} title={cs.title} primary={primary}>
+                {cs.items.map((item) => (
+                  <div key={item.id} style={{ marginBottom: '12px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                      <span style={{ fontWeight: 600, fontSize: '11px', color: '#111827' }}>{item.title}</span>
+                      {item.date && <span style={{ fontSize: '9.5px', color: '#9ca3af', fontWeight: 500 }}>{item.date}</span>}
+                    </div>
+                    {item.subtitle && <div style={{ fontSize: '10px', color: primary, fontWeight: 500, marginBottom: '2px' }}>{item.subtitle}</div>}
+                    {item.description && <div style={{ fontSize: '10px', color: '#374151', lineHeight: '1.5' }}>{item.description}</div>}
+                  </div>
+                ))}
+              </Section>
+            ) : null
+          ))}
         </div>
 
         {/* Right column */}
@@ -180,6 +198,33 @@ export function ModernTemplate() {
                 <div key={a.id} style={{ marginBottom: '8px' }}>
                   <div style={{ fontWeight: 600, fontSize: '10px', color: '#111827' }}>{a.title}</div>
                   {a.description && <div style={{ fontSize: '9.5px', color: '#6b7280' }}>{a.description}</div>}
+                </div>
+              ))}
+            </Section>
+          )}
+
+          {/* Interests */}
+          {sections.interests && sections.interests.length > 0 && (
+            <Section title="Interests" primary={primary}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                {sections.interests.map((i) => (
+                  <span key={i.id} style={{ fontSize: '9px', padding: '2px 7px', borderRadius: '4px', backgroundColor: '#f3f4f6', color: '#374151', fontWeight: 500 }}>
+                    {i.name}
+                  </span>
+                ))}
+              </div>
+            </Section>
+          )}
+
+          {/* References */}
+          {sections.references && sections.references.length > 0 && (
+            <Section title="References" primary={primary}>
+              {sections.references.map((r) => (
+                <div key={r.id} style={{ marginBottom: '8px' }}>
+                  <div style={{ fontWeight: 600, fontSize: '10px', color: '#111827' }}>{r.name}</div>
+                  <div style={{ fontSize: '9.5px', color: '#6b7280' }}>{r.title}{r.company ? ` at ${r.company}` : ''}</div>
+                  {r.email && <div style={{ fontSize: '9px', color: '#9ca3af' }}>{r.email}</div>}
+                  {r.phone && <div style={{ fontSize: '9px', color: '#9ca3af' }}>{r.phone}</div>}
                 </div>
               ))}
             </Section>

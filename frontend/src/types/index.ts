@@ -139,7 +139,8 @@ export type TemplateId =
   | 'stanford'
   | 'microsoft'
   | 'creative'
-  | 'shrine';
+  | 'shrine'
+  | 'executive';
 
 export type ThemeMode = 'light' | 'dark' | 'system';
 
@@ -173,6 +174,8 @@ export interface ATSCheck {
   passed: boolean;
   severity: 'error' | 'warning' | 'info';
   suggestion?: string;
+  examples?: string[];
+  rationale?: string;
 }
 
 export interface ATSResult {

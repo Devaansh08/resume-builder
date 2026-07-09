@@ -1,38 +1,74 @@
-# ResumeAI - Free ATS-Friendly Resume Builder
+# ✏️ ResumeAI — Free ATS Resume Builder
 
-ResumeAI is a modern, fast, and completely free ATS-friendly resume builder. It allows users to build highly-optimized, professional resumes in under 10 minutes with a real-time preview, interactive editors, customizable templates, and PDF export.
+<div align="center">
+
+**Build a job-winning, ATS-optimized resume in minutes. No account. No watermarks. 100% free.**
+
+[🚀 Launch App](https://resume-builder.vercel.app) · [📋 Templates](https://resume-builder.vercel.app/templates) · [🐛 Report Bug](#)
+
+![ResumeAI Preview](https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=1200&h=500&fit=crop&q=80)
+
+</div>
+
+---
+
+## ✨ What is ResumeAI?
+
+ResumeAI is a modern, blazing-fast resume builder with a **Marginalia notebook aesthetic** — cream paper backgrounds, red margin accents, and clean ink typography. It helps job seekers create professional, ATS-optimized resumes with real-time preview and instant PDF export.
+
+**No sign-in required. No data sent to servers. Everything stays in your browser.**
 
 ---
 
 ## 🚀 Key Features
 
-- **⚡ Real-time Side-by-Side Preview**: Modify your resume details and see updates instantly without page refreshes.
-- **📈 ATS Optimization & Scoring**: Integrated ATS feedback system that analyzes formatting, keyword density, active verbs, and identifies missing sections to score your resume.
-- **✨ Multiple Templates**: Choose from beautiful, professionally designed templates (Modern, Minimal, Professional, and Shrine templates).
-- **🔄 Drag-and-Drop Reordering**: Easily rearrange sections like Experience, Projects, Skills, and Education.
-- **🔒 Secure Authentication**: Powered by Firebase Auth with secure session management via Express-Session/Cookies on the backend.
-- **💾 Auto-Save**: Automatic draft saving so you never lose progress.
-- **📄 High-Quality PDF Export**: Print or export your resume to PDF in A4 or Letter format with zero watermarks.
+| Feature | Description |
+|---|---|
+| ⚡ **Live Preview** | Real-time side-by-side editor + resume preview |
+| 📈 **ATS Scoring** | Instant feedback on formatting, keywords, and structure |
+| 📄 **Upload Parser** | Drop in your old PDF/DOCX and auto-fill your editor |
+| 🎨 **10 Templates** | Modern, Executive, Creative, Harvard, Minimal, Shrine + more |
+| ✍️ **MS Word Toolbar** | Bold, Italic, Bullet lists, Indent, Quick Phrases, Word count |
+| 📥 **PDF Export** | Print-perfect A4/Letter PDF, zero watermarks, free forever |
+| 🔒 **Total Privacy** | localStorage only — your data never leaves your device |
+| 🌐 **Vercel Ready** | One-click frontend deploy to Vercel |
+
+---
+
+## 🎨 Design System — Marginalia Notebook Theme
+
+Inspired by the aesthetic of classic academic notebooks:
+
+- **Paper** `#F5F0E8` — Cream page background
+- **Margin Red** `#C41E3A` — Primary accent, CTAs, decorative margin line
+- **Ink Navy** `#1A1A3E` — Headings, primary text
+- **Rule Blue** `#B8D4E8` — Ruled line separators
+- **Fonts:** Inter (body), Plus Jakarta Sans (display), Caveat (handwriting accents)
 
 ---
 
 ## 🛠 Tech Stack
 
 ### Frontend
-- **Framework**: React 19 (TypeScript)
-- **Build Tool**: Vite
-- **Styling**: Tailwind CSS
-- **State Management**: Zustand
-- **Drag & Drop**: @dnd-kit
-- **Form Handling & Validation**: React Hook Form + Zod
-- **Icons**: Lucide React
-- **PDF Export**: jsPDF + html2canvas / react-to-print
+| Tool | Purpose |
+|---|---|
+| React 19 + TypeScript | Core UI framework |
+| Vite | Build tool & dev server |
+| Tailwind CSS v3 | Styling (Marginalia design system) |
+| Zustand + persist | State management + localStorage |
+| @dnd-kit | Drag & drop section reordering |
+| Lucide React | Icon system |
+| jsPDF + html2canvas | Client-side PDF export |
 
-### Backend
-- **Framework**: Node.js + Express (TypeScript)
-- **Authentication**: Firebase Admin SDK
-- **Security**: Helmet, Express Rate Limit, Cors
-- **Sessions**: Express Session + Cookie Parser
+### Backend (Optional)
+| Tool | Purpose |
+|---|---|
+| Node.js + Express | REST API server |
+| Firebase Admin SDK | Authentication & Firestore |
+| Helmet + Rate Limit | Security middleware |
+| Express Session | Cookie-based sessions |
+
+> The frontend works 100% without the backend. The backend is optional for Firebase sync.
 
 ---
 
@@ -40,30 +76,30 @@ ResumeAI is a modern, fast, and completely free ATS-friendly resume builder. It 
 
 ```text
 ResumeBuilder/
-├── backend/                  # Express REST API
+├── backend/                   # Optional Express REST API
 │   ├── src/
-│   │   ├── middleware/       # Authentication & security middleware
-│   │   ├── routes/           # Auth, resume management, sharing, and export routes
-│   │   ├── services/         # Firebase integration
-│   │   └── index.ts          # Server entry point
-│   ├── tsconfig.json
+│   │   ├── middleware/        # Auth & security middleware
+│   │   ├── routes/            # resume, auth, export routes
+│   │   ├── services/          # Firebase Admin integration
+│   │   └── index.ts           # Server entry point
 │   └── package.json
 │
-├── frontend/                 # Vite + React client application
+├── frontend/                  # Vite + React client application
 │   ├── src/
-│   │   ├── assets/           # Images and static assets
-│   │   ├── components/       # UI components (builder panel, sections, template engine)
-│   │   ├── features/         # Auth contexts and protected routing
-│   │   ├── pages/            # View pages (Landing, Dashboard, Builder, Login, Profile)
-│   │   ├── services/         # API & Firebase configurations
-│   │   ├── store/            # Zustand global stores (resumeStore)
-│   │   ├── types/            # TypeScript models
-│   │   └── utils/            # ATS tools, PDF export handlers, and defaults
-│   ├── index.html
-│   ├── tailwind.config.js
+│   │   ├── components/
+│   │   │   ├── builder/       # Builder panel, navbar, ATS, PDF tools
+│   │   │   ├── sections/      # Form editors (PersonalInfo, Experience…)
+│   │   │   ├── templates/     # Resume template components (10 total)
+│   │   │   └── layout/        # Footer
+│   │   ├── pages/             # Landing, Builder, Templates, Dashboard
+│   │   ├── store/             # Zustand global state
+│   │   ├── types/             # TypeScript interfaces
+│   │   └── utils/             # ATS scorer, PDF, defaults, file parser
+│   ├── vercel.json            # Vercel SPA routing config
+│   ├── tailwind.config.js     # Marginalia design system
 │   └── package.json
 │
-└── README.md                 # Main workspace documentation
+└── README.md
 ```
 
 ---
@@ -71,66 +107,133 @@ ResumeBuilder/
 ## ⚙️ Getting Started
 
 ### Prerequisites
-- [Node.js](https://nodejs.org/) (v18 or higher recommended)
-- [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/)
+- [Node.js](https://nodejs.org/) v18+
+- [npm](https://www.npmjs.com/) or [pnpm](https://pnpm.io/)
 
 ---
 
-### 1. Backend Setup
+### 🖥️ Frontend (Required)
 
-1. Navigate to the backend directory:
-   ```bash
-   cd backend
-   ```
+```bash
+# 1. Navigate to frontend
+cd frontend
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+# 2. Install dependencies
+npm install
 
-3. Configure environment variables. Duplicate the `.env.example` file to `.env`:
-   ```bash
-   cp .env.example .env
-   ```
-   Provide the required values:
-   - `PORT`: Server port (e.g., `5000`)
-   - `SESSION_SECRET`: Secret key for session hashing
-   - Firebase service account keys (see `.env.example` for format)
+# 3. Configure environment (copy and update)
+cp .env.example .env
+# Fill in your Firebase config values
 
-4. Run the development server:
-   ```bash
-   npm run dev
-   ```
+# 4. Start dev server
+npm run dev
+# → Opens at http://localhost:5173
+```
 
 ---
 
-### 2. Frontend Setup
+### ⚙️ Backend (Optional)
 
-1. Navigate to the frontend directory:
-   ```bash
-   cd ../frontend
-   ```
+```bash
+# 1. Navigate to backend
+cd backend
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+# 2. Install dependencies  
+npm install
 
-3. Configure environment variables. Duplicate the `.env.example` file to `.env`:
-   ```bash
-   cp .env.example .env
-   ```
-   Provide the required Firebase configuration values (API keys, project IDs, etc.).
+# 3. Configure environment
+cp .env.example .env
+# Fill in Firebase Admin SDK credentials + SESSION_SECRET
 
-4. Run the frontend development server:
-   ```bash
-   npm run dev
-   ```
+# 4. Start dev server
+npm run dev
+# → API at http://localhost:3001
+```
 
-5. Open your browser and navigate to `http://localhost:5173` (or the port specified by Vite).
+---
+
+## 🌍 Deploy to Vercel (Frontend Only)
+
+The frontend is a fully self-contained SPA — **no backend required for Vercel**.
+
+### Option A: Vercel CLI
+
+```bash
+# Install Vercel CLI globally
+npm install -g vercel
+
+# In the frontend directory
+cd frontend
+
+# Build
+npm run build
+
+# Deploy
+vercel --prod
+```
+
+### Option B: Vercel Dashboard
+
+1. Go to [vercel.com](https://vercel.com) and import your GitHub repo
+2. Set **Root Directory** to `frontend`
+3. Add your environment variables from `frontend/.env`
+4. Click **Deploy**
+
+The `vercel.json` file is already configured for SPA routing.
+
+---
+
+## 🔐 Environment Variables
+
+### Frontend (`frontend/.env`)
+
+```env
+VITE_FIREBASE_API_KEY=your_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your-project-id
+VITE_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=123456789
+VITE_FIREBASE_APP_ID=1:123456789:web:abcdef
+VITE_API_URL=http://localhost:3001
+```
+
+### Backend (`backend/.env`)
+
+```env
+PORT=3001
+NODE_ENV=development
+CLIENT_URL=http://localhost:5173
+SESSION_SECRET=your_random_secret_32_chars_min
+FIREBASE_PROJECT_ID=your-project-id
+FIREBASE_CLIENT_EMAIL=firebase-adminsdk@your-project.iam.gserviceaccount.com
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+```
+
+---
+
+## 🧩 Resume Templates
+
+| ID | Name | Style |
+|---|---|---|
+| `modern` | Modern | 2-Column with accent sidebar |
+| `professional` | Professional | Classic serif, single column |
+| `minimal` | Minimal | Clean open whitespace |
+| `google` | Google Style | ATS-optimized clean layout |
+| `harvard` | Harvard | Centered academic header |
+| `executive` | Executive | Bold navy centered header |
+| `creative` | Creative | Colored sidebar bold layout |
+| `microsoft` | Microsoft | Corporate professional |
+| `shrine` | Shrine | Material Design warmth |
+| `stanford` | Stanford | Classic academic centered |
 
 ---
 
 ## 📄 License
 
-This project is licensed under the MIT License.
+MIT License — see [LICENSE](./LICENSE) for details.
+
+---
+
+<div align="center">
+Built with ☕ + ✏️ | &copy; 2025 ResumeAI
+</div>

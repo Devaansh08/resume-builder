@@ -63,10 +63,29 @@ async function extractTextFromPDF(file: File): Promise<string> {
   for (let i = 1; i <= pdf.numPages; i++) {
     const page = await pdf.getPage(i);
     const content = await page.getTextContent();
-    const pageText = content.items
-      .map((item) => ('str' in item ? item.str : ''))
-      .join(' ');
-    pages.push(pageText);
+    let pageLines: string[] = [];
+    let currentLine = '';
+    let lastY: number | null = null;
+
+    for (const rawItem of content.items) {
+      if (!('str' in rawItem)) continue;
+      const item = rawItem as { str: string; hasEOL?: boolean; transform?: number[] };
+      const currentY = item.transform && item.transform.length >= 6 ? item.transform[5] : null;
+
+      if (lastY !== null && currentY !== null && Math.abs(lastY - currentY) > 3) {
+        if (currentLine.trim()) pageLines.push(currentLine.trim());
+        currentLine = item.str;
+      } else if (item.hasEOL) {
+        currentLine += item.str;
+        if (currentLine.trim()) pageLines.push(currentLine.trim());
+        currentLine = '';
+      } else {
+        currentLine += (currentLine && !currentLine.endsWith(' ') ? ' ' : '') + item.str;
+      }
+      if (currentY !== null) lastY = currentY;
+    }
+    if (currentLine.trim()) pageLines.push(currentLine.trim());
+    pages.push(pageLines.join('\n'));
   }
 
   return pages.join('\n\n');
@@ -120,6 +139,25 @@ const SECTION_HEADERS: Record<string, string> = {
   'profile': 'summary',
 };
 
+function detectSectionHeader(line: string): string | null {
+  const clean = line.toLowerCase().replace(/[^a-z0-9\s&/-]/g, '').trim();
+  if (clean.length > 60 || clean.length < 3) return null;
+
+  if (SECTION_HEADERS[clean]) return SECTION_HEADERS[clean];
+
+  if (/^(?:(?:\d+\.?\s*)?)(?:work\s+|professional\s+|relevant\s+|employment\s+)?experience(?:\s+history|\s+&\s+leadership|\s+&\s+work|\s+summary)?$/i.test(clean)) return 'experience';
+  if (/^(?:(?:\d+\.?\s*)?)(?:academic\s+|higher\s+)?education(?:\s+&\s+qualifications|\s+history|\s+&\s+credentials|\s+background)?$/i.test(clean)) return 'education';
+  if (/^(?:(?:\d+\.?\s*)?)(?:technical\s+|core\s+|key\s+|-?\s*)?skills(?:\s+&\s+competencies|\s+&\s+tools|\s+summary)?$/i.test(clean)) return 'skills';
+  if (/^(?:(?:\d+\.?\s*)?)(?:personal\s+|academic\s+|key\s+)?projects(?:\s+&\s+portfolio|\s+&\s+open\s+source)?$/i.test(clean)) return 'projects';
+  if (/^(?:(?:\d+\.?\s*)?)(?:professional\s+|career\s+)?summary(?:\s+\/\s+objective|\s+&\s+profile)?$/i.test(clean) || clean === 'objective' || clean === 'profile' || clean === 'about me' || clean === 'executive summary') return 'summary';
+  if (/^(?:(?:\d+\.?\s*)?)certificat(?:ions?|es?)(?:\s+&\s+licenses)?$/i.test(clean)) return 'certificates';
+  if (/^(?:(?:\d+\.?\s*)?)(?:key\s+|notable\s+)?achievements?(?:\s+&\s+awards|\s+&\s+honors)?$/i.test(clean) || clean === 'awards' || clean === 'honors') return 'achievements';
+  if (/^(?:(?:\d+\.?\s*)?)languages?(?:\s+spoken|\s+&\s+fluency)?$/i.test(clean)) return 'languages';
+  if (/^(?:(?:\d+\.?\s*)?)interests?(?:\s+&\s+hobbies)?$/i.test(clean) || clean === 'hobbies') return 'interests';
+
+  return null;
+}
+
 function textToSections(rawText: string): ResumeSections {
   const sections = defaultResumeSections();
   const lines = rawText.split('\n').map((l) => l.trim()).filter(Boolean);
@@ -127,7 +165,7 @@ function textToSections(rawText: string): ResumeSections {
   if (lines.length === 0) return sections;
 
   // ── Extract personal info from first few lines ──
-  const headerLines = lines.slice(0, 8);
+  const headerLines = lines.slice(0, 10);
   const headerText = headerLines.join(' ');
 
   // Name: usually the first substantial line
@@ -168,8 +206,7 @@ function textToSections(rawText: string): ResumeSections {
 
   for (let i = 1; i < lines.length; i++) {
     const line = lines[i];
-    const normalized = line.toLowerCase().replace(/[^a-z\s]/g, '').trim();
-    const sectionType = SECTION_HEADERS[normalized];
+    const sectionType = detectSectionHeader(line);
 
     if (sectionType) {
       if (currentBlock.lines.length > 0) {
@@ -230,11 +267,30 @@ function textToSections(rawText: string): ResumeSections {
       default:
         if (!sections.personalInfo.title && block.type === 'header') {
           const titleLine = block.lines.find(
-            (l) => l.length < 60 && !EMAIL_RE.test(l) && !PHONE_RE.test(l) && !URL_RE.test(l)
+            (l) => l.length < 60 && !EMAIL_RE.test(l) && !PHONE_RE.test(l) && !URL_RE.test(l) && l !== sections.personalInfo.name
           );
           if (titleLine) sections.personalInfo.title = titleLine;
         }
         break;
+    }
+  }
+
+  // ── Intelligent post-processing fallback if headings weren't split cleanly ──
+  if (sections.experience.length === 0 && blocks.length <= 2) {
+    const allBodyLines = lines.slice(3);
+    const expCandidates = allBodyLines.filter((l) => /^[•\-–—*▸▹◦]/.test(l));
+    if (expCandidates.length > 0) {
+      sections.experience = [{
+        id: crypto.randomUUID(),
+        company: 'Professional Experience',
+        position: sections.personalInfo.title || 'Role / Position',
+        location: '',
+        startDate: '',
+        endDate: '',
+        current: false,
+        description: '',
+        bullets: expCandidates.map((l) => l.replace(/^[•\-–—*▸▹◦]\s*/, '')),
+      }];
     }
   }
 
