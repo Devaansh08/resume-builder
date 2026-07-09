@@ -6,15 +6,6 @@ import { Palette, Sparkles, Check, LayoutGrid, Type, AlignLeft } from 'lucide-re
 
 const PRESETS = [
   {
-    name: 'Shrine Elegance (Material Pink)',
-    desc: 'Material Design Shrine aesthetic. Soft peach backgrounds and deep brown text.',
-    template: 'shrine' as TemplateId,
-    primaryColor: '#442C2E',
-    accentColor: '#FEDBD0',
-    fontFamily: 'Plus Jakarta Sans',
-    fontSize: 'normal' as const,
-  },
-  {
     name: 'Silicon Valley AI Executive',
     desc: 'Modern and vibrant Indigo & Violet. Ideal for AI architects and tech leads.',
     template: 'modern' as TemplateId,
@@ -280,40 +271,7 @@ export function ThemeForm() {
         </div>
       </div>
 
-      <div className="divider" />
 
-      {/* ── Section 4: Typography (8 Google & ATS Fonts) ──────────────── */}
-      <div>
-        <div className="flex items-center gap-2 mb-3">
-          <Type size={16} className="text-brand-500" />
-          <h3 className="section-label text-[11px] font-bold tracking-wider uppercase text-gray-800 dark:text-gray-200">
-            Typography Family (Real-Time Preview & PDF)
-          </h3>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-          {FONT_OPTIONS.map((f) => {
-            const isSelected = theme.fontFamily === f.id;
-            return (
-              <button
-                key={f.id}
-                type="button"
-                onClick={() => updateTheme({ fontFamily: f.id })}
-                className={`w-full flex items-center justify-between p-3.5 rounded-xl border text-xs text-left transition-all ${
-                  isSelected
-                    ? 'border-brand-500 bg-brand-50 dark:bg-brand-950/40 font-semibold text-brand-600 dark:text-brand-400 shadow-sm'
-                    : 'border-gray-200 dark:border-surface-800 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-surface-700'
-                }`}
-                style={{ fontFamily: f.family }}
-              >
-                <span className="text-sm">{f.name}</span>
-                {isSelected && <Check size={16} className="text-brand-500 flex-shrink-0" />}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      <div className="divider" />
 
       {/* ── Section 5: Page Spacing & Layout Density ───────────────────── */}
       <div>

@@ -200,131 +200,158 @@ export function RichTextToolbar({ value, onChange, inputRef, showWordCount = tru
     <div className="h-4 w-px mx-0.5" style={{ backgroundColor: '#DDD4BF' }} />
   );
 
+  const [isExpanded, setIsExpanded] = useState(false);
+
   return (
     <div
-      className="flex items-center flex-wrap gap-0.5 px-2 py-1.5 rounded-t-lg"
-      style={{ backgroundColor: '#F5F0E8', border: '1px solid #DDD4BF', borderBottom: 'none' }}
+      className="rounded-t-lg overflow-hidden"
+      style={{ border: '1px solid #DDD4BF', borderBottom: 'none', backgroundColor: '#FDFCF8' }}
     >
-      {/* ── Text Formatting Group ──────────────────────────────────── */}
-      <div className="flex items-center gap-0.5">
-        <ToolButton onClick={() => applyInline('**', '**')} title="Bold (**text**)">
-          <Bold size={13} />
-        </ToolButton>
-        <ToolButton onClick={() => applyInline('*', '*')} title="Italic (*text*)">
-          <Italic size={13} />
-        </ToolButton>
-        <ToolButton onClick={() => applyInline('__', '__')} title="Underline (__text__)">
-          <Underline size={13} />
-        </ToolButton>
-      </div>
-
-      <Separator />
-
-      {/* ── Lists Group ──────────────────────────────────────────────── */}
-      <div className="flex items-center gap-0.5">
-        <ToolButton onClick={() => applyLinePrefix('• ')} title="Bullet list (•)">
-          <List size={13} />
-        </ToolButton>
-        <ToolButton onClick={() => applyLinePrefix('1. ')} title="Numbered list (1.)">
-          <ListOrdered size={13} />
-        </ToolButton>
-        <ToolButton onClick={() => applyLinePrefix('✓ ')} title="Checkmark (✓)">
-          <span style={{ fontSize: '12px', fontWeight: 700 }}>✓</span>
-        </ToolButton>
-      </div>
-
-      <Separator />
-
-      {/* ── Indent Group ─────────────────────────────────────────────── */}
-      <div className="flex items-center gap-0.5">
-        <ToolButton onClick={() => applyIndent('out')} title="Decrease indent (Outdent)">
-          <Outdent size={13} />
-        </ToolButton>
-        <ToolButton onClick={() => applyIndent('in')} title="Increase indent (Indent)">
-          <Indent size={13} />
-        </ToolButton>
-      </div>
-
-      <Separator />
-
-      {/* ── Alignment Shortcuts ──────────────────────────────────────── */}
-      <div className="flex items-center gap-0.5">
-        <ToolButton onClick={() => applyInline('[LEFT]')} title="Note left alignment">
-          <AlignLeft size={13} />
-        </ToolButton>
-        <ToolButton onClick={() => applyInline('[CENTER]')} title="Note center alignment">
-          <AlignCenter size={13} />
-        </ToolButton>
-      </div>
-
-      <Separator />
-
-      {/* ── Extra Tools ──────────────────────────────────────────────── */}
-      <div className="flex items-center gap-0.5">
-        <ToolButton onClick={insertHorizontalRule} title="Insert horizontal rule">
-          <Minus size={13} />
-        </ToolButton>
-        <ToolButton onClick={clearFormatting} title="Clear all formatting">
-          <Type size={13} />
-        </ToolButton>
-      </div>
-
-      <Separator />
-
-      {/* ── ATS Phrases Dropdown ─────────────────────────────────────── */}
-      <div className="relative">
-        <button
-          type="button"
-          onClick={() => setShowPhrases(!showPhrases)}
-          className="flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold transition-colors"
-          style={{
-            backgroundColor: showPhrases ? 'rgba(196, 30, 58, 0.08)' : '#FDFCF8',
-            color: '#C41E3A',
-            border: '1px solid rgba(196, 30, 58, 0.2)',
-          }}
-          title="Insert powerful ATS action phrase"
-        >
-          <Sparkles size={12} />
-          <span className="hidden sm:inline">Quick Phrases</span>
-          <ChevronDown size={11} className={`transition-transform ${showPhrases ? 'rotate-180' : ''}`} />
-        </button>
-
-        {showPhrases && (
-          <div
-            className="absolute left-0 top-full mt-1 z-50 rounded-xl shadow-xl py-2 max-h-72 overflow-y-auto"
-            style={{ width: '340px', backgroundColor: '#FDFCF8', border: '1px solid #EDE5D5' }}
-          >
-            {ATS_SUGGESTIONS.map((group) => (
-              <div key={group.category} className="mb-1 last:mb-0">
-                <div
-                  className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider"
-                  style={{ backgroundColor: '#F5F0E8', color: '#8A7A60', borderBottom: '1px solid #EDE5D5' }}
-                >
-                  {group.category}
-                </div>
-                {group.sentences.map((phrase) => (
-                  <button
-                    key={phrase}
-                    type="button"
-                    onClick={() => insertPhrase(phrase)}
-                    className="w-full text-left px-3 py-2 text-xs transition-colors"
-                    style={{ color: '#3A3028', borderBottom: '1px solid #F5F0E8' }}
-                    onMouseOver={e => (e.currentTarget.style.backgroundColor = 'rgba(196, 30, 58, 0.04)')}
-                    onMouseOut={e => (e.currentTarget.style.backgroundColor = 'transparent')}
-                  >
-                    {phrase}
-                  </button>
-                ))}
-              </div>
-            ))}
+      {/* ── Toggle Header ────────────────────────────────────────────── */}
+      <div
+        className="flex items-center justify-between px-3 py-2 cursor-pointer transition-colors"
+        style={{ backgroundColor: isExpanded ? '#F5F0E8' : 'transparent' }}
+        onClick={() => setIsExpanded(!isExpanded)}
+        onMouseOver={e => {
+          if (!isExpanded) (e.currentTarget as HTMLElement).style.backgroundColor = '#F5F0E8';
+        }}
+        onMouseOut={e => {
+          if (!isExpanded) (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent';
+        }}
+      >
+        <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider" style={{ color: '#5C5040' }}>
+          <Type size={14} className="text-brand-500" />
+          MS Word Tools
+          <ChevronDown size={14} className={`transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} />
+        </div>
+        {showWordCount && (
+          <div className="text-[10px] font-medium uppercase tracking-widest" style={{ color: '#A89880' }}>
+            {wordCount} {wordCount === 1 ? 'word' : 'words'}
           </div>
         )}
       </div>
 
-      {/* ── Word Count ───────────────────────────────────────────────── */}
-      {showWordCount && (
-        <div className="ml-auto flex items-center text-[10px]" style={{ color: '#A89880' }}>
-          {wordCount} {wordCount === 1 ? 'word' : 'words'}
+      {/* ── Toolbar Content ──────────────────────────────────────────── */}
+      {isExpanded && (
+        <div
+          className="flex items-center flex-wrap gap-0.5 px-2 py-1.5 animate-in slide-in-from-top-1"
+          style={{ backgroundColor: '#F5F0E8', borderTop: '1px solid #DDD4BF' }}
+        >
+          {/* ── Text Formatting Group ──────────────────────────────────── */}
+          <div className="flex items-center gap-0.5">
+            <ToolButton onClick={() => applyInline('**', '**')} title="Bold (**text**)">
+              <Bold size={13} />
+            </ToolButton>
+            <ToolButton onClick={() => applyInline('*', '*')} title="Italic (*text*)">
+              <Italic size={13} />
+            </ToolButton>
+            <ToolButton onClick={() => applyInline('__', '__')} title="Underline (__text__)">
+              <Underline size={13} />
+            </ToolButton>
+          </div>
+
+          <Separator />
+
+          {/* ── Lists Group ──────────────────────────────────────────────── */}
+          <div className="flex items-center gap-0.5">
+            <ToolButton onClick={() => applyLinePrefix('• ')} title="Bullet list (•)">
+              <List size={13} />
+            </ToolButton>
+            <ToolButton onClick={() => applyLinePrefix('1. ')} title="Numbered list (1.)">
+              <ListOrdered size={13} />
+            </ToolButton>
+            <ToolButton onClick={() => applyLinePrefix('✓ ')} title="Checkmark (✓)">
+              <span style={{ fontSize: '12px', fontWeight: 700 }}>✓</span>
+            </ToolButton>
+          </div>
+
+          <Separator />
+
+          {/* ── Indent Group ─────────────────────────────────────────────── */}
+          <div className="flex items-center gap-0.5">
+            <ToolButton onClick={() => applyIndent('out')} title="Shift Content Left (Outdent)">
+              <Outdent size={13} />
+            </ToolButton>
+            <ToolButton onClick={() => applyIndent('in')} title="Shift Content Right (Indent)">
+              <Indent size={13} />
+            </ToolButton>
+          </div>
+
+          <Separator />
+
+          {/* ── Alignment Shortcuts ──────────────────────────────────────── */}
+          <div className="flex items-center gap-0.5">
+            <ToolButton onClick={() => applyInline('[LEFT]')} title="Align Left">
+              <AlignLeft size={13} />
+            </ToolButton>
+            <ToolButton onClick={() => applyInline('[CENTER]')} title="Align Center">
+              <AlignCenter size={13} />
+            </ToolButton>
+          </div>
+
+          <Separator />
+
+          {/* ── Extra Tools ──────────────────────────────────────────────── */}
+          <div className="flex items-center gap-0.5">
+            <ToolButton onClick={insertHorizontalRule} title="Add Line (Horizontal Rule)">
+              <Minus size={13} />
+            </ToolButton>
+            <ToolButton onClick={clearFormatting} title="Clear all formatting">
+              <Type size={13} />
+            </ToolButton>
+          </div>
+
+          <Separator />
+
+          {/* ── ATS Phrases Dropdown ─────────────────────────────────────── */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setShowPhrases(!showPhrases)}
+              className="flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold transition-colors"
+              style={{
+                backgroundColor: showPhrases ? 'rgba(196, 30, 58, 0.08)' : '#FDFCF8',
+                color: '#C41E3A',
+                border: '1px solid rgba(196, 30, 58, 0.2)',
+              }}
+              title="Insert powerful ATS action phrase"
+            >
+              <Sparkles size={12} />
+              <span className="hidden sm:inline">Quick Phrases</span>
+              <ChevronDown size={11} className={`transition-transform ${showPhrases ? 'rotate-180' : ''}`} />
+            </button>
+
+            {showPhrases && (
+              <div
+                className="absolute left-0 top-full mt-1 z-50 rounded-xl shadow-xl py-2 max-h-72 overflow-y-auto"
+                style={{ width: '340px', backgroundColor: '#FDFCF8', border: '1px solid #EDE5D5' }}
+              >
+                {ATS_SUGGESTIONS.map((group) => (
+                  <div key={group.category} className="mb-1 last:mb-0">
+                    <div
+                      className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider"
+                      style={{ backgroundColor: '#F5F0E8', color: '#8A7A60', borderBottom: '1px solid #EDE5D5' }}
+                    >
+                      {group.category}
+                    </div>
+                    {group.sentences.map((phrase) => (
+                      <button
+                        key={phrase}
+                        type="button"
+                        onClick={() => insertPhrase(phrase)}
+                        className="w-full text-left px-3 py-2 text-xs transition-colors"
+                        style={{ color: '#3A3028', borderBottom: '1px solid #F5F0E8' }}
+                        onMouseOver={e => (e.currentTarget.style.backgroundColor = 'rgba(196, 30, 58, 0.04)')}
+                        onMouseOut={e => (e.currentTarget.style.backgroundColor = 'transparent')}
+                      >
+                        {phrase}
+                      </button>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>

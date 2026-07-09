@@ -31,43 +31,7 @@ export function Footer() {
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-brand-500/10 rounded-full blur-3xl pointer-events-none -translate-y-1/2" />
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl pointer-events-none translate-y-1/3" />
 
-      {/* Top Banner / Call to Action */}
-      <div className="border-b border-surface-800/80 bg-surface-950/60 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
-            <div className="space-y-2 text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/10 border border-brand-500/30 text-brand-400 text-xs font-semibold uppercase tracking-wider">
-                <Sparkles size={14} className="animate-pulse" />
-                Enterprise-Grade ATS Engine & Mockaroo Integration
-              </div>
-              <h3 className="font-display font-bold text-2xl sm:text-3xl text-white">
-                Ready to build an interview-winning resume in under 60 seconds?
-              </h3>
-              <p className="text-sm text-gray-400 max-w-xl">
-                Try our one-click Mockaroo dataset integration or upload an existing PDF/DOCX to get instant full-sentence ATS recommendations.
-              </p>
-            </div>
 
-            <div className="flex flex-wrap items-center gap-3">
-              <button
-                type="button"
-                onClick={handleLoadMockarooDemo}
-                className="btn bg-gradient-to-r from-brand-500 to-purple-600 hover:from-brand-600 hover:to-purple-700 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-brand-500/25 transition-all flex items-center gap-2 group text-sm"
-              >
-                <Zap size={16} className="text-amber-300 group-hover:scale-110 transition-transform" />
-                <span>Try Instant Mockaroo Demo</span>
-                <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-              </button>
-              <Link
-                to="/templates"
-                className="btn bg-surface-800 hover:bg-surface-700 text-white font-medium px-6 py-3 rounded-xl border border-surface-700 transition-all text-sm"
-              >
-                Explore 20+ Themes
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* Main Multi-Column Footer Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
