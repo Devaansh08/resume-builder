@@ -193,7 +193,7 @@ export function Footer() {
       <div className="border-t border-surface-800/60 bg-surface-950/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
           <div className="flex items-center gap-2">
-            <span>&copy; {new Date().getFullYear()} ResumeAI Pro. All rights reserved.</span>
+            <span>&copy; {new Date().getFullYear()} ResumeAI Pro by Devaansh. All rights reserved.</span>
             <span>•</span>
             <span className="flex items-center gap-1">
               Built with <Heart size={12} className="text-rose-500 fill-rose-500" /> for job seekers globally.

@@ -138,10 +138,10 @@ export default function BuilderPage() {
       />
 
       {/* ── 3-Panel Layout ─────────────────────────────────────────── */}
-      <div className="flex flex-1 overflow-hidden relative">
+      <div className="flex flex-col md:flex-row flex-1 overflow-hidden relative">
 
-        {/* Left: Section Sidebar */}
-        <div className={`${isMobilePreview ? 'hidden' : 'flex'} w-[220px] flex-shrink-0 bg-white dark:bg-surface-900 border-r border-gray-100 dark:border-surface-800 flex-col z-10`}>
+        {/* Left/Top: Section Sidebar */}
+        <div className={`${isMobilePreview ? 'hidden' : 'flex'} w-full md:w-[220px] flex-shrink-0 bg-white dark:bg-surface-900 border-b md:border-b-0 md:border-r border-gray-100 dark:border-surface-800 flex-col z-10 md:h-full h-[140px] overflow-hidden`}>
           <SectionSidebar
             activeSection={activeSection}
             onSectionChange={setActiveSection}
@@ -150,8 +150,8 @@ export default function BuilderPage() {
 
         {/* Center: Editor Form */}
         <div
-          className={`${isMobilePreview ? 'hidden' : 'flex'} min-w-0 flex-col overflow-hidden bg-gray-50 dark:bg-surface-950`}
-          style={{ width: isMobilePreview ? '100%' : `${editorPct}%` }}
+          className={`${isMobilePreview ? 'hidden' : 'flex'} min-w-0 flex-1 md:flex-none flex-col overflow-hidden bg-gray-50 dark:bg-surface-950`}
+          style={{ width: isMobilePreview ? '100%' : 'auto', flexBasis: isMobilePreview ? '100%' : `${editorPct}%` }}
         >
           <EditorPanel
             activeSection={activeSection}

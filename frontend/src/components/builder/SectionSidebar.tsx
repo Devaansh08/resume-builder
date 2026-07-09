@@ -74,20 +74,21 @@ export function SectionSidebar({ activeSection, onSectionChange }: SectionSideba
       </div>
 
       {/* Sections list */}
-      <div className="flex-1 overflow-y-auto py-2 no-scrollbar">
-        <div className="space-y-0.5 px-2">
+      <div className="flex-1 overflow-auto py-2 no-scrollbar">
+        <div className="flex flex-row md:flex-col gap-2 md:gap-0.5 px-3 md:px-2 w-max md:w-auto">
           {/* Theme Settings Button */}
           <button
             onClick={() => onSectionChange('theme')}
-            className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left transition-all duration-150 group mb-2 border ${
+            className={`flex-shrink-0 flex items-center gap-2 px-3 py-2 md:py-2.5 rounded-xl text-left transition-all duration-150 group md:mb-2 border ${
               activeSection === 'theme'
                 ? 'bg-brand-500 text-white shadow-glow-sm border-brand-500'
                 : 'border-brand-500/20 text-brand-500 hover:bg-brand-50 dark:hover:bg-brand-950/20'
             }`}
           >
             <span className="flex-shrink-0"><Palette size={16} /></span>
-            <span className="text-sm font-semibold flex-1">Customize Theme</span>
-            <ChevronRight size={14} className="flex-shrink-0" />
+            <span className="text-sm font-semibold hidden md:inline flex-1">Customize Theme</span>
+            <span className="text-sm font-semibold md:hidden">Theme</span>
+            <ChevronRight size={14} className="hidden md:block flex-shrink-0" />
           </button>
 
           {sectionOrder.map((sectionId) => {
@@ -122,19 +123,19 @@ export function SectionSidebar({ activeSection, onSectionChange }: SectionSideba
             }
 
             return (
-              <div key={sectionId} className="relative group/item flex items-center">
+              <div key={sectionId} className="relative group/item flex items-center flex-shrink-0">
                 <button
                   onClick={() => onSectionChange(sectionId)}
-                  className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left transition-all duration-150 group ${
+                  className={`flex items-center gap-2 px-3 py-2 md:py-2.5 rounded-xl text-left transition-all duration-150 group border md:border-transparent ${
                     isActive
-                      ? 'bg-brand-50 dark:bg-brand-950/50 text-brand-600 dark:text-brand-400 font-semibold'
-                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-surface-800 hover:text-gray-900 dark:hover:text-white'
+                      ? 'bg-brand-50 dark:bg-brand-950/50 text-brand-600 dark:text-brand-400 font-semibold border-brand-200 dark:border-brand-900'
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-surface-800 hover:text-gray-900 dark:hover:text-white border-gray-200 dark:border-surface-800'
                   }`}
                 >
                   <span className={`flex-shrink-0 ${isActive ? 'text-brand-500' : ''}`}>
                     {icon}
                   </span>
-                  <span className="text-sm flex-1 truncate">{label}</span>
+                  <span className="text-sm truncate">{label}</span>
                   {count > 0 && (
                     <span className={`text-xs font-semibold flex-shrink-0 ${
                       isActive ? 'text-brand-500' : 'text-gray-400'
@@ -143,7 +144,7 @@ export function SectionSidebar({ activeSection, onSectionChange }: SectionSideba
                     </span>
                   )}
                   {isActive && (
-                    <ChevronRight size={14} className="text-brand-400 flex-shrink-0" />
+                    <ChevronRight size={14} className="hidden md:block text-brand-400 flex-shrink-0" />
                   )}
                 </button>
 
@@ -151,7 +152,7 @@ export function SectionSidebar({ activeSection, onSectionChange }: SectionSideba
                   <button
                     type="button"
                     onClick={(e) => handleRemoveCustomSection(e, sectionId)}
-                    className="absolute right-2 opacity-0 group-hover/item:opacity-100 p-1 text-gray-400 hover:text-red-500 transition-opacity bg-white dark:bg-surface-900 rounded-lg shadow-sm"
+                    className="absolute -top-1 -right-1 md:top-auto md:right-2 md:opacity-0 group-hover/item:opacity-100 p-1 text-gray-400 hover:text-red-500 transition-opacity bg-white dark:bg-surface-900 rounded-lg shadow-sm border border-gray-100 dark:border-surface-700"
                     title="Remove custom section from sidebar"
                   >
                     <Trash2 size={13} />

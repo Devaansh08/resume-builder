@@ -180,17 +180,11 @@ export function RichTextToolbar({ value, onChange, inputRef, showWordCount = tru
       type="button"
       onClick={onClick}
       title={title}
-      className="p-1.5 rounded transition-colors"
-      style={{
-        backgroundColor: active ? 'rgba(196, 30, 58, 0.1)' : 'transparent',
-        color: active ? '#C41E3A' : '#5C5040',
-      }}
-      onMouseOver={e => {
-        if (!active) (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(196, 30, 58, 0.06)';
-      }}
-      onMouseOut={e => {
-        if (!active) (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent';
-      }}
+      className={`p-1.5 rounded transition-colors ${
+        active 
+          ? 'bg-brand-50 text-brand-600 dark:bg-brand-500/20 dark:text-brand-400' 
+          : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-surface-700'
+      }`}
     >
       {children}
     </button>
@@ -204,28 +198,20 @@ export function RichTextToolbar({ value, onChange, inputRef, showWordCount = tru
 
   return (
     <div
-      className="rounded-t-lg overflow-hidden"
-      style={{ border: '1px solid #DDD4BF', borderBottom: 'none', backgroundColor: '#FDFCF8' }}
+      className="rounded-t-lg overflow-hidden border border-gray-200 dark:border-surface-800 border-b-0 bg-white dark:bg-surface-900"
     >
       {/* ── Toggle Header ────────────────────────────────────────────── */}
       <div
-        className="flex items-center justify-between px-3 py-2 cursor-pointer transition-colors"
-        style={{ backgroundColor: isExpanded ? '#F5F0E8' : 'transparent' }}
+        className={`flex items-center justify-between px-3 py-2 cursor-pointer transition-colors ${isExpanded ? 'bg-gray-50 dark:bg-surface-800' : 'hover:bg-gray-50 dark:hover:bg-surface-800'}`}
         onClick={() => setIsExpanded(!isExpanded)}
-        onMouseOver={e => {
-          if (!isExpanded) (e.currentTarget as HTMLElement).style.backgroundColor = '#F5F0E8';
-        }}
-        onMouseOut={e => {
-          if (!isExpanded) (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent';
-        }}
       >
-        <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider" style={{ color: '#5C5040' }}>
+        <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300">
           <Type size={14} className="text-brand-500" />
           MS Word Tools
           <ChevronDown size={14} className={`transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} />
         </div>
         {showWordCount && (
-          <div className="text-[10px] font-medium uppercase tracking-widest" style={{ color: '#A89880' }}>
+          <div className="text-[10px] font-medium uppercase tracking-widest text-gray-400 dark:text-gray-500">
             {wordCount} {wordCount === 1 ? 'word' : 'words'}
           </div>
         )}
@@ -234,8 +220,7 @@ export function RichTextToolbar({ value, onChange, inputRef, showWordCount = tru
       {/* ── Toolbar Content ──────────────────────────────────────────── */}
       {isExpanded && (
         <div
-          className="flex items-center flex-wrap gap-0.5 px-2 py-1.5 animate-in slide-in-from-top-1"
-          style={{ backgroundColor: '#F5F0E8', borderTop: '1px solid #DDD4BF' }}
+          className="flex items-center flex-wrap gap-0.5 px-2 py-1.5 animate-in slide-in-from-top-1 bg-gray-50 dark:bg-surface-800 border-t border-gray-200 dark:border-surface-700"
         >
           {/* ── Text Formatting Group ──────────────────────────────────── */}
           <div className="flex items-center gap-0.5">
@@ -308,12 +293,11 @@ export function RichTextToolbar({ value, onChange, inputRef, showWordCount = tru
             <button
               type="button"
               onClick={() => setShowPhrases(!showPhrases)}
-              className="flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold transition-colors"
-              style={{
-                backgroundColor: showPhrases ? 'rgba(196, 30, 58, 0.08)' : '#FDFCF8',
-                color: '#C41E3A',
-                border: '1px solid rgba(196, 30, 58, 0.2)',
-              }}
+              className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold transition-colors border ${
+                showPhrases 
+                  ? 'bg-brand-50 text-brand-600 border-brand-200 dark:bg-brand-500/20 dark:text-brand-400 dark:border-brand-500/30' 
+                  : 'bg-white text-brand-500 border-brand-100 hover:bg-brand-50 dark:bg-surface-900 dark:text-brand-400 dark:border-surface-700 dark:hover:bg-surface-800'
+              }`}
               title="Insert powerful ATS action phrase"
             >
               <Sparkles size={12} />
@@ -323,14 +307,13 @@ export function RichTextToolbar({ value, onChange, inputRef, showWordCount = tru
 
             {showPhrases && (
               <div
-                className="absolute left-0 top-full mt-1 z-50 rounded-xl shadow-xl py-2 max-h-72 overflow-y-auto"
-                style={{ width: '340px', backgroundColor: '#FDFCF8', border: '1px solid #EDE5D5' }}
+                className="absolute left-0 top-full mt-1 z-50 rounded-xl shadow-xl py-2 max-h-72 overflow-y-auto bg-white dark:bg-surface-900 border border-gray-100 dark:border-surface-700"
+                style={{ width: '340px' }}
               >
                 {ATS_SUGGESTIONS.map((group) => (
                   <div key={group.category} className="mb-1 last:mb-0">
                     <div
-                      className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider"
-                      style={{ backgroundColor: '#F5F0E8', color: '#8A7A60', borderBottom: '1px solid #EDE5D5' }}
+                      className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider bg-gray-50 dark:bg-surface-800 text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-surface-700"
                     >
                       {group.category}
                     </div>
@@ -339,10 +322,7 @@ export function RichTextToolbar({ value, onChange, inputRef, showWordCount = tru
                         key={phrase}
                         type="button"
                         onClick={() => insertPhrase(phrase)}
-                        className="w-full text-left px-3 py-2 text-xs transition-colors"
-                        style={{ color: '#3A3028', borderBottom: '1px solid #F5F0E8' }}
-                        onMouseOver={e => (e.currentTarget.style.backgroundColor = 'rgba(196, 30, 58, 0.04)')}
-                        onMouseOut={e => (e.currentTarget.style.backgroundColor = 'transparent')}
+                        className="w-full text-left px-3 py-2 text-xs transition-colors text-gray-700 dark:text-gray-300 border-b border-gray-50 dark:border-surface-800/50 hover:bg-brand-50 dark:hover:bg-brand-500/10"
                       >
                         {phrase}
                       </button>
