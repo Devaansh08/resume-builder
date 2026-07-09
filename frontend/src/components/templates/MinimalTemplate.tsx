@@ -1,6 +1,7 @@
 import { useResumeStore } from '../../store/resumeStore';
 import { formatDate } from '../../utils/helpers';
 import { FONT_OPTIONS } from '../../utils/defaults';
+import { RichText } from '../builder/RichText';
 
 export function MinimalTemplate() {
   const { currentResume } = useResumeStore();
@@ -44,9 +45,9 @@ export function MinimalTemplate() {
       </div>
 
       {pi.summary && (
-        <MinSection title="About">
-          <p style={{ color: '#3f3f46', maxWidth: '520px' }}>{pi.summary}</p>
-        </MinSection>
+        <div style={{ marginBottom: '24px' }}>
+          <RichText content={pi.summary} style={{ color: '#3f3f46', maxWidth: '520px' }} />
+        </div>
       )}
 
       {sections.experience.length > 0 && (
@@ -62,7 +63,7 @@ export function MinimalTemplate() {
                 <div style={{ fontWeight: 500, color: '#09090b' }}>{exp.position}</div>
                 <div style={{ color: '#71717a', fontSize: '9.5px' }}>{exp.company}</div>
                 {exp.bullets.filter(Boolean).map((b, i) => (
-                  <div key={i} style={{ color: '#3f3f46', marginTop: '3px', paddingLeft: '8px', borderLeft: '2px solid #e4e4e7', lineHeight: 1.5 }}>{b}</div>
+                  <RichText key={i} content={b} style={{ color: '#3f3f46', marginTop: '3px', paddingLeft: '8px', borderLeft: '2px solid #e4e4e7', lineHeight: 1.5 }} />
                 ))}
               </div>
             </div>
@@ -95,7 +96,7 @@ export function MinimalTemplate() {
                 <span style={{ color: '#a1a1aa', fontSize: '9px' }}>{proj.technologies.slice(0, 3).join(' · ')}</span>
               </div>
               {proj.bullets.filter(Boolean).map((b, i) => (
-                <div key={i} style={{ color: '#3f3f46', paddingLeft: '8px', borderLeft: '2px solid #e4e4e7', marginTop: '2px' }}>{b}</div>
+                <RichText key={i} content={b} style={{ color: '#3f3f46', paddingLeft: '8px', borderLeft: '2px solid #e4e4e7', marginTop: '2px' }} />
               ))}
             </div>
           ))}
@@ -123,10 +124,11 @@ export function MinimalTemplate() {
               {cs.items.map((item) => (
                 <div key={item.id}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                    <span style={{ fontWeight: 500, color: '#18181b' }}>{item.title}{item.subtitle ? ` · ${item.subtitle}` : ''}</span>
+                    <span style={{ fontWeight: 500, color: '#18181b' }}>{item.title}</span>
                     {item.date && <span style={{ fontSize: '9px', color: '#a1a1aa' }}>{item.date}</span>}
                   </div>
-                  {item.description && <div style={{ fontSize: '9.5px', color: '#52525b', marginTop: '2px', lineHeight: '1.5' }}>{item.description}</div>}
+                  {item.subtitle && <div style={{ fontSize: '10px', color: '#52525b', fontWeight: 500 }}>{item.subtitle}</div>}
+                  {item.description && <RichText content={item.description} style={{ fontSize: '9.5px', color: '#52525b', marginTop: '2px', lineHeight: '1.5' }} />}
                 </div>
               ))}
             </div>

@@ -1,6 +1,7 @@
 import { useResumeStore } from '../../store/resumeStore';
 import { formatDate } from '../../utils/helpers';
 import { FONT_OPTIONS } from '../../utils/defaults';
+import { RichText } from '../builder/RichText';
 
 export function CreativeTemplate() {
   const { currentResume } = useResumeStore();
@@ -141,7 +142,7 @@ export function CreativeTemplate() {
         {/* Summary */}
         {pi.summary && (
           <CreativeSection title="About Me" primary={primary} accent={accent}>
-            <p style={{ color: '#374151', lineHeight: '1.7' }}>{pi.summary}</p>
+            <RichText content={pi.summary} style={{ color: '#374151', lineHeight: '1.7' }} />
           </CreativeSection>
         )}
 
@@ -164,7 +165,7 @@ export function CreativeTemplate() {
                     {exp.bullets.filter(Boolean).map((b, i) => (
                       <li key={i} style={{ color: '#374151', paddingLeft: '12px', position: 'relative', marginBottom: '3px', lineHeight: '1.5' }}>
                         <span style={{ position: 'absolute', left: 0, color: primary, fontWeight: 700, fontSize: '12px', lineHeight: 1 }}>›</span>
-                        {b}
+                        <RichText content={b} />
                       </li>
                     ))}
                   </ul>
@@ -209,7 +210,7 @@ export function CreativeTemplate() {
                 {proj.bullets.filter(Boolean).map((b, i) => (
                   <div key={i} style={{ color: '#374151', paddingLeft: '12px', position: 'relative', marginTop: '3px', lineHeight: '1.5' }}>
                     <span style={{ position: 'absolute', left: 0, color: primary, fontWeight: 700, fontSize: '12px', lineHeight: 1 }}>›</span>
-                    {b}
+                    <RichText content={b} />
                   </div>
                 ))}
               </div>
@@ -242,7 +243,7 @@ export function CreativeTemplate() {
                     <span style={{ fontWeight: 600, color: accent }}>{item.title}{item.subtitle ? ` · ${item.subtitle}` : ''}</span>
                     {item.date && <span style={{ fontSize: '9px', color: '#999' }}>{item.date}</span>}
                   </div>
-                  {item.description && <p style={{ color: '#374151', lineHeight: '1.5', marginTop: '3px' }}>{item.description}</p>}
+                  {item.description && <RichText content={item.description} style={{ color: '#374151', lineHeight: '1.5', marginTop: '3px' }} />}
                 </div>
               ))}
             </CreativeSection>

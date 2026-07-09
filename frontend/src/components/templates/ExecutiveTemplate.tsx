@@ -1,6 +1,7 @@
 import { useResumeStore } from '../../store/resumeStore';
 import { formatDate } from '../../utils/helpers';
 import { FONT_OPTIONS } from '../../utils/defaults';
+import { RichText } from '../builder/RichText';
 
 export function ExecutiveTemplate() {
   const { currentResume } = useResumeStore();
@@ -49,7 +50,9 @@ export function ExecutiveTemplate() {
         {/* Summary */}
         {pi.summary && (
           <ExecSection title="Professional Summary" accent={accent} primary={primary}>
-            <p style={{ color: '#374151', lineHeight: '1.7', fontSize: '10.5px', textAlign: 'justify' }}>{pi.summary}</p>
+            <div style={{ marginBottom: '28px', padding: '0 12px' }}>
+              <RichText content={pi.summary} style={{ color: '#374151', lineHeight: '1.7', fontSize: '10.5px', textAlign: 'justify' }} />
+            </div>
           </ExecSection>
         )}
 
@@ -71,8 +74,8 @@ export function ExecutiveTemplate() {
                   <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                     {exp.bullets.filter(Boolean).map((b, i) => (
                       <li key={i} style={{ color: '#374151', paddingLeft: '14px', position: 'relative', marginBottom: '3px', lineHeight: '1.5' }}>
-                        <span style={{ position: 'absolute', left: 0, color: accent, fontWeight: 700 }}>•</span>
-                        {b}
+                        <span style={{ position: 'absolute', left: 0, color: primary, fontWeight: 700, fontSize: '12px', lineHeight: 1 }}>›</span>
+                        <RichText content={b} />
                       </li>
                     ))}
                   </ul>
@@ -131,8 +134,8 @@ export function ExecutiveTemplate() {
                 </div>
                 {proj.bullets.filter(Boolean).map((b, i) => (
                   <div key={i} style={{ color: '#374151', paddingLeft: '14px', position: 'relative', marginTop: '3px', lineHeight: '1.5' }}>
-                    <span style={{ position: 'absolute', left: 0, color: accent, fontWeight: 700 }}>•</span>
-                    {b}
+                    <span style={{ position: 'absolute', left: 0, color: primary, fontWeight: 700, fontSize: '12px', lineHeight: 1 }}>›</span>
+                    <RichText content={b} />
                   </div>
                 ))}
               </div>
@@ -193,7 +196,7 @@ export function ExecutiveTemplate() {
                     <span style={{ fontWeight: 600, color: primary }}>{item.title}{item.subtitle ? ` · ${item.subtitle}` : ''}</span>
                     {item.date && <span style={{ fontSize: '9px', color: '#888' }}>{item.date}</span>}
                   </div>
-                  {item.description && <p style={{ color: '#374151', lineHeight: '1.5', marginTop: '3px' }}>{item.description}</p>}
+                  {item.description && <RichText content={item.description} style={{ color: '#374151', lineHeight: '1.5', marginTop: '3px' }} />}
                 </div>
               ))}
             </ExecSection>

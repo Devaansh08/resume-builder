@@ -1,6 +1,7 @@
 import { useResumeStore } from '../../store/resumeStore';
 import { formatDate } from '../../utils/helpers';
 import { FONT_OPTIONS } from '../../utils/defaults';
+import { RichText } from '../builder/RichText';
 
 export function ShrineTemplate() {
   const { currentResume } = useResumeStore();
@@ -87,11 +88,11 @@ export function ShrineTemplate() {
         <div style={{ padding: '32px 32px 32px 50px', borderRight: `1px solid ${textDark}15` }}>
           {/* Summary */}
           {pi.summary && (
-            <ShrineSection title="About">
-              <p style={{ fontSize: '10.5px', lineHeight: '1.65', margin: '0', color: textDark, opacity: 0.95 }}>
-                {pi.summary}
-              </p>
-            </ShrineSection>
+            <div style={{ marginBottom: '24px' }}>
+              <div style={{ fontSize: '10px', color: textDark, opacity: 0.85, lineHeight: '1.7', padding: '16px', backgroundColor: `${primary}08`, borderRadius: '8px' }}>
+                <RichText content={pi.summary} />
+              </div>
+            </div>
           )}
 
           {/* Work Experience */}
@@ -109,10 +110,11 @@ export function ShrineTemplate() {
                     {exp.company} {exp.location && `· ${exp.location}`}
                   </div>
                   {exp.bullets.filter(Boolean).length > 0 && (
-                    <ul style={{ paddingLeft: '14px', margin: '0', listStyleType: 'square' }}>
+                    <ul style={{ paddingLeft: '14px', margin: '0', listStyleType: 'none' }}>
                       {exp.bullets.filter(Boolean).map((b, i) => (
-                        <li key={i} style={{ fontSize: '9.5px', lineHeight: '1.5', marginBottom: '3px', opacity: 0.9 }}>
-                          {b}
+                        <li key={i} style={{ marginBottom: '4px', paddingLeft: '4px', position: 'relative' }}>
+                          <span style={{ position: 'absolute', left: -14, color: accent }}>▹</span>
+                          <RichText content={b} />
                         </li>
                       ))}
                     </ul>
@@ -133,11 +135,14 @@ export function ShrineTemplate() {
                       <span style={{ fontSize: '8.5px', opacity: 0.8 }}>{proj.technologies.slice(0, 3).join(' · ')}</span>
                     )}
                   </div>
-                  {proj.bullets.filter(Boolean).map((b, i) => (
-                    <div key={i} style={{ fontSize: '9.5px', paddingLeft: '8px', borderLeft: `2px solid ${textDark}30`, marginTop: '4px', opacity: 0.9 }}>
-                      {b}
-                    </div>
-                  ))}
+                  <ul style={{ paddingLeft: '12px', margin: '0', listStyleType: 'none' }}>
+                    {proj.bullets.filter(Boolean).map((b, i) => (
+                      <li key={i} style={{ marginBottom: '3px', position: 'relative', paddingLeft: '12px' }}>
+                        <span style={{ position: 'absolute', left: 0, color: accent }}>▹</span>
+                        <RichText content={b} />
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               ))}
             </ShrineSection>
@@ -153,8 +158,8 @@ export function ShrineTemplate() {
                       <span style={{ fontWeight: 600, fontSize: '10.5px', textTransform: 'uppercase' }}>{item.title}</span>
                       {item.date && <span style={{ fontSize: '8.5px', opacity: 0.8 }}>{item.date}</span>}
                     </div>
-                    {item.subtitle && <div style={{ fontSize: '9px', fontWeight: 600, opacity: 0.85, marginTop: '1px' }}>{item.subtitle}</div>}
-                    {item.description && <div style={{ fontSize: '9.5px', paddingLeft: '8px', borderLeft: `2px solid ${textDark}30`, marginTop: '4px', opacity: 0.9, lineHeight: '1.4' }}>{item.description}</div>}
+                    {item.subtitle && <div style={{ fontSize: '10px', color: primary, fontWeight: 500 }}>{item.subtitle}</div>}
+                    {item.description && <RichText content={item.description} style={{ fontSize: '9.5px', paddingLeft: '8px', borderLeft: `2px solid ${textDark}30`, marginTop: '4px', opacity: 0.9, lineHeight: '1.4' }} />}
                   </div>
                 ))}
               </ShrineSection>

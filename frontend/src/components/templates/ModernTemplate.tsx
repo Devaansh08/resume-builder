@@ -1,6 +1,7 @@
 import { useResumeStore } from '../../store/resumeStore';
 import { formatDate } from '../../utils/helpers';
 import { FONT_OPTIONS } from '../../utils/defaults';
+import { RichText } from '../builder/RichText';
 
 export function ModernTemplate() {
   const { currentResume } = useResumeStore();
@@ -56,7 +57,7 @@ export function ModernTemplate() {
           {/* Summary */}
           {pi.summary && (
             <Section title="Professional Summary" primary={primary}>
-              <p style={{ color: '#374151', lineHeight: '1.6', fontSize: '10.5px' }}>{pi.summary}</p>
+              <RichText content={pi.summary} style={{ color: '#374151', lineHeight: '1.6', fontSize: '10.5px' }} />
             </Section>
           )}
 
@@ -79,7 +80,7 @@ export function ModernTemplate() {
                     <ul style={{ paddingLeft: '14px', marginTop: '5px' }}>
                       {exp.bullets.filter(Boolean).map((b, i) => (
                         <li key={i} style={{ color: '#374151', fontSize: '10px', lineHeight: '1.5', marginBottom: '2px' }}>
-                          {b}
+                          <RichText content={b} />
                         </li>
                       ))}
                     </ul>
@@ -101,7 +102,9 @@ export function ModernTemplate() {
                     )}
                   </div>
                   {proj.bullets.filter(Boolean).map((b, i) => (
-                    <li key={i} style={{ color: '#374151', fontSize: '10px', listStyle: 'disc', marginLeft: '12px', marginTop: '3px' }}>{b}</li>
+                    <li key={i} style={{ color: '#374151', fontSize: '10px', listStyle: 'disc', marginLeft: '12px', marginTop: '3px' }}>
+                      <RichText content={b} />
+                    </li>
                   ))}
                 </div>
               ))}
@@ -119,7 +122,7 @@ export function ModernTemplate() {
                       {item.date && <span style={{ fontSize: '9.5px', color: '#9ca3af', fontWeight: 500 }}>{item.date}</span>}
                     </div>
                     {item.subtitle && <div style={{ fontSize: '10px', color: primary, fontWeight: 500, marginBottom: '2px' }}>{item.subtitle}</div>}
-                    {item.description && <div style={{ fontSize: '10px', color: '#374151', lineHeight: '1.5' }}>{item.description}</div>}
+                    {item.description && <RichText content={item.description} style={{ fontSize: '10px', color: '#374151', lineHeight: '1.5' }} />}
                   </div>
                 ))}
               </Section>

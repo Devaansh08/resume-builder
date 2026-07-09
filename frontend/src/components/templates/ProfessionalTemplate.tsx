@@ -1,6 +1,7 @@
 import { useResumeStore } from '../../store/resumeStore';
 import { formatDate } from '../../utils/helpers';
 import { FONT_OPTIONS } from '../../utils/defaults';
+import { RichText } from '../builder/RichText';
 
 export function ProfessionalTemplate() {
   const { currentResume } = useResumeStore();
@@ -43,7 +44,7 @@ export function ProfessionalTemplate() {
       </div>
 
       {/* Summary */}
-      {pi.summary && <ProfSection title="Summary"><p style={{ color: '#374151' }}>{pi.summary}</p></ProfSection>}
+      {pi.summary && <ProfSection title="Summary"><RichText content={pi.summary} style={{ color: '#374151' }} /></ProfSection>}
 
       {/* Experience */}
       {sections.experience.length > 0 && (
@@ -56,11 +57,13 @@ export function ProfessionalTemplate() {
                   {formatDate(exp.startDate)} – {exp.current ? 'Present' : formatDate(exp.endDate)}{exp.location ? ` | ${exp.location}` : ''}
                 </span>
               </div>
-              <ul style={{ paddingLeft: '16px' }}>
-                {exp.bullets.filter(Boolean).map((b, i) => (
-                  <li key={i} style={{ color: '#374151', marginBottom: '2px' }}>{b}</li>
-                ))}
-              </ul>
+              {exp.bullets.filter(Boolean).length > 0 && (
+                <ul style={{ paddingLeft: '16px', marginTop: '4px', listStyleType: 'disc' }}>
+                  {exp.bullets.filter(Boolean).map((b, i) => (
+                    <li key={i} style={{ color: '#374151', marginBottom: '2px' }}><RichText content={b} /></li>
+                  ))}
+                </ul>
+              )}
             </div>
           ))}
         </ProfSection>
@@ -102,9 +105,11 @@ export function ProfessionalTemplate() {
             <div key={proj.id} style={{ marginBottom: '10px' }}>
               <strong>{proj.name}</strong>
               {proj.technologies.length > 0 && <span style={{ color: '#6b7280', fontSize: '9.5px' }}> ({proj.technologies.join(', ')})</span>}
-              <ul style={{ paddingLeft: '16px', marginTop: '2px' }}>
-                {proj.bullets.filter(Boolean).map((b, i) => <li key={i} style={{ color: '#374151' }}>{b}</li>)}
-              </ul>
+              {proj.bullets.filter(Boolean).length > 0 && (
+                <ul style={{ paddingLeft: '16px', marginTop: '4px', listStyleType: 'disc' }}>
+                  {proj.bullets.filter(Boolean).map((b, i) => <li key={i} style={{ color: '#374151' }}><RichText content={b} /></li>)}
+                </ul>
+              )}
             </div>
           ))}
         </ProfSection>
@@ -132,7 +137,7 @@ export function ProfessionalTemplate() {
                   <span><strong>{item.title}</strong>{item.subtitle ? ` — ${item.subtitle}` : ''}</span>
                   {item.date && <span style={{ fontSize: '9.5px', color: '#6b7280' }}>{item.date}</span>}
                 </div>
-                {item.description && <div style={{ fontSize: '10px', color: '#374151', marginTop: '2px', lineHeight: '1.4' }}>{item.description}</div>}
+                {item.description && <RichText content={item.description} style={{ fontSize: '10px', color: '#374151', marginTop: '2px', lineHeight: '1.4' }} />}
               </div>
             ))}
           </ProfSection>

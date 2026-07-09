@@ -95,12 +95,21 @@ export function PreviewPanel() {
       >
         <div
           style={{
-            transform: `scale(${zoomLevel / 100})`,
-            transformOrigin: 'top center',
+            width: `${794 * (zoomLevel / 100)}px`,
+            minHeight: `${1123 * (zoomLevel / 100)}px`,
+            transition: 'width 0.2s, min-height 0.2s',
           }}
-          className="transition-transform duration-200"
+          className="flex justify-center"
         >
-          {/* A4 paper shadow */}
+          <div
+            style={{
+              transform: `scale(${zoomLevel / 100})`,
+              transformOrigin: 'top center',
+              width: '794px',
+            }}
+            className="transition-transform duration-200"
+          >
+            {/* A4 paper shadow */}
           <div
             ref={previewRef}
             id="resume-preview"
