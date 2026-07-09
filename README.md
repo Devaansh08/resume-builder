@@ -4,7 +4,7 @@
 
 **Build a job-winning, ATS-optimized resume in minutes. No account. No watermarks. 100% free.**
 
-[🚀 Launch App](https://resume-builder.vercel.app) · [📋 Templates](https://resume-builder.vercel.app/templates) · [🐛 Report Bug](#)
+[🚀 Launch App](resume-builder-o7po.vercel.app) · [📋 Templates](https://resume-builder.vercel.app/templates) · [🐛 Report Bug](#)
 
 ![ResumeAI Preview](https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=1200&h=500&fit=crop&q=80)
 
@@ -183,33 +183,7 @@ The `vercel.json` file is already configured for SPA routing.
 
 ---
 
-## 🔐 Environment Variables
 
-### Frontend (`frontend/.env`)
-
-```env
-VITE_FIREBASE_API_KEY=your_api_key
-VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
-VITE_FIREBASE_PROJECT_ID=your-project-id
-VITE_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
-VITE_FIREBASE_MESSAGING_SENDER_ID=123456789
-VITE_FIREBASE_APP_ID=1:123456789:web:abcdef
-VITE_API_URL=http://localhost:3001
-```
-
-### Backend (`backend/.env`)
-
-```env
-PORT=3001
-NODE_ENV=development
-CLIENT_URL=http://localhost:5173
-SESSION_SECRET=your_random_secret_32_chars_min
-FIREBASE_PROJECT_ID=your-project-id
-FIREBASE_CLIENT_EMAIL=firebase-adminsdk@your-project.iam.gserviceaccount.com
-FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
-```
-
----
 
 ## 🧩 Resume Templates
 
