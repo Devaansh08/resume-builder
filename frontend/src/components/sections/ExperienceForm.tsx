@@ -92,10 +92,10 @@ export function ExperienceForm() {
       )}
 
       {experiences.map((exp) => (
-        <div key={exp.id} className="card border border-gray-100 dark:border-surface-700 overflow-hidden">
+        <div key={exp.id} className="card border border-gray-100 dark:border-surface-700">
           {/* Header */}
           <div
-            className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-surface-800 transition-colors"
+            className={`flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-surface-800 transition-colors ${expanded === exp.id ? 'rounded-t-[11px]' : 'rounded-[11px]'}`}
             onClick={() => setExpanded(expanded === exp.id ? null : exp.id)}
           >
             <div className="flex-1 min-w-0">

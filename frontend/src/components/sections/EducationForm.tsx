@@ -47,8 +47,9 @@ export function EducationForm() {
       )}
 
       {educations.map((edu) => (
-        <div key={edu.id} className="card border border-gray-100 dark:border-surface-700 overflow-hidden">
-          <div className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-surface-800 transition-colors"
+        <div key={edu.id} className="card border border-gray-100 dark:border-surface-700">
+          <div
+            className={`flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-surface-800 transition-colors ${expanded === edu.id ? 'rounded-t-[11px]' : 'rounded-[11px]'}`}
             onClick={() => setExpanded(expanded === edu.id ? null : edu.id)}>
             <div className="flex-1 min-w-0">
               <div className="font-medium text-sm text-gray-900 dark:text-white truncate">{edu.degree || 'Degree'} {edu.field ? `in ${edu.field}` : ''}</div>

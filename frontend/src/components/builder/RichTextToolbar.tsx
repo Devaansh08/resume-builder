@@ -198,11 +198,11 @@ export function RichTextToolbar({ value, onChange, inputRef, showWordCount = tru
 
   return (
     <div
-      className="rounded-t-lg overflow-hidden border border-gray-200 dark:border-surface-800 border-b-0 bg-white dark:bg-surface-900"
+      className="rounded-t-lg border border-gray-200 dark:border-surface-800 border-b-0 bg-white dark:bg-surface-900"
     >
       {/* ── Toggle Header ────────────────────────────────────────────── */}
       <div
-        className={`flex items-center justify-between px-3 py-2 cursor-pointer transition-colors ${isExpanded ? 'bg-gray-50 dark:bg-surface-800' : 'hover:bg-gray-50 dark:hover:bg-surface-800'}`}
+        className={`rounded-t-lg flex items-center justify-between px-3 py-2 cursor-pointer transition-colors ${isExpanded ? 'bg-gray-50 dark:bg-surface-800' : 'hover:bg-gray-50 dark:hover:bg-surface-800'}`}
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300">
