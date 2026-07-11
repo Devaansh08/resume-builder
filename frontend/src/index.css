@@ -34,9 +34,30 @@
     @apply antialiased;
   }
 
+  @keyframes floating-gradient {
+    0% {
+      background-position: 0% 0%, 100% 100%, 50% 50%;
+      background-size: 140% 140%, 140% 140%, 200% 200%;
+    }
+    50% {
+      background-position: 100% 80%, 0% 20%, 60% 40%;
+      background-size: 165% 165%, 165% 165%, 180% 180%;
+    }
+    100% {
+      background-position: 0% 0%, 100% 100%, 50% 50%;
+      background-size: 140% 140%, 140% 140%, 200% 200%;
+    }
+  }
+
   .dark body {
-    background-color: #1A1818;
-    color: #E8DDD0;
+    background-color: #06060a;
+    background-image: 
+      radial-gradient(circle at 15% 15%, rgba(220, 38, 38, 0.32) 0%, transparent 55%),
+      radial-gradient(circle at 85% 85%, rgba(153, 27, 27, 0.38) 0%, transparent 60%),
+      radial-gradient(circle at 50% 50%, rgba(24, 24, 27, 0.95) 0%, #030305 100%);
+    background-attachment: fixed;
+    animation: floating-gradient 16s ease-in-out infinite;
+    color: #E2E8F0;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -59,7 +80,7 @@
   }
 
   .dark ::-webkit-scrollbar-thumb {
-    background-color: #3A3028;
+    background-color: #334155;
   }
 
   ::-webkit-scrollbar-thumb:hover {
@@ -82,12 +103,12 @@
   }
 
   .dark .paper-surface {
-    background-color: #1E1818;
+    background-color: #131C2E;
     background-image: repeating-linear-gradient(
       transparent,
       transparent 27px,
-      rgba(100, 130, 160, 0.2) 27px,
-      rgba(100, 130, 160, 0.2) 28px
+      rgba(148, 163, 184, 0.12) 27px,
+      rgba(148, 163, 184, 0.12) 28px
     );
   }
 
@@ -424,6 +445,15 @@
     transform-style: preserve-3d;
   }
 
+  .backface-hidden {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+
+  .rotate-y-180 {
+    transform: rotateY(180deg);
+  }
+
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
@@ -439,6 +469,30 @@
 
   .font-schoolbook {
     font-family: 'Fraunces', 'Georgia', serif;
+  }
+
+  @keyframes slide-down {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slide-sheen {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  .animate-slide-down {
+    animation: slide-down 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 }
 
@@ -464,3 +518,20 @@
     padding: 0 !important;
   }
 }
+
+/* ─── Resizable Panels for Desktop Only ─────────────────────────────────── */
+@media (min-width: 1024px) {
+  .editor-resizable-panel {
+    width: var(--editor-width) !important;
+    flex-basis: var(--editor-width) !important;
+    flex-grow: 0 !important;
+    flex-shrink: 0 !important;
+  }
+  .preview-resizable-panel {
+    width: calc(100% - var(--editor-width)) !important;
+    flex-basis: calc(100% - var(--editor-width)) !important;
+    flex-grow: 0 !important;
+    flex-shrink: 0 !important;
+  }
+}
+

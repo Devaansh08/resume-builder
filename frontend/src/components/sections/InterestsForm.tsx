@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useResumeStore } from '../../store/resumeStore';
 import { newInterest } from '../../utils/defaults';
 import { Plus, Trash2, Heart, Sparkles } from 'lucide-react';
+import { SectionTitleEditor } from '../builder/SectionTitleEditor';
 
 const SUGGESTED_INTERESTS = [
   'Artificial Intelligence & Robotics',
@@ -46,6 +47,7 @@ export function InterestsForm() {
 
   return (
     <div className="space-y-6 animate-fade-in">
+      <SectionTitleEditor sectionKey="interests" defaultTitle="Interests & Hobbies" />
       {/* Header */}
       <div className="flex items-center justify-between border-b border-gray-100 dark:border-surface-800 pb-4">
         <div>

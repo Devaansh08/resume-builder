@@ -1,6 +1,3 @@
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
-
 export async function generatePDF(resumeId: string, title: string = 'Resume'): Promise<void> {
   const element = document.getElementById('resume-preview');
   if (!element) {
@@ -15,6 +12,11 @@ export async function generatePDF(resumeId: string, title: string = 'Resume'): P
     loadingEl.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;color:white;font-size:16px;font-family:Inter,sans-serif';
     loadingEl.innerHTML = '<div style="text-align:center"><div>Generating PDF...</div><div style="font-size:12px;opacity:0.7;margin-top:8px">This may take a moment</div></div>';
     document.body.appendChild(loadingEl);
+
+    const [{ default: jsPDF }, { default: html2canvas }] = await Promise.all([
+      import('jspdf'),
+      import('html2canvas'),
+    ]);
 
     await document.fonts.ready;
     const canvas = await html2canvas(element, {

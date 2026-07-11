@@ -3,6 +3,7 @@ import { useResumeStore } from '../../store/resumeStore';
 import { newReference } from '../../utils/defaults';
 import type { Reference } from '../../types';
 import { Plus, Trash2, Users, Mail, Phone, Building2 } from 'lucide-react';
+import { SectionTitleEditor } from '../builder/SectionTitleEditor';
 
 export function ReferencesForm() {
   const { currentResume, updateSection } = useResumeStore();
@@ -25,6 +26,7 @@ export function ReferencesForm() {
 
   return (
     <div className="space-y-6 animate-fade-in">
+      <SectionTitleEditor sectionKey="references" defaultTitle="References" />
       {/* Header */}
       <div className="flex items-center justify-between border-b border-gray-100 dark:border-surface-800 pb-4">
         <div>

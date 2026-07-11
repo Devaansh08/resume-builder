@@ -77,7 +77,7 @@ export default function SharedResumePage() {
   const TemplateComponent = TEMPLATE_MAP[currentResume.template] || ModernTemplate;
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-surface-950">
+    <div className="min-h-screen bg-gray-100 dark:bg-transparent">
       {/* Top bar */}
       <div className="sticky top-0 z-40 glass border-b border-white/20 dark:border-surface-800">
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">

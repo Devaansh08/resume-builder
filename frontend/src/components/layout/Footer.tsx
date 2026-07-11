@@ -38,28 +38,25 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-8">
           {/* Col 1: Brand & Bio */}
           <div className="lg:col-span-2 space-y-4">
-            <Link to="/" className="flex items-center gap-2.5 group">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-brand-500/20">
-                AI
-              </div>
+            <Link to="/" className="flex items-center gap-2 group select-none">
               <div>
-                <span className="font-display font-bold text-xl tracking-tight text-white flex items-center gap-1.5">
-                  ResumeAI <span className="text-brand-400 font-extrabold">Pro</span>
+                <span className="font-display font-bold text-lg sm:text-xl tracking-tight text-white flex items-center gap-1.5">
+                  Resume <span className="font-schoolbook font-bold text-brand-400 italic">Alchemist</span>
                 </span>
-                <span className="text-[10px] uppercase tracking-widest text-gray-500 block -mt-0.5 font-semibold">
-                  Intelligent Career Studio
+                <span className="text-[10px] uppercase tracking-widest text-gray-300 block -mt-0.5 font-bold">
+                  Crafting Career Magic
                 </span>
               </div>
             </Link>
-            <p className="text-sm text-gray-400 leading-relaxed max-w-sm">
-              The premier AI-powered career architecture platform engineered to beat Applicant Tracking Systems (ATS). Designed with high-performance templates and rich Mockaroo data schemas.
+            <p className="text-sm text-gray-200 leading-relaxed max-w-sm font-medium">
+              The premier resume builder engineered to craft ATS-optimized, high-performance portfolios. Built with classic notebook styling and professional layout controls.
             </p>
             <div className="flex items-center gap-3 pt-2">
               <a
                 href="https://github.com"
                 target="_blank"
                 rel="noreferrer"
-                className="w-9 h-9 rounded-xl bg-surface-800 hover:bg-brand-500/20 hover:text-brand-400 flex items-center justify-center text-gray-400 transition-all border border-surface-700/60"
+                className="w-9 h-9 rounded-xl bg-surface-800 hover:bg-brand-500/20 hover:text-brand-400 flex items-center justify-center text-gray-200 transition-all border border-surface-700/60"
                 aria-label="GitHub"
               >
                 <Github size={18} />
@@ -68,7 +65,7 @@ export function Footer() {
                 href="https://twitter.com"
                 target="_blank"
                 rel="noreferrer"
-                className="w-9 h-9 rounded-xl bg-surface-800 hover:bg-brand-500/20 hover:text-brand-400 flex items-center justify-center text-gray-400 transition-all border border-surface-700/60"
+                className="w-9 h-9 rounded-xl bg-surface-800 hover:bg-brand-500/20 hover:text-brand-400 flex items-center justify-center text-gray-200 transition-all border border-surface-700/60"
                 aria-label="Twitter"
               >
                 <Twitter size={18} />
@@ -77,7 +74,7 @@ export function Footer() {
                 href="https://linkedin.com"
                 target="_blank"
                 rel="noreferrer"
-                className="w-9 h-9 rounded-xl bg-surface-800 hover:bg-brand-500/20 hover:text-brand-400 flex items-center justify-center text-gray-400 transition-all border border-surface-700/60"
+                className="w-9 h-9 rounded-xl bg-surface-800 hover:bg-brand-500/20 hover:text-brand-400 flex items-center justify-center text-gray-200 transition-all border border-surface-700/60"
                 aria-label="LinkedIn"
               >
                 <Linkedin size={18} />
@@ -87,10 +84,10 @@ export function Footer() {
 
           {/* Col 2: Product & Builder */}
           <div className="space-y-3">
-            <h4 className="font-display font-semibold text-white text-sm uppercase tracking-wider">
+            <h4 className="font-display font-bold text-white text-sm uppercase tracking-wider">
               Product & Tools
             </h4>
-            <ul className="space-y-2 text-sm text-gray-400">
+            <ul className="space-y-2.5 text-sm font-medium text-gray-200">
               <li>
                 <Link to="/builder" className="hover:text-brand-400 transition-colors flex items-center gap-1.5">
                   <Cpu size={14} className="text-brand-400" /> AI Resume Builder
@@ -120,10 +117,10 @@ export function Footer() {
 
           {/* Col 3: Themes & Palettes */}
           <div className="space-y-3">
-            <h4 className="font-display font-semibold text-white text-sm uppercase tracking-wider">
+            <h4 className="font-display font-bold text-white text-sm uppercase tracking-wider">
               Curated Palettes
             </h4>
-            <ul className="space-y-2 text-sm text-gray-400">
+            <ul className="space-y-2.5 text-sm font-medium text-gray-200">
               <li className="flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-blue-500" /> Indigo Executive
               </li>
@@ -144,10 +141,10 @@ export function Footer() {
 
           {/* Col 4: Newsletter & System Status */}
           <div className="space-y-4">
-            <h4 className="font-display font-semibold text-white text-sm uppercase tracking-wider">
+            <h4 className="font-display font-bold text-white text-sm uppercase tracking-wider">
               Stay Ahead of ATS
             </h4>
-            <p className="text-xs text-gray-400 leading-relaxed">
+            <p className="text-xs font-medium text-gray-200 leading-relaxed">
               Subscribe to get monthly AI prompt updates and interview cheat sheets delivered right to your inbox.
             </p>
             {subscribed ? (
@@ -158,14 +155,14 @@ export function Footer() {
             ) : (
               <form onSubmit={handleSubscribe} className="space-y-2">
                 <div className="relative">
-                  <Mail size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                  <Mail size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" />
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Enter your email address..."
                     required
-                    className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-surface-800 border border-surface-700 text-white text-xs placeholder:text-gray-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all"
+                    className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-surface-800 border border-surface-700 text-white text-xs placeholder:text-gray-400 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all"
                   />
                 </div>
                 <button
@@ -180,9 +177,9 @@ export function Footer() {
 
             {/* Live System Status Pill */}
             <div className="pt-2">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-800/80 border border-surface-700 text-[11px] text-gray-400">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-800 border border-surface-700 text-[11px] font-medium text-gray-200">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span>ATS Engine Status: <strong className="text-emerald-400 font-semibold">Operational (99.99%)</strong></span>
+                <span>ATS Engine Status: <strong className="text-emerald-400 font-bold">Operational (99.99%)</strong></span>
               </div>
             </div>
           </div>
@@ -190,27 +187,27 @@ export function Footer() {
       </div>
 
       {/* Bottom Bar: Copyright & Security Badges */}
-      <div className="border-t border-surface-800/60 bg-surface-950/80">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
-          <div className="flex items-center gap-2">
-            <span>&copy; {new Date().getFullYear()} ResumeAI Pro by Devaansh. All rights reserved.</span>
-            <span>•</span>
+      <div className="border-t border-surface-800/80 bg-surface-950/90">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-medium text-gray-300">
+          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 text-center sm:text-left">
+            <span>&copy; {new Date().getFullYear()} ResumeAI Pro — Designed & Built by <strong className="text-white font-bold tracking-wide">Devaansh</strong>. All rights reserved.</span>
+            <span className="hidden md:inline text-gray-500">•</span>
             <span className="flex items-center gap-1">
-              Built with <Heart size={12} className="text-rose-500 fill-rose-500" /> for job seekers globally.
+              Made with <Heart size={12} className="text-rose-500 fill-rose-500 inline" /> by <strong className="text-brand-400 font-bold">devansh</strong> for ambitious professionals.
             </span>
           </div>
 
-          <div className="flex items-center gap-6">
-            <span className="hover:text-gray-300 cursor-pointer transition-colors flex items-center gap-1">
+          <div className="flex flex-wrap items-center justify-center gap-6 text-gray-200 font-medium">
+            <span className="hover:text-white cursor-pointer transition-colors flex items-center gap-1.5">
               <ShieldCheck size={14} className="text-brand-400" /> 256-Bit Encrypted
             </span>
-            <span className="hover:text-gray-300 cursor-pointer transition-colors flex items-center gap-1">
+            <span className="hover:text-white cursor-pointer transition-colors flex items-center gap-1.5">
               <Globe size={14} className="text-purple-400" /> SOC2 Type II Certified
             </span>
-            <Link to="/" className="hover:text-gray-300 transition-colors">
+            <Link to="/" className="hover:text-white transition-colors">
               Privacy Policy
             </Link>
-            <Link to="/" className="hover:text-gray-300 transition-colors">
+            <Link to="/" className="hover:text-white transition-colors">
               Terms of Service
             </Link>
           </div>

@@ -4,6 +4,7 @@ import type { Project } from '../../types';
 import { newProject } from '../../utils/defaults';
 import { Plus, Trash2, ChevronDown, ChevronUp, Code, X, ArrowUp, ArrowDown } from 'lucide-react';
 import { RichTextToolbar } from '../builder/RichTextToolbar';
+import { SectionTitleEditor } from '../builder/SectionTitleEditor';
 
 export function ProjectsForm() {
   const { currentResume, updateSection } = useResumeStore();
@@ -57,6 +58,8 @@ export function ProjectsForm() {
 
   return (
     <div className="space-y-4">
+      <SectionTitleEditor sectionKey="projects" defaultTitle="Featured Projects" />
+
       <div className="flex items-center justify-between">
         <span className="text-sm text-gray-500">{projects.length} project{projects.length !== 1 ? 's' : ''}</span>
         <button onClick={add} className="btn btn-primary btn-sm gap-1.5"><Plus size={14} /> Add Project</button>

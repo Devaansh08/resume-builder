@@ -35,7 +35,7 @@ export function ImportModal({ isOpen, onClose, onSuccess }: ImportModalProps) {
         };
         setCurrentResume(updated);
       } else {
-        const resume = createNewResume(title);
+        const resume = createNewResume(title, 'blank');
         resume.sections = parsedSections;
         setCurrentResume(resume);
       }

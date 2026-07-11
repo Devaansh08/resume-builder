@@ -4,6 +4,7 @@ import type { Experience } from '../../types';
 import { newExperience } from '../../utils/defaults';
 import { Plus, Trash2, ChevronDown, ChevronUp, Briefcase, ArrowUp, ArrowDown } from 'lucide-react';
 import { RichTextToolbar } from '../builder/RichTextToolbar';
+import { SectionTitleEditor } from '../builder/SectionTitleEditor';
 
 export function ExperienceForm() {
   const { currentResume, updateSection } = useResumeStore();
@@ -73,6 +74,8 @@ export function ExperienceForm() {
 
   return (
     <div className="space-y-4">
+      <SectionTitleEditor sectionKey="experience" defaultTitle="Work Experience" />
+
       <div className="flex items-center justify-between">
         <span className="text-sm text-gray-500">{experiences.length} position{experiences.length !== 1 ? 's' : ''}</span>
         <button onClick={add} className="btn btn-primary btn-sm gap-1.5">

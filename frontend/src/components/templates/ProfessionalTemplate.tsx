@@ -1,25 +1,24 @@
 import { useResumeStore } from '../../store/resumeStore';
+import type { Resume } from '../../types';
 import { formatDate } from '../../utils/helpers';
-import { FONT_OPTIONS } from '../../utils/defaults';
+import { FONT_OPTIONS, getDensityConfig, type DensityConfig } from '../../utils/defaults';
 import { RichText } from '../builder/RichText';
 
-export function ProfessionalTemplate() {
-  const { currentResume } = useResumeStore();
+export function ProfessionalTemplate({ resume: propResume }: { resume?: Resume }) {
+  const storeResume = useResumeStore((state) => propResume ? null : state.currentResume);
+  const currentResume = propResume || storeResume;
   if (!currentResume) return null;
-  const { sections, theme } = currentResume;
+  const { sections, theme, sectionTitles } = currentResume;
+  const titles = sectionTitles || {};
   const pi = sections.personalInfo;
 
   const fontObj = FONT_OPTIONS.find((f) => f.id === theme?.fontFamily);
   const fontStyle = fontObj ? fontObj.family : theme?.fontFamily || 'Inter, sans-serif';
 
-  const sizeStyles = {
-    compact: { text: '9.5px', leading: '1.4', padding: '12px' },
-    normal: { text: '10.5px', leading: '1.5', padding: '16px' },
-    spacious: { text: '11.5px', leading: '1.65', padding: '20px' },
-  }[theme?.fontSize || 'normal'];
+  const density = getDensityConfig(theme);
 
   return (
-    <div style={{ fontFamily: fontStyle, color: '#1a1a1a', padding: '50px 50px 40px', fontSize: sizeStyles.text, lineHeight: sizeStyles.leading }}>
+    <div style={{ fontFamily: fontStyle, color: '#1a1a1a', padding: density.pagePadding, fontSize: density.fontSize, lineHeight: density.lineHeight }}>
       {/* Header — centered or split if photo */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: pi.photo ? 'space-between' : 'center', marginBottom: '20px', borderBottom: '2px solid #1a1a1a', paddingBottom: '16px', gap: '20px' }}>
         <div style={{ flex: 1, textAlign: pi.photo ? 'left' : 'center' }}>
@@ -32,6 +31,7 @@ export function ProfessionalTemplate() {
             {pi.address && <span>{pi.address}</span>}
             {pi.linkedin && <span>{pi.linkedin}</span>}
             {pi.github && <span>{pi.github}</span>}
+            {pi.portfolio && <span>{pi.portfolio}</span>}
           </div>
         </div>
         {pi.photo && (
@@ -44,11 +44,11 @@ export function ProfessionalTemplate() {
       </div>
 
       {/* Summary */}
-      {pi.summary && <ProfSection title="Summary"><RichText content={pi.summary} style={{ color: '#374151' }} /></ProfSection>}
+      {pi.summary && <ProfSection density={density} title={titles.summary || "Summary"}><RichText content={pi.summary} style={{ color: '#374151' }} /></ProfSection>}
 
       {/* Experience */}
       {sections.experience.length > 0 && (
-        <ProfSection title="Professional Experience">
+        <ProfSection density={density} title={titles.experience || "Professional Experience"}>
           {sections.experience.map((exp) => (
             <div key={exp.id} style={{ marginBottom: '14px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
@@ -71,7 +71,7 @@ export function ProfessionalTemplate() {
 
       {/* Education */}
       {sections.education.length > 0 && (
-        <ProfSection title="Education">
+        <ProfSection density={density} title={titles.education || "Education"}>
           {sections.education.map((edu) => (
             <div key={edu.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
               <div>
@@ -88,7 +88,7 @@ export function ProfessionalTemplate() {
 
       {/* Skills */}
       {sections.skills.length > 0 && (
-        <ProfSection title="Skills">
+        <ProfSection density={density} title={titles.skills || "Skills"}>
           {sections.skills.map((skill) => (
             <div key={skill.id} style={{ marginBottom: '4px' }}>
               {skill.category && <strong style={{ fontSize: '10px' }}>{skill.category}: </strong>}
@@ -100,7 +100,7 @@ export function ProfessionalTemplate() {
 
       {/* Projects */}
       {sections.projects.length > 0 && (
-        <ProfSection title="Projects">
+        <ProfSection density={density} title={titles.projects || "Projects"}>
           {sections.projects.map((proj) => (
             <div key={proj.id} style={{ marginBottom: '10px' }}>
               <strong>{proj.name}</strong>
@@ -117,7 +117,7 @@ export function ProfessionalTemplate() {
 
       {/* Certifications */}
       {sections.certificates.length > 0 && (
-        <ProfSection title="Certifications">
+        <ProfSection density={density} title={titles.certificates || "Certifications"}>
           {sections.certificates.map((cert) => (
             <div key={cert.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
               <span><strong>{cert.name}</strong> — {cert.issuer}</span>
@@ -130,7 +130,7 @@ export function ProfessionalTemplate() {
       {/* Custom Sections */}
       {sections.customSections && sections.customSections.length > 0 && sections.customSections.map((cs) => (
         cs.items && cs.items.length > 0 ? (
-          <ProfSection key={cs.id} title={cs.title}>
+          <ProfSection key={cs.id} density={density} title={cs.title}>
             {cs.items.map((item) => (
               <div key={item.id} style={{ marginBottom: '10px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
@@ -146,7 +146,7 @@ export function ProfessionalTemplate() {
 
       {/* Interests */}
       {sections.interests && sections.interests.length > 0 && (
-        <ProfSection title="Interests & Hobbies">
+        <ProfSection density={density} title={titles.interests || "Interests & Hobbies"}>
           <div style={{ fontSize: '10px', color: '#374151' }}>
             {sections.interests.map((i) => i.name).join(' • ')}
           </div>
@@ -155,7 +155,7 @@ export function ProfessionalTemplate() {
 
       {/* References */}
       {sections.references && sections.references.length > 0 && (
-        <ProfSection title="References">
+        <ProfSection density={density} title={titles.references || "References"}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
             {sections.references.map((r) => (
               <div key={r.id} style={{ fontSize: '9.5px', color: '#374151' }}>
@@ -170,10 +170,12 @@ export function ProfessionalTemplate() {
   );
 }
 
-function ProfSection({ title, children }: { title: string; children: React.ReactNode }) {
+function ProfSection({ title, density, children }: { title: string; density?: DensityConfig; children: React.ReactNode }) {
+  const marginBottom = density?.sectionGap || '16px';
+  const fontSize = density?.sectionTitleSize || '11.5px';
   return (
-    <div style={{ marginBottom: '16px' }}>
-      <h2 style={{ fontSize: '11.5px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', borderBottom: '1px solid #d1d5db', paddingBottom: '4px', marginBottom: '10px' }}>
+    <div style={{ marginBottom }}>
+      <h2 style={{ fontSize, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', borderBottom: '1px solid #d1d5db', paddingBottom: '4px', marginBottom: '8px' }}>
         {title}
       </h2>
       {children}

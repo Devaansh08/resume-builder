@@ -6,6 +6,15 @@ import { Palette, Sparkles, Check, LayoutGrid, Type, AlignLeft } from 'lucide-re
 
 const PRESETS = [
   {
+    name: 'Red & Dark Gradient Executive',
+    desc: 'Deep crimson and charcoal contrast. Striking floating dark mode aesthetic.',
+    template: 'executive' as TemplateId,
+    primaryColor: '#991b1b',
+    accentColor: '#18181b',
+    fontFamily: 'Plus Jakarta Sans',
+    fontSize: 'normal' as const,
+  },
+  {
     name: 'Silicon Valley AI Executive',
     desc: 'Modern and vibrant Indigo & Violet. Ideal for AI architects and tech leads.',
     template: 'modern' as TemplateId,
@@ -108,6 +117,8 @@ const TEMPLATES_LIST = [
   { id: 'creative' as TemplateId, name: 'Creative (Sidebar)' },
   { id: 'executive' as TemplateId, name: 'Executive (Bold)' },
   { id: 'shrine' as TemplateId, name: 'Shrine (Material Pink)' },
+  { id: 'indian-academic' as TemplateId, name: 'Indian Academic (Tabular)' },
+  { id: 'indian-corporate' as TemplateId, name: 'Indian Corporate (Sidebar)' },
 ];
 
 export function ThemeForm() {
@@ -179,7 +190,7 @@ export function ThemeForm() {
         <div className="flex items-center gap-2 mb-3">
           <LayoutGrid size={16} className="text-brand-500" />
           <h3 className="section-label text-[11px] font-bold tracking-wider uppercase text-gray-800 dark:text-gray-200">
-            Select Template Layout (10 Formats)
+            Select Template Layout (12 Formats)
           </h3>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">

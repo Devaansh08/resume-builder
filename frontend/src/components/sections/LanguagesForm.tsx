@@ -3,12 +3,15 @@ import { useResumeStore } from '../../store/resumeStore';
 import { Plus, Trash2, Globe } from 'lucide-react';
 import type { Language } from '../../types';
 import { uuidv4 } from '../../utils/helpers';
+import { SectionTitleEditor } from '../builder/SectionTitleEditor';
 
-const PROFICIENCY_LEVELS: { value: Language['proficiency']; label: string }[] = [
+const PROFICIENCY_LEVELS: { value: string; label: string }[] = [
   { value: 'basic', label: 'Basic' },
   { value: 'conversational', label: 'Conversational' },
   { value: 'professional', label: 'Professional' },
   { value: 'native', label: 'Native / Bilingual' },
+  { value: 'Native / Bilingual', label: 'Native / Bilingual' },
+  { value: 'Professional Working', label: 'Professional Working' },
 ];
 
 export function LanguagesForm() {
@@ -23,6 +26,7 @@ export function LanguagesForm() {
 
   return (
     <div className="space-y-4">
+      <SectionTitleEditor sectionKey="languages" defaultTitle="Languages" />
       <div className="flex justify-end">
         <button onClick={add} className="btn btn-primary btn-sm gap-1.5"><Plus size={14} /> Add Language</button>
       </div>

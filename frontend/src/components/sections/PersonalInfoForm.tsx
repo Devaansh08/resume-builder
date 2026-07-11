@@ -4,6 +4,7 @@ import { useResumeStore } from '../../store/resumeStore';
 import type { PersonalInfo } from '../../types';
 import { User, Mail, Phone, MapPin, Linkedin, Github, Globe, Sparkles, Upload, Trash2, Image as ImageIcon } from 'lucide-react';
 import { RichTextToolbar } from '../builder/RichTextToolbar';
+import { SectionTitleEditor } from '../builder/SectionTitleEditor';
 
 const FIELDS = [
   { name: 'name', label: 'Full Name', placeholder: 'John Doe', icon: <User size={16} />, required: true },
@@ -164,6 +165,7 @@ export function PersonalInfoForm() {
 
       <div className="divider" />
       <h3 className="section-label text-[10px]">PROFESSIONAL SUMMARY</h3>
+      <SectionTitleEditor sectionKey="summary" defaultTitle="Professional Summary" />
 
       <div>
         <div className="flex items-center justify-between mb-1.5">

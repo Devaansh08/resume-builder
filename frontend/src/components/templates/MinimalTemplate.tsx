@@ -1,25 +1,24 @@
 import { useResumeStore } from '../../store/resumeStore';
+import type { Resume } from '../../types';
 import { formatDate } from '../../utils/helpers';
-import { FONT_OPTIONS } from '../../utils/defaults';
+import { FONT_OPTIONS, getDensityConfig, type DensityConfig } from '../../utils/defaults';
 import { RichText } from '../builder/RichText';
 
-export function MinimalTemplate() {
-  const { currentResume } = useResumeStore();
+export function MinimalTemplate({ resume: propResume }: { resume?: Resume }) {
+  const storeResume = useResumeStore((state) => propResume ? null : state.currentResume);
+  const currentResume = propResume || storeResume;
   if (!currentResume) return null;
-  const { sections, theme } = currentResume;
+  const { sections, theme, sectionTitles } = currentResume;
+  const titles = sectionTitles || {};
   const pi = sections.personalInfo;
 
   const fontObj = FONT_OPTIONS.find((f) => f.id === theme?.fontFamily);
   const fontStyle = fontObj ? fontObj.family : theme?.fontFamily || 'Inter, sans-serif';
 
-  const sizeStyles = {
-    compact: { text: '9px', leading: '1.45', padding: '16px' },
-    normal: { text: '10px', leading: '1.65', padding: '24px' },
-    spacious: { text: '11px', leading: '1.85', padding: '32px' },
-  }[theme?.fontSize || 'normal'];
+  const density = getDensityConfig(theme);
 
   return (
-    <div style={{ fontFamily: fontStyle, color: '#18181b', padding: '48px 52px', fontSize: sizeStyles.text, lineHeight: sizeStyles.leading, backgroundColor: '#fff' }}>
+    <div style={{ fontFamily: fontStyle, color: '#18181b', padding: density.pagePadding, fontSize: density.fontSize, lineHeight: density.lineHeight, backgroundColor: '#fff' }}>
       {/* Header */}
       <div style={{ marginBottom: '28px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '20px' }}>
         <div style={{ flex: 1 }}>
@@ -31,8 +30,9 @@ export function MinimalTemplate() {
             {pi.email && <span>{pi.email}</span>}
             {pi.phone && <span>{pi.phone}</span>}
             {pi.address && <span>{pi.address}</span>}
-            {pi.linkedin && <a href={`https://${pi.linkedin}`} style={{ color: '#3b5bff' }}>{pi.linkedin}</a>}
-            {pi.github && <a href={`https://${pi.github}`} style={{ color: '#3b5bff' }}>{pi.github}</a>}
+            {pi.linkedin && <span>{pi.linkedin}</span>}
+            {pi.github && <span>{pi.github}</span>}
+            {pi.portfolio && <span>{pi.portfolio}</span>}
           </div>
         </div>
         {pi.photo && (
@@ -46,12 +46,15 @@ export function MinimalTemplate() {
 
       {pi.summary && (
         <div style={{ marginBottom: '24px' }}>
+          <div style={{ fontSize: '9px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em', color: '#a1a1aa', marginBottom: '8px' }}>
+            {titles.summary || "Professional Summary"}
+          </div>
           <RichText content={pi.summary} style={{ color: '#3f3f46', maxWidth: '520px' }} />
         </div>
       )}
 
       {sections.experience.length > 0 && (
-        <MinSection title="Experience">
+        <MinSection density={density} title={titles.experience || "Experience"}>
           {sections.experience.map((exp) => (
             <div key={exp.id} style={{ marginBottom: '16px', display: 'grid', gridTemplateColumns: '1fr 3fr', gap: '16px' }}>
               <div style={{ color: '#a1a1aa', fontSize: '9px', paddingTop: '2px' }}>
@@ -72,7 +75,7 @@ export function MinimalTemplate() {
       )}
 
       {sections.education.length > 0 && (
-        <MinSection title="Education">
+        <MinSection density={density} title={titles.education || "Education"}>
           {sections.education.map((edu) => (
             <div key={edu.id} style={{ marginBottom: '10px', display: 'grid', gridTemplateColumns: '1fr 3fr', gap: '16px' }}>
               <div style={{ color: '#a1a1aa', fontSize: '9px' }}>
@@ -88,7 +91,7 @@ export function MinimalTemplate() {
       )}
 
       {sections.projects.length > 0 && (
-        <MinSection title="Projects">
+        <MinSection density={density} title={titles.projects || "Projects"}>
           {sections.projects.map((proj) => (
             <div key={proj.id} style={{ marginBottom: '12px' }}>
               <div style={{ display: 'flex', gap: '8px', alignItems: 'baseline' }}>
@@ -104,7 +107,7 @@ export function MinimalTemplate() {
       )}
 
       {sections.skills.length > 0 && (
-        <MinSection title="Skills">
+        <MinSection density={density} title={titles.skills || "Skills"}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
             {sections.skills.map((skill) => (
               <div key={skill.id} style={{ display: 'grid', gridTemplateColumns: '1fr 3fr', gap: '16px' }}>
@@ -119,7 +122,7 @@ export function MinimalTemplate() {
       {/* Custom Sections */}
       {sections.customSections && sections.customSections.length > 0 && sections.customSections.map((cs) => (
         cs.items && cs.items.length > 0 ? (
-          <MinSection key={cs.id} title={cs.title}>
+          <MinSection key={cs.id} density={density} title={cs.title}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {cs.items.map((item) => (
                 <div key={item.id}>
@@ -138,7 +141,7 @@ export function MinimalTemplate() {
 
       {/* Interests */}
       {sections.interests && sections.interests.length > 0 && (
-        <MinSection title="Interests">
+        <MinSection density={density} title={titles.interests || "Interests"}>
           <div style={{ color: '#52525b', fontSize: '9.5px' }}>
             {sections.interests.map((i) => i.name).join('  ·  ')}
           </div>
@@ -147,7 +150,7 @@ export function MinimalTemplate() {
 
       {/* References */}
       {sections.references && sections.references.length > 0 && (
-        <MinSection title="References">
+        <MinSection density={density} title={titles.references || "References"}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {sections.references.map((r) => (
               <div key={r.id} style={{ fontSize: '9.5px', color: '#52525b' }}>
@@ -162,10 +165,12 @@ export function MinimalTemplate() {
   );
 }
 
-function MinSection({ title, children }: { title: string; children: React.ReactNode }) {
+function MinSection({ title, density, children }: { title: string; density?: DensityConfig; children: React.ReactNode }) {
+  const marginBottom = density?.sectionGap || '24px';
+  const fontSize = density?.sectionTitleSize || '9px';
   return (
-    <div style={{ marginBottom: '24px' }}>
-      <div style={{ fontSize: '9px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em', color: '#a1a1aa', marginBottom: '12px' }}>
+    <div style={{ marginBottom }}>
+      <div style={{ fontSize, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em', color: '#a1a1aa', marginBottom: '10px' }}>
         {title}
       </div>
       {children}

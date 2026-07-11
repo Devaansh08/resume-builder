@@ -1,3 +1,4 @@
+import React from 'react';
 import { useResumeStore } from '../../store/resumeStore';
 import { getScoreColor, getScoreBg } from '../../utils/ats';
 import { CheckCircle2, XCircle, AlertCircle, Info } from 'lucide-react';
@@ -8,8 +9,8 @@ const SEVERITY_ICONS = {
   info: <Info size={14} className="text-blue-500 flex-shrink-0" />,
 };
 
-export function ATSPanel() {
-  const { atsResult } = useResumeStore();
+export const ATSPanel = React.memo(function ATSPanel() {
+  const atsResult = useResumeStore((state) => state.atsResult);
 
   if (!atsResult) {
     return (
@@ -156,4 +157,4 @@ export function ATSPanel() {
       </div>
     </div>
   );
-}
+});

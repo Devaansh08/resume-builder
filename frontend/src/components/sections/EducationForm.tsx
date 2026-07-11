@@ -4,6 +4,7 @@ import type { Education } from '../../types';
 import { newEducation } from '../../utils/defaults';
 import { Plus, Trash2, ChevronDown, ChevronUp, GraduationCap } from 'lucide-react';
 import { RichTextToolbar } from '../builder/RichTextToolbar';
+import { SectionTitleEditor } from '../builder/SectionTitleEditor';
 
 export function EducationForm() {
   const { currentResume, updateSection } = useResumeStore();
@@ -33,6 +34,8 @@ export function EducationForm() {
 
   return (
     <div className="space-y-4">
+      <SectionTitleEditor sectionKey="education" defaultTitle="Education" />
+
       <div className="flex items-center justify-between">
         <span className="text-sm text-gray-500">{educations.length} entr{educations.length !== 1 ? 'ies' : 'y'}</span>
         <button onClick={add} className="btn btn-primary btn-sm gap-1.5"><Plus size={14} /> Add Education</button>

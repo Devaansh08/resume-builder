@@ -3,6 +3,7 @@ import { useResumeStore } from '../../store/resumeStore';
 import type { Skill } from '../../types';
 import { newSkill } from '../../utils/defaults';
 import { Plus, Trash2, X, Zap } from 'lucide-react';
+import { SectionTitleEditor } from '../builder/SectionTitleEditor';
 
 export function SkillsForm() {
   const { currentResume, updateSection } = useResumeStore();
@@ -33,6 +34,8 @@ export function SkillsForm() {
 
   return (
     <div className="space-y-4">
+      <SectionTitleEditor sectionKey="skills" defaultTitle="Skills & Expertise" />
+
       <div className="flex items-center justify-between">
         <span className="text-sm text-gray-500">{skills.reduce((acc, s) => acc + s.items.length, 0)} skills total</span>
         <button onClick={add} className="btn btn-primary btn-sm gap-1.5"><Plus size={14} /> Add Category</button>

@@ -84,7 +84,7 @@ export interface Achievement {
 export interface Language {
   id: string;
   name: string;
-  proficiency: 'basic' | 'conversational' | 'professional' | 'native';
+  proficiency: 'basic' | 'conversational' | 'professional' | 'native' | (string & {});
 }
 
 export interface Interest {
@@ -140,9 +140,11 @@ export type TemplateId =
   | 'microsoft'
   | 'creative'
   | 'shrine'
-  | 'executive';
+  | 'executive'
+  | 'indian-academic'
+  | 'indian-corporate';
 
-export type ThemeMode = 'light' | 'dark' | 'system';
+export type ThemeMode = 'light' | 'dark';
 
 export interface ResumeTheme {
   primaryColor: string;
@@ -160,6 +162,7 @@ export interface Resume {
   theme: ResumeTheme;
   sections: ResumeSections;
   sectionOrder: string[];
+  sectionTitles?: Record<string, string>;
   createdAt: string;
   updatedAt: string;
   isPublic?: boolean;

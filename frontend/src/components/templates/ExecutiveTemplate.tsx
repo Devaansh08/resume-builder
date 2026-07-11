@@ -1,13 +1,16 @@
 import { useResumeStore } from '../../store/resumeStore';
+import type { Resume } from '../../types';
 import { formatDate } from '../../utils/helpers';
-import { FONT_OPTIONS } from '../../utils/defaults';
+import { FONT_OPTIONS, getDensityConfig, type DensityConfig } from '../../utils/defaults';
 import { RichText } from '../builder/RichText';
 
-export function ExecutiveTemplate() {
-  const { currentResume } = useResumeStore();
+export function ExecutiveTemplate({ resume: propResume }: { resume?: Resume }) {
+  const storeResume = useResumeStore((state) => propResume ? null : state.currentResume);
+  const currentResume = propResume || storeResume;
   if (!currentResume) return null;
 
-  const { sections, theme } = currentResume;
+  const { sections, theme, sectionTitles } = currentResume;
+  const titles = sectionTitles || {};
   const pi = sections.personalInfo;
   const primary = theme?.primaryColor || '#1A1A3E';
   const accent = theme?.accentColor || '#C41E3A';
@@ -15,41 +18,37 @@ export function ExecutiveTemplate() {
   const fontObj = FONT_OPTIONS.find((f) => f.id === theme?.fontFamily);
   const fontStyle = fontObj ? fontObj.family : theme?.fontFamily || 'Plus Jakarta Sans, sans-serif';
 
-  const sizeStyles = {
-    compact: { text: '9.5px', leading: '1.45', margin: '10px', padding: '14px', headingSize: '22px' },
-    normal: { text: '10.5px', leading: '1.65', margin: '14px', padding: '20px', headingSize: '26px' },
-    spacious: { text: '11.5px', leading: '1.85', margin: '18px', padding: '28px', headingSize: '30px' },
-  }[theme?.fontSize || 'normal'];
+  const density = getDensityConfig(theme);
 
   return (
-    <div style={{ fontFamily: fontStyle, color: '#1a1a1a', backgroundColor: '#fff', fontSize: sizeStyles.text, lineHeight: sizeStyles.leading }}>
+    <div style={{ fontFamily: fontStyle, color: '#1a1a1a', backgroundColor: '#fff', fontSize: density.fontSize, lineHeight: density.lineHeight, padding: density.pagePadding }}>
       {/* ── Centered Header ──────────────────────────────────────────── */}
-      <div style={{ padding: '40px 48px 24px', borderBottom: `3px solid ${primary}`, textAlign: 'center' }}>
-        <h1 style={{ fontSize: sizeStyles.headingSize, fontWeight: 700, color: primary, marginBottom: '4px', letterSpacing: '-0.02em' }}>
+      <div style={{ padding: density.headerPadding, borderBottom: `3px solid ${primary}`, textAlign: 'center' }}>
+        <h1 style={{ fontSize: density.headerTitleSize, fontWeight: 700, color: primary, marginBottom: '4px', letterSpacing: '-0.02em' }}>
           {pi.name || 'Your Name'}
         </h1>
         {pi.title && (
-          <p style={{ fontSize: '12px', color: accent, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '12px' }}>
+          <p style={{ fontSize: density.subTitleSize, color: accent, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: '12px' }}>
             {pi.title}
           </p>
         )}
         {/* Contact row */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '16px', fontSize: '9.5px', color: '#555' }}>
-          {pi.email && <span>{pi.email}</span>}
-          {pi.phone && <span>{pi.phone}</span>}
-          {pi.address && <span>{pi.address}</span>}
+        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '6px 16px', fontSize: '9.5px', color: '#555' }}>
+          {pi.email && <span>✉ {pi.email}</span>}
+          {pi.phone && <span>📞 {pi.phone}</span>}
+          {pi.address && <span>📍 {pi.address}</span>}
           {pi.linkedin && <span>{pi.linkedin}</span>}
           {pi.github && <span>{pi.github}</span>}
           {pi.portfolio && <span>{pi.portfolio}</span>}
         </div>
       </div>
 
-      {/* ── Body ─────────────────────────────────────────────────────── */}
-      <div style={{ padding: '24px 48px 40px' }}>
+      {/* ── Main Content ─────────────────────────────────────────────── */}
+      <div style={{ padding: '28px 48px 40px' }}>
 
         {/* Summary */}
         {pi.summary && (
-          <ExecSection title="Professional Summary" accent={accent} primary={primary}>
+          <ExecSection density={density} title={titles.summary || "Professional Summary"} accent={accent} primary={primary}>
             <div style={{ marginBottom: '28px', padding: '0 12px' }}>
               <RichText content={pi.summary} style={{ color: '#374151', lineHeight: '1.7', fontSize: '10.5px', textAlign: 'justify' }} />
             </div>
@@ -58,7 +57,7 @@ export function ExecutiveTemplate() {
 
         {/* Experience */}
         {sections.experience.length > 0 && (
-          <ExecSection title="Professional Experience" accent={accent} primary={primary}>
+          <ExecSection density={density} title={titles.experience || "Professional Experience"} accent={accent} primary={primary}>
             {sections.experience.map((exp) => (
               <div key={exp.id} style={{ marginBottom: '18px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '2px' }}>
@@ -87,7 +86,7 @@ export function ExecutiveTemplate() {
 
         {/* Education */}
         {sections.education.length > 0 && (
-          <ExecSection title="Education" accent={accent} primary={primary}>
+          <ExecSection density={density} title={titles.education || "Education"} accent={accent} primary={primary}>
             {sections.education.map((edu) => (
               <div key={edu.id} style={{ marginBottom: '14px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
@@ -109,7 +108,7 @@ export function ExecutiveTemplate() {
 
         {/* Skills */}
         {sections.skills.length > 0 && (
-          <ExecSection title="Core Competencies" accent={accent} primary={primary}>
+          <ExecSection density={density} title={titles.skills || "Core Competencies"} accent={accent} primary={primary}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px 24px' }}>
               {sections.skills.map((skill) => (
                 <div key={skill.id}>
@@ -123,7 +122,7 @@ export function ExecutiveTemplate() {
 
         {/* Projects */}
         {sections.projects.length > 0 && (
-          <ExecSection title="Notable Projects" accent={accent} primary={primary}>
+          <ExecSection density={density} title={titles.projects || "Notable Projects"} accent={accent} primary={primary}>
             {sections.projects.map((proj) => (
               <div key={proj.id} style={{ marginBottom: '14px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
@@ -145,7 +144,7 @@ export function ExecutiveTemplate() {
 
         {/* Certifications */}
         {sections.certificates.length > 0 && (
-          <ExecSection title="Certifications" accent={accent} primary={primary}>
+          <ExecSection density={density} title={titles.certificates || "Certifications"} accent={accent} primary={primary}>
             {sections.certificates.map((cert) => (
               <div key={cert.id} style={{ marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
                 <div>
@@ -160,7 +159,7 @@ export function ExecutiveTemplate() {
 
         {/* Achievements */}
         {sections.achievements.length > 0 && (
-          <ExecSection title="Awards & Achievements" accent={accent} primary={primary}>
+          <ExecSection density={density} title={titles.achievements || "Awards & Achievements"} accent={accent} primary={primary}>
             {sections.achievements.map((ach) => (
               <div key={ach.id} style={{ marginBottom: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
                 <div>
@@ -175,7 +174,7 @@ export function ExecutiveTemplate() {
 
         {/* Languages */}
         {sections.languages.length > 0 && (
-          <ExecSection title="Languages" accent={accent} primary={primary}>
+          <ExecSection density={density} title={titles.languages || "Languages"} accent={accent} primary={primary}>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
               {sections.languages.map((lang) => (
                 <span key={lang.id} style={{ color: '#374151' }}>
@@ -189,7 +188,7 @@ export function ExecutiveTemplate() {
         {/* Custom Sections */}
         {sections.customSections?.map((cs) =>
           cs.items?.length > 0 ? (
-            <ExecSection key={cs.id} title={cs.title} accent={accent} primary={primary}>
+            <ExecSection key={cs.id} density={density} title={cs.title} accent={accent} primary={primary}>
               {cs.items.map((item) => (
                 <div key={item.id} style={{ marginBottom: '10px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -211,18 +210,22 @@ function ExecSection({
   title,
   accent,
   primary,
+  density,
   children,
 }: {
   title: string;
   accent: string;
   primary: string;
+  density?: DensityConfig;
   children: React.ReactNode;
 }) {
+  const marginBottom = density?.sectionGap || '20px';
+  const fontSize = density?.sectionTitleSize || '10px';
   return (
-    <div style={{ marginBottom: '20px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+    <div style={{ marginBottom }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
         <h2 style={{
-          fontSize: '10px',
+          fontSize,
           fontWeight: 700,
           textTransform: 'uppercase',
           letterSpacing: '0.1em',

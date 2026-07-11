@@ -1,27 +1,26 @@
 import { useResumeStore } from '../../store/resumeStore';
+import type { Resume } from '../../types';
 import { formatDate } from '../../utils/helpers';
-import { FONT_OPTIONS } from '../../utils/defaults';
+import { FONT_OPTIONS, getDensityConfig, type DensityConfig } from '../../utils/defaults';
 import { RichText } from '../builder/RichText';
 
-export function ModernTemplate() {
-  const { currentResume } = useResumeStore();
+export function ModernTemplate({ resume: propResume }: { resume?: Resume }) {
+  const storeResume = useResumeStore((state) => propResume ? null : state.currentResume);
+  const currentResume = propResume || storeResume;
   if (!currentResume) return null;
 
-  const { sections, theme } = currentResume;
+  const { sections, theme, sectionTitles } = currentResume;
+  const titles = sectionTitles || {};
   const pi = sections.personalInfo;
   const primary = theme?.primaryColor || '#3b5bff';
 
   const fontObj = FONT_OPTIONS.find((f) => f.id === theme?.fontFamily);
   const fontStyle = fontObj ? fontObj.family : theme?.fontFamily || 'Inter, sans-serif';
 
-  const sizeStyles = {
-    compact: { text: '10px', leading: '1.4', margin: '8px', padding: '12px' },
-    normal: { text: '11px', leading: '1.65', margin: '12px', padding: '18px' },
-    spacious: { text: '12.5px', leading: '1.8', margin: '16px', padding: '24px' },
-  }[theme?.fontSize || 'normal'];
+  const density = getDensityConfig(theme);
 
   return (
-    <div className="text-gray-900" style={{ fontFamily: fontStyle, fontSize: sizeStyles.text, lineHeight: sizeStyles.leading }}>
+    <div className="text-gray-900" style={{ fontFamily: fontStyle, fontSize: density.fontSize, lineHeight: density.lineHeight }}>
       {/* Header */}
       <div className="px-10 pt-10 pb-6" style={{ borderBottom: `3px solid ${primary}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '24px' }}>
         <div style={{ flex: 1, minWidth: 0 }}>
@@ -56,14 +55,14 @@ export function ModernTemplate() {
         <div style={{ padding: '20px 24px 20px 40px', borderRight: '1px solid #e5e7eb' }}>
           {/* Summary */}
           {pi.summary && (
-            <Section title="Professional Summary" primary={primary}>
+            <Section density={density} title={titles.summary || "Professional Summary"} primary={primary}>
               <RichText content={pi.summary} style={{ color: '#374151', lineHeight: '1.6', fontSize: '10.5px' }} />
             </Section>
           )}
 
           {/* Experience */}
           {sections.experience.length > 0 && (
-            <Section title="Work Experience" primary={primary}>
+            <Section density={density} title={titles.experience || "Work Experience"} primary={primary}>
               {sections.experience.map((exp) => (
                 <div key={exp.id} style={{ marginBottom: '14px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -92,7 +91,7 @@ export function ModernTemplate() {
 
           {/* Projects */}
           {sections.projects.length > 0 && (
-            <Section title="Projects" primary={primary}>
+            <Section density={density} title={titles.projects || "Projects"} primary={primary}>
               {sections.projects.map((proj) => (
                 <div key={proj.id} style={{ marginBottom: '12px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -114,7 +113,7 @@ export function ModernTemplate() {
           {/* Custom Sections (Left / Main Column) */}
           {sections.customSections && sections.customSections.length > 0 && sections.customSections.map((cs) => (
             cs.items && cs.items.length > 0 ? (
-              <Section key={cs.id} title={cs.title} primary={primary}>
+              <Section key={cs.id} density={density} title={cs.title} primary={primary}>
                 {cs.items.map((item) => (
                   <div key={item.id} style={{ marginBottom: '12px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
@@ -134,7 +133,7 @@ export function ModernTemplate() {
         <div style={{ padding: '20px 24px 20px 20px', backgroundColor: '#f9fafb' }}>
           {/* Skills */}
           {sections.skills.length > 0 && (
-            <Section title="Skills" primary={primary}>
+            <Section density={density} title={titles.skills || "Skills"} primary={primary}>
               {sections.skills.map((skill) => (
                 <div key={skill.id} style={{ marginBottom: '10px' }}>
                   {skill.category && (
@@ -156,7 +155,7 @@ export function ModernTemplate() {
 
           {/* Education */}
           {sections.education.length > 0 && (
-            <Section title="Education" primary={primary}>
+            <Section density={density} title={titles.education || "Education"} primary={primary}>
               {sections.education.map((edu) => (
                 <div key={edu.id} style={{ marginBottom: '10px' }}>
                   <div style={{ fontWeight: 600, fontSize: '10.5px', color: '#111827' }}>{edu.degree} {edu.field ? `in ${edu.field}` : ''}</div>
@@ -172,7 +171,7 @@ export function ModernTemplate() {
 
           {/* Certificates */}
           {sections.certificates.length > 0 && (
-            <Section title="Certifications" primary={primary}>
+            <Section density={density} title={titles.certificates || "Certifications"} primary={primary}>
               {sections.certificates.map((cert) => (
                 <div key={cert.id} style={{ marginBottom: '8px' }}>
                   <div style={{ fontWeight: 600, fontSize: '10px', color: '#111827' }}>{cert.name}</div>
@@ -184,7 +183,7 @@ export function ModernTemplate() {
 
           {/* Languages */}
           {sections.languages.length > 0 && (
-            <Section title="Languages" primary={primary}>
+            <Section density={density} title={titles.languages || "Languages"} primary={primary}>
               {sections.languages.map((lang) => (
                 <div key={lang.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontSize: '10px' }}>
                   <span style={{ color: '#111827' }}>{lang.name}</span>
@@ -196,7 +195,7 @@ export function ModernTemplate() {
 
           {/* Achievements */}
           {sections.achievements.length > 0 && (
-            <Section title="Achievements" primary={primary}>
+            <Section density={density} title={titles.achievements || "Achievements"} primary={primary}>
               {sections.achievements.map((a) => (
                 <div key={a.id} style={{ marginBottom: '8px' }}>
                   <div style={{ fontWeight: 600, fontSize: '10px', color: '#111827' }}>{a.title}</div>
@@ -208,7 +207,7 @@ export function ModernTemplate() {
 
           {/* Interests */}
           {sections.interests && sections.interests.length > 0 && (
-            <Section title="Interests" primary={primary}>
+            <Section density={density} title={titles.interests || "Interests"} primary={primary}>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
                 {sections.interests.map((i) => (
                   <span key={i.id} style={{ fontSize: '9px', padding: '2px 7px', borderRadius: '4px', backgroundColor: '#f3f4f6', color: '#374151', fontWeight: 500 }}>
@@ -221,7 +220,7 @@ export function ModernTemplate() {
 
           {/* References */}
           {sections.references && sections.references.length > 0 && (
-            <Section title="References" primary={primary}>
+            <Section density={density} title={titles.references || "References"} primary={primary}>
               {sections.references.map((r) => (
                 <div key={r.id} style={{ marginBottom: '8px' }}>
                   <div style={{ fontWeight: 600, fontSize: '10px', color: '#111827' }}>{r.name}</div>
@@ -238,11 +237,13 @@ export function ModernTemplate() {
   );
 }
 
-function Section({ title, primary, children }: { title: string; primary: string; children: React.ReactNode }) {
+function Section({ title, primary, density, children }: { title: string; primary: string; density?: DensityConfig; children: React.ReactNode }) {
+  const marginBottom = density?.sectionGap || '18px';
+  const fontSize = density?.sectionTitleSize || '11px';
   return (
-    <div style={{ marginBottom: '18px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
-        <h2 style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: primary, whiteSpace: 'nowrap' }}>
+    <div style={{ marginBottom }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+        <h2 style={{ fontSize, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: primary, whiteSpace: 'nowrap' }}>
           {title}
         </h2>
         <div style={{ flex: 1, height: '1px', backgroundColor: `${primary}30` }} />

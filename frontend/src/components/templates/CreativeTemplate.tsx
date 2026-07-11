@@ -1,13 +1,16 @@
 import { useResumeStore } from '../../store/resumeStore';
+import type { Resume } from '../../types';
 import { formatDate } from '../../utils/helpers';
-import { FONT_OPTIONS } from '../../utils/defaults';
+import { FONT_OPTIONS, getDensityConfig, type DensityConfig } from '../../utils/defaults';
 import { RichText } from '../builder/RichText';
 
-export function CreativeTemplate() {
-  const { currentResume } = useResumeStore();
+export function CreativeTemplate({ resume: propResume }: { resume?: Resume }) {
+  const storeResume = useResumeStore((state) => propResume ? null : state.currentResume);
+  const currentResume = propResume || storeResume;
   if (!currentResume) return null;
 
-  const { sections, theme } = currentResume;
+  const { sections, theme, sectionTitles } = currentResume;
+  const titles = sectionTitles || {};
   const pi = sections.personalInfo;
   const primary = theme?.primaryColor || '#C41E3A';
   const accent = theme?.accentColor || '#1A1A3E';
@@ -15,54 +18,42 @@ export function CreativeTemplate() {
   const fontObj = FONT_OPTIONS.find((f) => f.id === theme?.fontFamily);
   const fontStyle = fontObj ? fontObj.family : theme?.fontFamily || 'Plus Jakarta Sans, sans-serif';
 
-  const sizeStyles = {
-    compact: { text: '9.5px', leading: '1.45', headerSize: '22px' },
-    normal: { text: '10.5px', leading: '1.65', headerSize: '26px' },
-    spacious: { text: '11.5px', leading: '1.85', headerSize: '30px' },
-  }[theme?.fontSize || 'normal'];
+  const density = getDensityConfig(theme);
 
   return (
-    <div style={{ fontFamily: fontStyle, color: '#1a1a1a', display: 'grid', gridTemplateColumns: '220px 1fr', minHeight: '1123px', fontSize: sizeStyles.text, lineHeight: sizeStyles.leading }}>
+    <div style={{ fontFamily: fontStyle, color: '#1a1a1a', display: 'grid', gridTemplateColumns: '220px 1fr', minHeight: '1123px', fontSize: density.fontSize, lineHeight: density.lineHeight }}>
 
       {/* ── Left Sidebar ──────────────────────────────────────────────── */}
-      <div style={{ backgroundColor: primary, color: 'white', padding: '40px 20px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <div style={{ backgroundColor: primary, color: 'white', padding: density.pagePadding, display: 'flex', flexDirection: 'column', gap: density.sectionGap }}>
 
         {/* Photo */}
-        {pi.photo ? (
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
+        {pi.photo && (
+          <div style={{ textAlign: 'center' }}>
             <img
               src={pi.photo}
               alt={pi.name}
-              style={{ width: '90px', height: '90px', borderRadius: '50%', objectFit: 'cover', border: '3px solid rgba(255,255,255,0.4)' }}
+              style={{ width: '120px', height: '120px', borderRadius: '50%', objectFit: 'cover', border: '3px solid rgba(255,255,255,0.3)', margin: '0 auto' }}
             />
-          </div>
-        ) : (
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
-            <div style={{ width: '80px', height: '80px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ fontSize: '28px', fontWeight: 700, color: 'rgba(255,255,255,0.8)' }}>
-                {pi.name ? pi.name.charAt(0) : 'A'}
-              </span>
-            </div>
           </div>
         )}
 
-        {/* Contact */}
+        {/* Contact info */}
         <div>
           <CreativeSideHeading>Contact</CreativeSideHeading>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '7px', fontSize: '9px', color: 'rgba(255,255,255,0.85)' }}>
-            {pi.email && <div style={{ wordBreak: 'break-all' }}>✉ {pi.email}</div>}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '9px', color: 'rgba(255,255,255,0.85)' }}>
+            {pi.email && <div>✉ {pi.email}</div>}
             {pi.phone && <div>📞 {pi.phone}</div>}
             {pi.address && <div>📍 {pi.address}</div>}
-            {pi.linkedin && <div style={{ wordBreak: 'break-all' }}>in {pi.linkedin}</div>}
-            {pi.github && <div style={{ wordBreak: 'break-all' }}>⌥ {pi.github}</div>}
-            {pi.portfolio && <div style={{ wordBreak: 'break-all' }}>🌐 {pi.portfolio}</div>}
+            {pi.linkedin && <div>{pi.linkedin}</div>}
+            {pi.github && <div>{pi.github}</div>}
+            {pi.portfolio && <div>{pi.portfolio}</div>}
           </div>
         </div>
 
         {/* Skills Sidebar */}
         {sections.skills.length > 0 && (
           <div>
-            <CreativeSideHeading>Skills</CreativeSideHeading>
+            <CreativeSideHeading>{titles.skills || "Skills"}</CreativeSideHeading>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {sections.skills.map((skill) => (
                 <div key={skill.id}>
@@ -85,7 +76,7 @@ export function CreativeTemplate() {
         {/* Languages */}
         {sections.languages.length > 0 && (
           <div>
-            <CreativeSideHeading>Languages</CreativeSideHeading>
+            <CreativeSideHeading>{titles.languages || "Languages"}</CreativeSideHeading>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
               {sections.languages.map((lang) => (
                 <div key={lang.id} style={{ fontSize: '9px', color: 'rgba(255,255,255,0.85)' }}>
@@ -100,7 +91,7 @@ export function CreativeTemplate() {
         {/* Certifications Sidebar */}
         {sections.certificates.length > 0 && (
           <div>
-            <CreativeSideHeading>Certifications</CreativeSideHeading>
+            <CreativeSideHeading>{titles.certificates || "Certifications"}</CreativeSideHeading>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {sections.certificates.map((cert) => (
                 <div key={cert.id} style={{ fontSize: '8.5px', color: 'rgba(255,255,255,0.85)' }}>
@@ -116,7 +107,7 @@ export function CreativeTemplate() {
         {/* Interests */}
         {sections.interests.length > 0 && (
           <div>
-            <CreativeSideHeading>Interests</CreativeSideHeading>
+            <CreativeSideHeading>{titles.interests || "Interests"}</CreativeSideHeading>
             <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.8)', lineHeight: '1.6' }}>
               {sections.interests.map((i) => i.name).join('  ·  ')}
             </div>
@@ -125,15 +116,15 @@ export function CreativeTemplate() {
       </div>
 
       {/* ── Right Main Content ─────────────────────────────────────────── */}
-      <div style={{ backgroundColor: '#fff', padding: '40px 32px' }}>
+      <div style={{ backgroundColor: '#fff', padding: density.pagePadding }}>
 
         {/* Name + Title Header */}
-        <div style={{ marginBottom: '28px', paddingBottom: '20px', borderBottom: `2px solid ${accent}` }}>
-          <h1 style={{ fontSize: sizeStyles.headerSize, fontWeight: 800, color: accent, marginBottom: '4px', letterSpacing: '-0.02em' }}>
+        <div style={{ marginBottom: density.sectionGap, paddingBottom: '16px', borderBottom: `2px solid ${accent}` }}>
+          <h1 style={{ fontSize: density.headerTitleSize, fontWeight: 800, color: accent, marginBottom: '4px', letterSpacing: '-0.02em' }}>
             {pi.name || 'Your Name'}
           </h1>
           {pi.title && (
-            <p style={{ fontSize: '12px', color: primary, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+            <p style={{ fontSize: density.subTitleSize, color: primary, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
               {pi.title}
             </p>
           )}
@@ -141,14 +132,14 @@ export function CreativeTemplate() {
 
         {/* Summary */}
         {pi.summary && (
-          <CreativeSection title="About Me" primary={primary} accent={accent}>
+          <CreativeSection density={density} title={titles.summary || "About Me"} primary={primary} accent={accent}>
             <RichText content={pi.summary} style={{ color: '#374151', lineHeight: '1.7' }} />
           </CreativeSection>
         )}
 
         {/* Experience */}
         {sections.experience.length > 0 && (
-          <CreativeSection title="Work Experience" primary={primary} accent={accent}>
+          <CreativeSection density={density} title={titles.experience || "Work Experience"} primary={primary} accent={accent}>
             {sections.experience.map((exp) => (
               <div key={exp.id} style={{ marginBottom: '18px', paddingLeft: '14px', borderLeft: `3px solid ${primary}` }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '3px' }}>
@@ -177,7 +168,7 @@ export function CreativeTemplate() {
 
         {/* Education */}
         {sections.education.length > 0 && (
-          <CreativeSection title="Education" primary={primary} accent={accent}>
+          <CreativeSection density={density} title={titles.education || "Education"} primary={primary} accent={accent}>
             {sections.education.map((edu) => (
               <div key={edu.id} style={{ marginBottom: '14px', paddingLeft: '14px', borderLeft: `3px solid ${primary}` }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
@@ -198,7 +189,7 @@ export function CreativeTemplate() {
 
         {/* Projects */}
         {sections.projects.length > 0 && (
-          <CreativeSection title="Projects" primary={primary} accent={accent}>
+          <CreativeSection density={density} title={titles.projects || "Projects"} primary={primary} accent={accent}>
             {sections.projects.map((proj) => (
               <div key={proj.id} style={{ marginBottom: '14px', paddingLeft: '14px', borderLeft: `3px solid ${primary}` }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '3px' }}>
@@ -220,7 +211,7 @@ export function CreativeTemplate() {
 
         {/* Achievements */}
         {sections.achievements.length > 0 && (
-          <CreativeSection title="Achievements" primary={primary} accent={accent}>
+          <CreativeSection density={density} title={titles.achievements || "Achievements"} primary={primary} accent={accent}>
             {sections.achievements.map((ach) => (
               <div key={ach.id} style={{ marginBottom: '8px', display: 'flex', gap: '8px', alignItems: 'baseline' }}>
                 <span style={{ color: primary, fontWeight: 700, fontSize: '14px', lineHeight: 1, flexShrink: 0 }}>★</span>
@@ -236,7 +227,7 @@ export function CreativeTemplate() {
         {/* Custom Sections */}
         {sections.customSections?.map((cs) =>
           cs.items?.length > 0 ? (
-            <CreativeSection key={cs.id} title={cs.title} primary={primary} accent={accent}>
+            <CreativeSection key={cs.id} density={density} title={cs.title} primary={primary} accent={accent}>
               {cs.items.map((item) => (
                 <div key={item.id} style={{ marginBottom: '10px', paddingLeft: '14px', borderLeft: `3px solid ${primary}` }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -275,19 +266,23 @@ function CreativeSection({
   title,
   primary,
   accent,
+  density,
   children,
 }: {
   title: string;
   primary: string;
   accent: string;
+  density?: DensityConfig;
   children: React.ReactNode;
 }) {
+  const marginBottom = density?.sectionGap || '22px';
+  const fontSize = density?.sectionTitleSize || '11px';
   return (
-    <div style={{ marginBottom: '22px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
+    <div style={{ marginBottom }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
         <span style={{ width: '20px', height: '3px', backgroundColor: primary, borderRadius: '2px', flexShrink: 0 }} />
         <h2 style={{
-          fontSize: '11px',
+          fontSize,
           fontWeight: 800,
           textTransform: 'uppercase',
           letterSpacing: '0.1em',

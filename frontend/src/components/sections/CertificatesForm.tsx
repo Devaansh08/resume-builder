@@ -4,6 +4,7 @@ import { useResumeStore } from '../../store/resumeStore';
 import { newCertificate } from '../../utils/defaults';
 import { Plus, Trash2, Award } from 'lucide-react';
 import type { Certificate } from '../../types';
+import { SectionTitleEditor } from '../builder/SectionTitleEditor';
 
 export function CertificatesForm() {
   const { currentResume, updateSection } = useResumeStore();
@@ -17,6 +18,7 @@ export function CertificatesForm() {
 
   return (
     <div className="space-y-4">
+      <SectionTitleEditor sectionKey="certificates" defaultTitle="Certifications" />
       <div className="flex justify-end">
         <button onClick={add} className="btn btn-primary btn-sm gap-1.5"><Plus size={14} /> Add Certificate</button>
       </div>

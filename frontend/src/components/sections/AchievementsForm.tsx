@@ -3,6 +3,7 @@ import { useResumeStore } from '../../store/resumeStore';
 import { Plus, Trash2, Trophy } from 'lucide-react';
 import type { Achievement } from '../../types';
 import { uuidv4 } from '../../utils/helpers';
+import { SectionTitleEditor } from '../builder/SectionTitleEditor';
 
 export function AchievementsForm() {
   const { currentResume, updateSection } = useResumeStore();
@@ -16,6 +17,7 @@ export function AchievementsForm() {
 
   return (
     <div className="space-y-4">
+      <SectionTitleEditor sectionKey="achievements" defaultTitle="Key Achievements" />
       <div className="flex justify-end">
         <button onClick={add} className="btn btn-primary btn-sm gap-1.5"><Plus size={14} /> Add Achievement</button>
       </div>
