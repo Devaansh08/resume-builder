@@ -282,7 +282,48 @@ export function ThemeForm() {
         </div>
       </div>
 
+      <div className="divider" />
 
+      {/* ── Section 4: Typography & Font Style Selection ───────────────── */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <Type size={16} className="text-brand-500" />
+            <h3 className="section-label text-[11px] font-bold tracking-wider uppercase text-gray-800 dark:text-gray-200">
+              Typography & Font Style (Applies to Whole Page)
+            </h3>
+          </div>
+          <span className="text-[11px] text-gray-400">16+ Google & Classic Fonts</span>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+          {FONT_OPTIONS.map((f) => {
+            const isSelected = theme.fontFamily === f.id;
+            return (
+              <button
+                key={f.id}
+                type="button"
+                onClick={() => updateTheme({ fontFamily: f.id })}
+                style={{ fontFamily: f.family }}
+                className={`p-3 rounded-xl border text-left transition-all relative flex flex-col justify-between ${
+                  isSelected
+                    ? 'border-brand-500 bg-brand-50 dark:bg-brand-950/40 text-brand-700 dark:text-brand-300 ring-1 ring-brand-500/40 shadow-sm'
+                    : 'border-gray-200 dark:border-surface-800 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-surface-700 bg-white dark:bg-surface-900'
+                }`}
+              >
+                <div className="flex items-center justify-between w-full">
+                  <span className="text-xs font-bold truncate">{f.id}</span>
+                  {isSelected && <Check size={14} className="text-brand-500 flex-shrink-0 ml-1" />}
+                </div>
+                <span className="text-[10px] text-gray-400 dark:text-gray-500 truncate mt-1">
+                  {f.name.split(' (')[1]?.replace(')', '') || 'Classic font'}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="divider" />
 
       {/* ── Section 5: Page Spacing & Layout Density ───────────────────── */}
       <div>

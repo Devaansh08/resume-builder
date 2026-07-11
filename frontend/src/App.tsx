@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useResumeStore } from './store/resumeStore';
+import { FONT_OPTIONS } from './utils/defaults';
 import LandingPage from './pages/Landing';
 import BuilderPage from './pages/Builder';
 import TemplatesPage from './pages/Templates';
@@ -9,6 +10,7 @@ import FullPreviewPage from './pages/FullPreview';
 
 function ThemeWatcher() {
   const themeMode = useResumeStore((s) => s.themeMode);
+  const currentResume = useResumeStore((s) => s.currentResume);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -18,6 +20,14 @@ function ThemeWatcher() {
       root.classList.remove('dark');
     }
   }, [themeMode]);
+
+  useEffect(() => {
+    if (currentResume?.theme?.fontFamily) {
+      const fontObj = FONT_OPTIONS.find((f) => f.id === currentResume.theme.fontFamily);
+      const fontStyle = fontObj ? fontObj.family : currentResume.theme.fontFamily;
+      document.documentElement.style.setProperty('--resume-font', fontStyle);
+    }
+  }, [currentResume?.theme?.fontFamily]);
 
   return null;
 }

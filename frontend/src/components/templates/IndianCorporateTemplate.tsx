@@ -1,6 +1,6 @@
 import { useResumeStore } from '../../store/resumeStore';
 import type { Education, Experience, Project, Skill, Resume } from '../../types';
-import { getDensityConfig } from '../../utils/defaults';
+import { getDensityConfig, FONT_OPTIONS } from '../../utils/defaults';
 
 export function IndianCorporateTemplate({ resume: propResume }: { resume?: Resume }) {
   const storeResume = useResumeStore((state) => propResume ? null : state.currentResume);
@@ -11,9 +11,11 @@ export function IndianCorporateTemplate({ resume: propResume }: { resume?: Resum
   const primaryColor = currentResume.theme.primaryColor || '#c41e3a';
   const accentColor = currentResume.theme.accentColor || '#1a1a3e';
   const density = getDensityConfig(currentResume.theme);
+  const fontObj = FONT_OPTIONS.find((f) => f.id === currentResume.theme.fontFamily);
+  const fontStyle = fontObj ? fontObj.family : currentResume.theme.fontFamily || 'Inter, sans-serif';
 
   return (
-    <div className="w-full h-full bg-white text-surface-900 flex font-sans leading-relaxed" style={{ minHeight: '297mm', fontSize: density.fontSize, lineHeight: density.lineHeight }}>
+    <div className="w-full h-full bg-white text-surface-900 flex leading-relaxed" style={{ minHeight: '297mm', fontSize: density.fontSize, lineHeight: density.lineHeight, fontFamily: fontStyle }}>
       
       {/* Left Column Sidebar */}
       <div className="w-[33%] bg-surface-50 border-r border-surface-200 flex flex-col" style={{ padding: density.pagePadding, gap: density.sectionGap }}>
