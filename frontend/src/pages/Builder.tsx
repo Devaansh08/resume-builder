@@ -26,11 +26,6 @@ export default function BuilderPage() {
     return saved ? Number(saved) : 48;
   });
   const [isDragging, setIsDragging] = useState(false);
-  const editorPctRef = useRef(editorPct);
-
-  useEffect(() => {
-    editorPctRef.current = editorPct;
-  }, [editorPct]);
 
   // Ensure there is always a valid currentResume loaded in the builder
   useEffect(() => {
@@ -51,7 +46,7 @@ export default function BuilderPage() {
     atsTimerRef.current = setTimeout(() => {
       const result = scoreResume(currentResume.sections);
       setAtsResult(result);
-    }, 400);
+    }, 500);
     return () => clearTimeout(atsTimerRef.current);
   }, [currentResume?.sections, setAtsResult]);
 
@@ -85,19 +80,18 @@ export default function BuilderPage() {
     if (!isDragging) return;
 
     const handleMouseMove = (e: MouseEvent) => {
-      const container = document.getElementById('split-container');
-      if (!container) return;
-      const rect = container.getBoundingClientRect();
-      if (rect.width <= 0) return;
-      let pct = ((e.clientX - rect.left) / rect.width) * 100;
+      const sidebarWidth = 220;
+      const availableWidth = window.innerWidth - sidebarWidth - (showATS ? 320 : 0);
+      if (availableWidth <= 0) return;
+      const x = e.clientX - sidebarWidth;
+      let pct = (x / availableWidth) * 100;
       pct = Math.min(75, Math.max(25, pct));
-      editorPctRef.current = pct;
       setEditorPct(pct);
     };
 
     const handleMouseUp = () => {
       setIsDragging(false);
-      localStorage.setItem('resumeai_editor_pct', String(editorPctRef.current));
+      localStorage.setItem('resumeai_editor_pct', String(editorPct));
     };
 
     window.addEventListener('mousemove', handleMouseMove);
@@ -106,10 +100,9 @@ export default function BuilderPage() {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isDragging]);
+  }, [isDragging, editorPct, showATS]);
 
   const handleSetRatio = (pct: number) => {
-    editorPctRef.current = pct;
     setEditorPct(pct);
     localStorage.setItem('resumeai_editor_pct', String(pct));
   };
@@ -155,10 +148,10 @@ export default function BuilderPage() {
       />
 
       {/* ── 3-Panel Layout ─────────────────────────────────────────── */}
-      <div className="flex flex-col md:flex-row flex-1 overflow-hidden relative min-w-0 pb-14 md:pb-0">
+      <div className="flex flex-col md:flex-row flex-1 overflow-hidden relative min-w-0">
 
         {/* Left/Top: Section Sidebar */}
-        <div className={`${isMobilePreview ? 'hidden' : 'flex'} section-sidebar-container w-full md:w-[220px] flex-shrink-0 bg-white dark:bg-surface-900 border-b md:border-b-0 md:border-r border-gray-100 dark:border-surface-800 flex-col z-10 md:h-full h-auto max-h-[60px] md:max-h-none overflow-hidden`}>
+        <div className={`${isMobilePreview ? 'hidden' : 'flex'} w-full md:w-[220px] flex-shrink-0 bg-white dark:bg-surface-900 border-b md:border-b-0 md:border-r border-gray-100 dark:border-surface-800 flex-col z-10 md:h-full h-auto max-h-[60px] md:max-h-none overflow-hidden`}>
           <SectionSidebar
             activeSection={activeSection}
             onSectionChange={setActiveSection}
@@ -167,7 +160,6 @@ export default function BuilderPage() {
 
         {/* Editor & Preview Split Area */}
         <div
-          id="split-container"
           className="flex-1 flex flex-col lg:flex-row overflow-hidden min-w-0 h-full relative"
           style={{ '--editor-width': `${editorPct}%` } as React.CSSProperties}
         >
