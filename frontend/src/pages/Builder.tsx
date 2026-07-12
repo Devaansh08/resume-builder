@@ -148,7 +148,7 @@ export default function BuilderPage() {
       />
 
       {/* ── 3-Panel Layout ─────────────────────────────────────────── */}
-      <div className="flex flex-col md:flex-row flex-1 overflow-hidden relative min-w-0">
+      <div className="flex flex-col md:flex-row flex-1 overflow-hidden relative min-w-0 pb-14 md:pb-0">
 
         {/* Left/Top: Section Sidebar */}
         <div className={`${isMobilePreview ? 'hidden' : 'flex'} w-full md:w-[220px] flex-shrink-0 bg-white dark:bg-surface-900 border-b md:border-b-0 md:border-r border-gray-100 dark:border-surface-800 flex-col z-10 md:h-full h-auto max-h-[60px] md:max-h-none overflow-hidden`}>
