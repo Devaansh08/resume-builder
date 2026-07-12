@@ -56,7 +56,7 @@ export function BuilderNavbar({
 
   return (
     <>
-      <header className="h-14 bg-white/95 dark:bg-surface-900/95 border-b border-surface-200 dark:border-surface-800 px-3 sm:px-4 flex items-center justify-between gap-2 flex-shrink-0 z-30 sticky top-0 transition-all duration-300 backdrop-blur-md overflow-x-auto scroll-smooth no-scrollbar">
+      <header className="h-14 bg-[#FAF7F2]/90 dark:bg-[#1a050b]/90 border-b border-surface-200/60 dark:border-surface-800/60 px-3 sm:px-4 flex items-center justify-between gap-2 flex-shrink-0 z-30 sticky top-0 transition-all duration-300 backdrop-blur-md overflow-x-auto scroll-smooth no-scrollbar">
         <div className="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
           <button
             onClick={() => navigate('/')}
@@ -119,7 +119,21 @@ export function BuilderNavbar({
           )}
         </div>
 
-        <div className="flex items-center gap-1.5 sm:gap-2 ml-auto shrink-0 w-max py-1 transition-all duration-300">
+        <div
+          className="flex items-center gap-1.5 sm:gap-2 ml-auto shrink-0 py-1 transition-all duration-300"
+          style={{ width: 'max-content', flexShrink: 0 }}
+        >
+          {/* Download PDF (High-priority action right next to Save status, 100% full visible without truncation) */}
+          <button
+            onClick={handleDownloadPDF}
+            style={{ flexShrink: 0, whiteSpace: 'nowrap' }}
+            className="btn btn-sm gap-1.5 text-xs font-bold px-3.5 py-1.5 rounded-lg bg-brand-500 text-white hover:bg-brand-600 transition-colors shadow-sm shrink-0 whitespace-nowrap flex items-center select-none"
+            title="Download high-quality PDF resume"
+          >
+            <Download size={14} className="shrink-0" />
+            <span>Download PDF</span>
+          </button>
+
           {/* Undo / Redo Buttons */}
           <div className="flex items-center gap-0.5 bg-surface-100 dark:bg-surface-800/60 rounded-lg p-0.5 border border-surface-200 dark:border-surface-700/50 shrink-0">
             <button
@@ -272,16 +286,7 @@ export function BuilderNavbar({
             <span>ATS Score</span>
           </button>
 
-          {/* Download PDF */}
-          <button
-            onClick={handleDownloadPDF}
-            className="btn btn-sm gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-brand-500 text-white hover:bg-brand-600 transition-colors shadow-sm shrink-0 whitespace-nowrap flex items-center"
-          >
-            <Download size={14} />
-            <span>Download PDF</span>
-          </button>
-
-          {/* Right trailing spacer to guarantee Download button is 100% visible with breathing room */}
+          {/* Right trailing spacer to guarantee buttons are 100% visible with breathing room */}
           <div className="w-3 sm:w-4 shrink-0" />
         </div>
 

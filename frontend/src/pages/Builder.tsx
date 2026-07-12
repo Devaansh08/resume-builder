@@ -135,7 +135,13 @@ export default function BuilderPage() {
   }
 
   return (
-    <div className={`flex flex-col h-screen bg-gray-100 dark:bg-transparent overflow-hidden ${isDragging ? 'select-none cursor-col-resize' : ''}`}>
+    <div className={`flex flex-col h-screen transition-colors duration-300 bg-[#FAF7F2] dark:bg-gradient-to-br dark:from-[#2a0812] dark:via-[#140609] dark:to-[#080204] text-surface-900 dark:text-surface-100 relative overflow-hidden ${isDragging ? 'select-none cursor-col-resize' : ''}`}>
+      {/* Animated Dark Red Gradient Glow matching Web Theme */}
+      <div className="hidden dark:block absolute inset-0 pointer-events-none z-0 overflow-hidden">
+        <div className="absolute -top-[20%] left-[15%] w-[600px] h-[600px] rounded-full bg-gradient-to-tr from-brand-600/25 via-rose-600/15 to-transparent blur-3xl animate-pulse-slow" />
+        <div className="absolute top-[40%] -right-[10%] w-[500px] h-[500px] rounded-full bg-gradient-to-bl from-red-700/20 via-brand-500/10 to-transparent blur-3xl animate-pulse-slow" style={{ animationDelay: '2s' }} />
+      </div>
+
       {/* ── Builder Navbar ─────────────────────────────────────────── */}
       <BuilderNavbar
         resume={currentResume}
@@ -148,10 +154,10 @@ export default function BuilderPage() {
       />
 
       {/* ── 3-Panel Layout ─────────────────────────────────────────── */}
-      <div className="flex flex-col md:flex-row flex-1 overflow-hidden relative min-w-0">
+      <div className="flex flex-col md:flex-row flex-1 overflow-hidden relative min-w-0 z-10">
 
         {/* Left/Top: Section Sidebar */}
-        <div className={`${isMobilePreview ? 'hidden' : 'flex'} w-full md:w-[220px] flex-shrink-0 bg-white dark:bg-surface-900 border-b md:border-b-0 md:border-r border-gray-100 dark:border-surface-800 flex-col z-10 md:h-full h-auto max-h-[60px] md:max-h-none overflow-hidden`}>
+        <div className={`${isMobilePreview ? 'hidden' : 'flex'} w-full md:w-[220px] flex-shrink-0 bg-[#FAF7F2]/80 dark:bg-[#1a050b]/80 backdrop-blur-md border-b md:border-b-0 md:border-r border-surface-200/60 dark:border-surface-800/60 flex-col z-10 md:h-full h-auto max-h-[60px] md:max-h-none overflow-hidden`}>
           <SectionSidebar
             activeSection={activeSection}
             onSectionChange={setActiveSection}
@@ -160,12 +166,13 @@ export default function BuilderPage() {
 
         {/* Editor & Preview Split Area */}
         <div
+          id="split-container"
           className="flex-1 flex flex-col lg:flex-row overflow-hidden min-w-0 h-full relative"
           style={{ '--editor-width': `${editorPct}%` } as React.CSSProperties}
         >
           {/* Center: Editor Form */}
           <div
-            className={`${isMobilePreview ? 'hidden' : 'flex'} min-w-0 flex-1 lg:flex-none flex-col overflow-hidden bg-gray-50 dark:bg-transparent editor-resizable-panel`}
+            className={`${isMobilePreview ? 'hidden' : 'flex'} min-w-0 flex-1 lg:flex-none flex-col overflow-hidden bg-transparent editor-resizable-panel z-10`}
             style={isMobilePreview ? { width: '100%' } : undefined}
           >
             <EditorPanel
@@ -178,7 +185,7 @@ export default function BuilderPage() {
           {!isMobilePreview && (
             <div
               onMouseDown={handleMouseDown}
-              className={`hidden lg:flex w-1.5 hover:w-2 hover:bg-brand-500 cursor-col-resize transition-colors flex-shrink-0 z-20 items-center justify-center ${isDragging ? 'bg-brand-500 w-2' : 'bg-gray-200 dark:bg-surface-800'}`}
+              className={`hidden lg:flex w-1.5 hover:w-2 hover:bg-brand-500 cursor-col-resize transition-colors flex-shrink-0 z-20 items-center justify-center ${isDragging ? 'bg-brand-500 w-2' : 'bg-surface-200/80 dark:bg-surface-800/80'}`}
               title="Drag to resize Editor / Preview split"
             >
               <div className="w-0.5 h-8 bg-gray-400 dark:bg-gray-600 rounded-full" />
@@ -187,7 +194,7 @@ export default function BuilderPage() {
 
           {/* Right: Live Preview */}
           <div
-            className={`${isMobilePreview ? 'flex flex-1 w-full' : 'hidden lg:flex'} flex-col bg-gray-200 dark:bg-surface-800 overflow-hidden min-w-0 preview-resizable-panel`}
+            className={`${isMobilePreview ? 'flex flex-1 w-full' : 'hidden lg:flex'} flex-col bg-black/5 dark:bg-black/20 backdrop-blur-xs overflow-hidden min-w-0 preview-resizable-panel z-10`}
             style={isMobilePreview ? { width: '100%' } : undefined}
           >
             <PreviewPanel
