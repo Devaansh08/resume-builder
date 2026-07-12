@@ -220,7 +220,32 @@ export function BuilderNavbar({
               <span>Tools</span>
             </button>
             {showToolsMenu && (
-              <div className="absolute right-0 top-full mt-1.5 w-56 rounded-xl shadow-xl py-1.5 z-50 bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-700 animate-in slide-in-from-top-1">
+              <div className="absolute right-0 top-full mt-1.5 w-60 rounded-xl shadow-xl py-1.5 z-50 bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-700 animate-in slide-in-from-top-1">
+                {onSetLayoutRatio && (
+                  <div className="px-3 py-2 border-b border-surface-100 dark:border-surface-800">
+                    <div className="text-[10px] font-bold text-surface-400 uppercase mb-1.5">Split Screen Layout</div>
+                    <div className="flex items-center bg-surface-100 dark:bg-surface-800 rounded-lg p-0.5 border border-surface-200 dark:border-surface-700 text-[10px] font-semibold">
+                      {[
+                        { label: 'Wide Editor', pct: 60 },
+                        { label: '50/50', pct: 50 },
+                        { label: 'Wide Preview', pct: 40 },
+                      ].map((opt) => (
+                        <button
+                          key={opt.pct}
+                          type="button"
+                          onClick={() => { onSetLayoutRatio(opt.pct); setShowToolsMenu(false); }}
+                          className={`flex-1 px-1 py-1 rounded transition-all text-center ${
+                            currentRatio === opt.pct
+                              ? 'bg-white dark:bg-surface-700 text-surface-900 dark:text-white shadow-xs font-bold'
+                              : 'text-surface-500 hover:text-surface-900 dark:hover:text-white'
+                          }`}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 <button
                   type="button"
                   onClick={() => { setShowToolsMenu(false); if (confirm('Start a fresh blank resume?')) loadSampleResume('blank'); }}
@@ -252,7 +277,7 @@ export function BuilderNavbar({
 
           {/* Split Screen Slider */}
           {onSetLayoutRatio && (
-            <div className="hidden 2xl:flex items-center bg-surface-100 dark:bg-surface-800/60 rounded-lg p-0.5 border border-surface-200 dark:border-surface-700/50 text-[11px] font-semibold shrink-0">
+            <div className="hidden xl:flex items-center bg-surface-100 dark:bg-surface-800/60 rounded-lg p-0.5 border border-surface-200 dark:border-surface-700/50 text-[11px] font-semibold shrink-0">
               {[
                 { label: 'Wide Editor', pct: 60 },
                 { label: '50 / 50', pct: 50 },
