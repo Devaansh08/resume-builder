@@ -33,7 +33,7 @@ const MemoizedTemplateContainer = memo(({ template, resume }: { template: Templa
   return <TemplateComponent resume={resume} />;
 }, (prev, next) => prev.template === next.template && prev.resume === next.resume);
 
-export function PreviewPanel() {
+export function PreviewPanel({ isMobilePreview, onToggleMobilePreview }: { isMobilePreview?: boolean; onToggleMobilePreview?: () => void } = {}) {
   const { currentResume, zoomLevel, setZoomLevel } = useResumeStore();
   const deferredResume = useDeferredValue(currentResume);
   const previewRef = useRef<HTMLDivElement>(null);
@@ -87,11 +87,22 @@ export function PreviewPanel() {
     <div className="flex flex-col h-full bg-surface-100 dark:bg-surface-950 transition-colors">
       {/* Preview toolbar */}
       <div
-        className="flex items-center justify-between px-3 py-2 flex-shrink-0 bg-surface-50 dark:bg-surface-900 border-b border-surface-200 dark:border-surface-800 shadow-2xs"
+        className="flex items-center justify-between px-3 py-2 flex-shrink-0 bg-surface-50 dark:bg-surface-900 border-b border-surface-200 dark:border-surface-800 shadow-2xs overflow-x-auto no-scrollbar gap-2"
       >
-        <span className="text-xs font-bold uppercase tracking-wider text-surface-700 dark:text-surface-300">
-          Live Preview
-        </span>
+        <div className="flex items-center gap-2 shrink-0">
+          {isMobilePreview && onToggleMobilePreview && (
+            <button
+              type="button"
+              onClick={onToggleMobilePreview}
+              className="btn btn-sm gap-1.5 px-2.5 py-1 text-xs font-bold bg-brand-500 text-white rounded-lg shadow-xs hover:bg-brand-600 flex items-center transition-all shrink-0"
+            >
+              <span>← Back to Editor</span>
+            </button>
+          )}
+          <span className="text-xs font-bold uppercase tracking-wider text-surface-700 dark:text-surface-300 shrink-0">
+            Live Preview
+          </span>
+        </div>
         <div className="flex items-center gap-1 relative">
           <button
             onClick={handleZoomOut}

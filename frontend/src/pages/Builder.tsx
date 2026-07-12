@@ -190,7 +190,10 @@ export default function BuilderPage() {
             className={`${isMobilePreview ? 'flex flex-1 w-full' : 'hidden lg:flex'} flex-col bg-gray-200 dark:bg-surface-800 overflow-hidden min-w-0 preview-resizable-panel`}
             style={isMobilePreview ? { width: '100%' } : undefined}
           >
-            <PreviewPanel />
+            <PreviewPanel
+              isMobilePreview={isMobilePreview}
+              onToggleMobilePreview={() => setIsMobilePreview(!isMobilePreview)}
+            />
           </div>
         </div>
 

@@ -56,7 +56,7 @@ export function BuilderNavbar({
 
   return (
     <>
-      <header className="h-14 bg-white/95 dark:bg-surface-900/95 border-b border-surface-200 dark:border-surface-800 px-3 sm:px-4 flex items-center justify-between gap-2 flex-shrink-0 z-30 sticky top-0 transition-colors backdrop-blur-md">
+      <header className="h-14 bg-white/95 dark:bg-surface-900/95 border-b border-surface-200 dark:border-surface-800 px-3 sm:px-4 flex items-center justify-between gap-2 flex-shrink-0 z-30 sticky top-0 transition-colors backdrop-blur-md overflow-x-auto no-scrollbar">
         <div className="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
           <button
             onClick={() => navigate('/')}
@@ -119,7 +119,7 @@ export function BuilderNavbar({
           )}
         </div>
 
-        <div className="flex items-center gap-1 sm:gap-1.5 ml-auto">
+        <div className="flex items-center gap-1 sm:gap-1.5 ml-auto shrink-0">
           {/* Undo / Redo Buttons */}
           <div className="flex items-center gap-0.5 bg-surface-100 dark:bg-surface-800/60 rounded-lg p-0.5 border border-surface-200 dark:border-surface-700/50">
             <button
@@ -244,14 +244,15 @@ export function BuilderNavbar({
         {/* Mobile/Desktop toggle */}
         <button
           onClick={onToggleMobilePreview}
-          className={`btn btn-sm p-1.5 sm:p-2 rounded-lg transition-colors ${
+          className={`btn btn-sm gap-1 px-2.5 py-1.5 rounded-lg transition-colors font-bold shrink-0 flex items-center shadow-xs ${
             isMobilePreview
               ? 'bg-brand-500 text-white'
-              : 'text-surface-600 dark:text-surface-300 border border-surface-300 dark:border-surface-700 hover:bg-surface-100 dark:hover:bg-surface-800'
+              : 'text-surface-700 dark:text-surface-200 border border-surface-300 dark:border-surface-700 hover:bg-surface-100 dark:hover:bg-surface-800'
           }`}
-          title="Toggle preview"
+          title="Toggle Mobile Preview / Editor"
         >
           {isMobilePreview ? <Monitor size={15} /> : <Smartphone size={15} />}
+          <span className="text-xs">{isMobilePreview ? 'Edit Resume' : 'Live Preview'}</span>
         </button>
 
         {/* ATS Score */}
