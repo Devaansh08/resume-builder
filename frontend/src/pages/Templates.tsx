@@ -5,6 +5,7 @@ import type { TemplateId } from '../types';
 import { FileText, ArrowRight, Upload, CheckCircle2, Star, ShieldCheck, Sparkles, LayoutGrid, Check, ArrowLeft } from 'lucide-react';
 import { ImportModal } from '../components/builder/ImportModal';
 import { Footer } from '../components/layout/Footer';
+import { PageHeader } from '../components/shared/PageHeader';
 
 const TEMPLATES = [
   {
@@ -321,38 +322,8 @@ export default function TemplatesPage() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-transparent">
-      {/* Navbar */}
-      <nav className="sticky top-3 mx-3 sm:mx-6 max-w-7xl lg:mx-auto z-40 rounded-2xl backdrop-blur-md bg-white/80 dark:bg-surface-900/75 border border-white/40 dark:border-white/10 shadow-lg shadow-black/5">
-        <div className="px-4 py-3 sm:py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 group select-none">
-            <span className="font-display font-bold text-lg sm:text-xl text-surface-900 dark:text-white tracking-tight">Resume</span>
-            <span className="font-schoolbook font-bold text-lg sm:text-xl text-brand-600 dark:text-brand-400 italic">Alchemist</span>
-          </Link>
-          <div className="flex items-center gap-2 sm:gap-3">
-            <button
-              type="button"
-              onClick={() => window.history.length > 1 ? navigate(-1) : navigate('/')}
-              className="btn btn-ghost btn-sm sm:btn-md gap-1.5 text-surface-600 dark:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-800 rounded-xl font-semibold flex items-center border border-surface-200 dark:border-surface-700/60"
-              title="Navigate back to previous page"
-            >
-              <ArrowLeft size={16} />
-              <span className="hidden sm:inline">Back</span>
-            </button>
-            <button
-              onClick={() => setShowImportModal(true)}
-              className="btn btn-outline btn-md hidden sm:inline-flex gap-1.5 border-brand-300 text-brand-600 dark:border-brand-700 dark:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-950/40"
-            >
-              <Upload size={16} /> Upload
-            </button>
-            <button
-              onClick={() => navigate('/builder')}
-              className="btn btn-primary btn-md gap-1.5 text-xs sm:text-sm px-3 py-2 sm:px-4 sm:py-2.5 shrink-0 font-bold"
-            >
-              <span className="hidden sm:inline">Open </span>Builder <ArrowRight size={14} className="shrink-0" />
-            </button>
-          </div>
-        </div>
-      </nav>
+      {/* Universal PageHeader */}
+      <PageHeader onUploadClick={() => setShowImportModal(true)} />
 
       <ImportModal isOpen={showImportModal} onClose={() => setShowImportModal(false)} onSuccess={() => navigate('/builder')} />
 

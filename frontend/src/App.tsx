@@ -5,6 +5,8 @@ import { FONT_OPTIONS } from './utils/defaults';
 import LandingPage from './pages/Landing';
 import BuilderPage from './pages/Builder';
 import TemplatesPage from './pages/Templates';
+import HowItWorksPage from './pages/HowItWorks';
+import ReviewsPage from './pages/Reviews';
 import SharedResumePage from './pages/SharedResume';
 import FullPreviewPage from './pages/FullPreview';
 
@@ -51,6 +53,8 @@ export default function App() {
         <Route path="/builder/:id" element={<BuilderPage />} />
         <Route path="/preview" element={<FullPreviewPage />} />
         <Route path="/templates" element={<TemplatesPage />} />
+        <Route path="/how-it-works" element={<HowItWorksPage />} />
+        <Route path="/reviews" element={<ReviewsPage />} />
         <Route path="/r/:shareId" element={<SharedResumePage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
