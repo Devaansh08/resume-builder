@@ -277,7 +277,7 @@ export function BuilderNavbar({
 
           {/* Split Screen Slider */}
           {onSetLayoutRatio && (
-            <div className="hidden xl:flex items-center bg-surface-100 dark:bg-surface-800/60 rounded-lg p-0.5 border border-surface-200 dark:border-surface-700/50 text-[11px] font-semibold shrink-0">
+            <div className="hidden lg:flex items-center bg-surface-100 dark:bg-surface-800/60 rounded-lg p-0.5 border border-surface-200 dark:border-surface-700/50 text-[11px] font-semibold shrink-0">
               {[
                 { label: 'Wide Editor', pct: 60 },
                 { label: '50 / 50', pct: 50 },

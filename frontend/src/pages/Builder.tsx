@@ -85,13 +85,12 @@ export default function BuilderPage() {
     if (!isDragging) return;
 
     const handleMouseMove = (e: MouseEvent) => {
-      const sidebarElement = document.querySelector('.section-sidebar-container');
-      const sidebarWidth = sidebarElement ? sidebarElement.getBoundingClientRect().width : (window.innerWidth < 1024 ? 0 : 220);
-      const availableWidth = window.innerWidth - sidebarWidth - (showATS ? 320 : 0);
-      if (availableWidth <= 0) return;
-      const x = e.clientX - sidebarWidth;
-      let pct = (x / availableWidth) * 100;
-      pct = Math.round(Math.min(75, Math.max(25, pct)));
+      const container = document.getElementById('split-container');
+      if (!container) return;
+      const rect = container.getBoundingClientRect();
+      if (rect.width <= 0) return;
+      let pct = ((e.clientX - rect.left) / rect.width) * 100;
+      pct = Math.min(75, Math.max(25, pct));
       editorPctRef.current = pct;
       setEditorPct(pct);
     };
@@ -107,7 +106,7 @@ export default function BuilderPage() {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isDragging, showATS]);
+  }, [isDragging]);
 
   const handleSetRatio = (pct: number) => {
     editorPctRef.current = pct;
@@ -168,6 +167,7 @@ export default function BuilderPage() {
 
         {/* Editor & Preview Split Area */}
         <div
+          id="split-container"
           className="flex-1 flex flex-col lg:flex-row overflow-hidden min-w-0 h-full relative"
           style={{ '--editor-width': `${editorPct}%` } as React.CSSProperties}
         >
