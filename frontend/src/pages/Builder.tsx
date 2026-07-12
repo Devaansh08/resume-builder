@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 
 export default function BuilderPage() {
-  const { currentResume, setCurrentResume, createNewResume, setAtsResult } = useResumeStore();
+  const { currentResume, setCurrentResume, createNewResume, setAtsResult, undo, redo } = useResumeStore();
 
   const [isLoading, setIsLoading] = useState(true);
   const [showATS, setShowATS] = useState(false);
@@ -49,6 +49,26 @@ export default function BuilderPage() {
     }, 500);
     return () => clearTimeout(atsTimerRef.current);
   }, [currentResume?.sections, setAtsResult]);
+
+  // Global Undo/Redo keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+        if (e.shiftKey) {
+          e.preventDefault();
+          redo();
+        } else {
+          e.preventDefault();
+          undo();
+        }
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') {
+        e.preventDefault();
+        redo();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [undo, redo]);
 
   // Drag resizing handlers
   const handleMouseDown = useCallback((e: React.MouseEvent) => {

@@ -3,7 +3,7 @@ import { useResumeStore } from '../../store/resumeStore';
 import type { Resume } from '../../types';
 import {
   FileText, ChevronLeft, Download, BarChart3,
-  Check, Smartphone, Monitor, Columns, Upload, PenLine, BookOpen, Sparkles, Sun, Moon, ArrowLeft, PlusCircle
+  Check, Smartphone, Monitor, Columns, Upload, PenLine, BookOpen, Sparkles, Sun, Moon, ArrowLeft, PlusCircle, Undo2, Redo2
 } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { generatePDF } from '../../utils/pdf';
@@ -29,7 +29,7 @@ export function BuilderNavbar({
   currentRatio = 50,
 }: BuilderNavbarProps) {
   const navigate = useNavigate();
-  const { isDirty, lastSaved, atsResult, updateResumeTitle, loadSampleResume, themeMode = 'light', setThemeMode } = useResumeStore();
+  const { isDirty, lastSaved, atsResult, updateResumeTitle, loadSampleResume, themeMode = 'light', setThemeMode, undo, redo, history, historyIndex } = useResumeStore();
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [titleInput, setTitleInput] = useState(resume.title);
   const [showImportModal, setShowImportModal] = useState(false);
@@ -120,6 +120,27 @@ export function BuilderNavbar({
         </div>
 
         <div className="flex items-center gap-1 sm:gap-1.5 ml-auto">
+          {/* Undo / Redo Buttons */}
+          <div className="flex items-center gap-0.5 bg-surface-100 dark:bg-surface-800/60 rounded-lg p-0.5 border border-surface-200 dark:border-surface-700/50">
+            <button
+              type="button"
+              onClick={undo}
+              disabled={historyIndex <= 0 || !history?.length}
+              className="p-1.5 rounded-md text-surface-600 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              title="Undo (Ctrl+Z)"
+            >
+              <Undo2 size={13} />
+            </button>
+            <button
+              type="button"
+              onClick={redo}
+              disabled={historyIndex >= (history?.length ?? 0) - 1 || historyIndex < 0 || !history?.length}
+              className="p-1.5 rounded-md text-surface-600 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              title="Redo (Ctrl+Y)"
+            >
+              <Redo2 size={13} />
+            </button>
+          </div>
           {/* Fresh Blank Resume Button */}
           <button
             type="button"

@@ -16,6 +16,8 @@ import { debounce, uuidv4 } from '../utils/helpers';
 interface ResumeStore {
   currentResume: Resume | null;
   resumes: Resume[];
+  history: string[];
+  historyIndex: number;
   isDirty: boolean;
   isSaving: boolean;
   lastSaved: Date | null;
@@ -39,18 +41,35 @@ interface ResumeStore {
   createNewResume: (title?: string, sampleType?: 'software' | 'product' | 'finance' | 'fresher' | 'blank') => Resume;
   updateResumeTitle: (title: string) => void;
   loadSampleResume: (type: 'software' | 'product' | 'finance' | 'fresher' | 'blank') => void;
+  undo: () => void;
+  redo: () => void;
 }
 
 // ─── Debounced Local save ─────────────────────────────────────────────────
 const debouncedSave = debounce((resume: Resume) => {
   try {
-    const localResumes = JSON.parse(localStorage.getItem('resumeai_local_resumes') || '{}');
-    localResumes[resume.id] = resume;
-    localStorage.setItem('resumeai_local_resumes', JSON.stringify(localResumes));
+    const raw = localStorage.getItem('resumeai_saved_resumes');
+    const list: Resume[] = raw ? JSON.parse(raw) : [];
+    const idx = list.findIndex((r) => r.id === resume.id);
+    if (idx >= 0) list[idx] = resume;
+    else list.push(resume);
+    localStorage.setItem('resumeai_saved_resumes', JSON.stringify(list));
   } catch (err) {
     console.error('[ResumeStore] Local auto-save failed:', err);
   }
 }, 1000);
+
+// Helper for history push
+function pushSnapshot(history: string[], index: number, resume: Resume) {
+  const serialized = JSON.stringify(resume);
+  const sliced = history.slice(0, index + 1);
+  if (sliced[sliced.length - 1] === serialized) {
+    return { history: sliced, historyIndex: sliced.length - 1 };
+  }
+  sliced.push(serialized);
+  if (sliced.length > 30) sliced.shift();
+  return { history: sliced, historyIndex: sliced.length - 1 };
+}
 
 // ─── Store ────────────────────────────────────────────────────────────────
 export const useResumeStore = create<ResumeStore>()(
@@ -59,6 +78,8 @@ export const useResumeStore = create<ResumeStore>()(
       (set, get) => ({
         currentResume: null,
         resumes: [],
+        history: [],
+        historyIndex: -1,
         isDirty: false,
         isSaving: false,
         lastSaved: null,
@@ -70,7 +91,8 @@ export const useResumeStore = create<ResumeStore>()(
           if (!resume.sectionTitles) {
             resume.sectionTitles = { ...defaultSectionTitles };
           }
-          set({ currentResume: resume, isDirty: false });
+          const { history, historyIndex } = pushSnapshot([], -1, resume);
+          set({ currentResume: resume, history, historyIndex, isDirty: false });
           debouncedSave(resume);
         },
 
@@ -84,8 +106,9 @@ export const useResumeStore = create<ResumeStore>()(
               sections: { ...state.currentResume.sections, ...sections },
               updatedAt: new Date().toISOString(),
             };
+            const { history, historyIndex } = pushSnapshot(state.history, state.historyIndex, updated);
             debouncedSave(updated);
-            return { currentResume: updated, isDirty: true, lastSaved: new Date() };
+            return { currentResume: updated, history, historyIndex, isDirty: true, lastSaved: new Date() };
           }),
 
         updateSection: (key, value) =>
@@ -96,8 +119,9 @@ export const useResumeStore = create<ResumeStore>()(
               sections: { ...state.currentResume.sections, [key]: value },
               updatedAt: new Date().toISOString(),
             };
+            const { history, historyIndex } = pushSnapshot(state.history, state.historyIndex, updated);
             debouncedSave(updated);
-            return { currentResume: updated, isDirty: true, lastSaved: new Date() };
+            return { currentResume: updated, history, historyIndex, isDirty: true, lastSaved: new Date() };
           }),
 
         updateSectionTitle: (sectionKey, newTitle) =>
@@ -112,32 +136,36 @@ export const useResumeStore = create<ResumeStore>()(
               sectionTitles: updatedTitles,
               updatedAt: new Date().toISOString(),
             };
+            const { history, historyIndex } = pushSnapshot(state.history, state.historyIndex, updated);
             debouncedSave(updated);
-            return { currentResume: updated, isDirty: true, lastSaved: new Date() };
+            return { currentResume: updated, history, historyIndex, isDirty: true, lastSaved: new Date() };
           }),
 
         updateTemplate: (template) =>
           set((state) => {
             if (!state.currentResume) return state;
             const updated = { ...state.currentResume, template };
+            const { history, historyIndex } = pushSnapshot(state.history, state.historyIndex, updated);
             debouncedSave(updated);
-            return { currentResume: updated, isDirty: true, lastSaved: new Date() };
+            return { currentResume: updated, history, historyIndex, isDirty: true, lastSaved: new Date() };
           }),
 
         updateTheme: (theme) =>
           set((state) => {
             if (!state.currentResume) return state;
             const updated = { ...state.currentResume, theme: { ...state.currentResume.theme, ...theme } };
+            const { history, historyIndex } = pushSnapshot(state.history, state.historyIndex, updated);
             debouncedSave(updated);
-            return { currentResume: updated, isDirty: true, lastSaved: new Date() };
+            return { currentResume: updated, history, historyIndex, isDirty: true, lastSaved: new Date() };
           }),
 
         setSectionOrder: (order) =>
           set((state) => {
             if (!state.currentResume) return state;
             const updated = { ...state.currentResume, sectionOrder: order };
+            const { history, historyIndex } = pushSnapshot(state.history, state.historyIndex, updated);
             debouncedSave(updated);
-            return { currentResume: updated, isDirty: true, lastSaved: new Date() };
+            return { currentResume: updated, history, historyIndex, isDirty: true, lastSaved: new Date() };
           }),
 
         setAtsResult: (atsResult) => set({ atsResult }),
@@ -188,8 +216,9 @@ export const useResumeStore = create<ResumeStore>()(
               title,
               updatedAt: new Date().toISOString(),
             };
+            const { history, historyIndex } = pushSnapshot(state.history, state.historyIndex, updated);
             debouncedSave(updated);
-            return { currentResume: updated, isDirty: true, lastSaved: new Date() };
+            return { currentResume: updated, history, historyIndex, isDirty: true, lastSaved: new Date() };
           }),
 
         loadSampleResume: (type) =>
@@ -234,8 +263,37 @@ export const useResumeStore = create<ResumeStore>()(
                   createdAt: new Date().toISOString(),
                   updatedAt: new Date().toISOString(),
                 };
+            const { history, historyIndex } = pushSnapshot(state.history, state.historyIndex, updated);
             debouncedSave(updated);
-            return { currentResume: updated, isDirty: true, lastSaved: new Date() };
+            return { currentResume: updated, history, historyIndex, isDirty: true, lastSaved: new Date() };
+          }),
+
+        undo: () =>
+          set((state) => {
+            if (state.historyIndex <= 0 || !state.history.length) return state;
+            const newIndex = state.historyIndex - 1;
+            try {
+              const previousState: Resume = JSON.parse(state.history[newIndex]);
+              debouncedSave(previousState);
+              return { currentResume: previousState, historyIndex: newIndex, isDirty: true, lastSaved: new Date() };
+            } catch (err) {
+              console.error('[ResumeStore] Undo failed:', err);
+              return state;
+            }
+          }),
+
+        redo: () =>
+          set((state) => {
+            if (state.historyIndex >= state.history.length - 1 || state.historyIndex < 0 || !state.history.length) return state;
+            const newIndex = state.historyIndex + 1;
+            try {
+              const nextState: Resume = JSON.parse(state.history[newIndex]);
+              debouncedSave(nextState);
+              return { currentResume: nextState, historyIndex: newIndex, isDirty: true, lastSaved: new Date() };
+            } catch (err) {
+              console.error('[ResumeStore] Redo failed:', err);
+              return state;
+            }
           }),
       }),
       {
