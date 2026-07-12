@@ -1,6 +1,6 @@
 import { useResumeStore } from '../../store/resumeStore';
 import type { Resume } from '../../types';
-import { formatDate } from '../../utils/helpers';
+import { formatDate, formatUrl } from '../../utils/helpers';
 import { FONT_OPTIONS, getDensityConfig, type DensityConfig } from '../../utils/defaults';
 import { RichText } from '../builder/RichText';
 
@@ -27,12 +27,13 @@ export function MinimalTemplate({ resume: propResume }: { resume?: Resume }) {
           </h1>
           {pi.title && <p style={{ fontSize: '12px', color: '#71717a', marginBottom: '10px' }}>{pi.title}</p>}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', fontSize: '9.5px', color: '#71717a' }}>
-            {pi.email && <span>{pi.email}</span>}
-            {pi.phone && <span>{pi.phone}</span>}
+            {pi.email && <a href={`mailto:${pi.email}`} style={{ color: 'inherit', textDecoration: 'none' }}>{pi.email}</a>}
+            {pi.phone && <a href={`tel:${pi.phone}`} style={{ color: 'inherit', textDecoration: 'none' }}>{pi.phone}</a>}
             {pi.address && <span>{pi.address}</span>}
-            {pi.linkedin && <span>{pi.linkedin}</span>}
-            {pi.github && <span>{pi.github}</span>}
-            {pi.portfolio && <span>{pi.portfolio}</span>}
+            {pi.linkedin && <a href={formatUrl(pi.linkedin)} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>{pi.linkedin}</a>}
+            {pi.github && <a href={formatUrl(pi.github)} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>{pi.github}</a>}
+            {pi.portfolio && <a href={formatUrl(pi.portfolio)} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>{pi.portfolio}</a>}
+            {pi.website && <a href={formatUrl(pi.website)} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>{pi.website}</a>}
           </div>
         </div>
         {pi.photo && (
@@ -94,8 +95,10 @@ export function MinimalTemplate({ resume: propResume }: { resume?: Resume }) {
         <MinSection density={density} title={titles.projects || "Projects"}>
           {sections.projects.map((proj) => (
             <div key={proj.id} style={{ marginBottom: '12px' }}>
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'baseline' }}>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'baseline', flexWrap: 'wrap' }}>
                 <span style={{ fontWeight: 500 }}>{proj.name}</span>
+                {proj.liveUrl && <a href={formatUrl(proj.liveUrl)} target="_blank" rel="noopener noreferrer" style={{ fontSize: '9px', color: '#09090b', textDecoration: 'underline' }}>↗ Live</a>}
+                {proj.githubUrl && <a href={formatUrl(proj.githubUrl)} target="_blank" rel="noopener noreferrer" style={{ fontSize: '9px', color: '#71717a', textDecoration: 'underline' }}>⌥ Code</a>}
                 <span style={{ color: '#a1a1aa', fontSize: '9px' }}>{proj.technologies.slice(0, 3).join(' · ')}</span>
               </div>
               {proj.bullets.filter(Boolean).map((b, i) => (

@@ -44,6 +44,14 @@ export const toArray = (val: string): string[] =>
 export const wordCount = (text: string): number =>
   text.trim().split(/\s+/).filter(Boolean).length;
 
+/** Format URL to ensure valid http/https protocol */
+export const formatUrl = (url?: string): string => {
+  if (!url) return '';
+  const trimmed = url.trim();
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('mailto:')) return trimmed;
+  return `https://${trimmed}`;
+};
+
 /** Generate initials from a name */
 export const getInitials = (name: string): string =>
   name

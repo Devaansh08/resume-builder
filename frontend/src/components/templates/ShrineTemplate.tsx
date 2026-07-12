@@ -1,6 +1,6 @@
 import { useResumeStore } from '../../store/resumeStore';
 import type { Resume } from '../../types';
-import { formatDate } from '../../utils/helpers';
+import { formatDate, formatUrl } from '../../utils/helpers';
 import { FONT_OPTIONS, getDensityConfig, type DensityConfig } from '../../utils/defaults';
 import { RichText } from '../builder/RichText';
 
@@ -53,9 +53,9 @@ export function ShrineTemplate({ resume: propResume }: { resume?: Resume }) {
             {pi.email && <span>✉ {pi.email}</span>}
             {pi.phone && <span>📞 {pi.phone}</span>}
             {pi.address && <span>📍 {pi.address}</span>}
-            {pi.linkedin && <span>in {pi.linkedin}</span>}
-            {pi.github && <span>⌥ {pi.github}</span>}
-            {pi.portfolio && <span>🌐 {pi.portfolio}</span>}
+            {pi.linkedin && <a href={formatUrl(pi.linkedin)} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>in {pi.linkedin}</a>}
+            {pi.github && <a href={formatUrl(pi.github)} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>⌥ {pi.github}</a>}
+            {pi.portfolio && <a href={formatUrl(pi.portfolio)} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>🌐 {pi.portfolio}</a>}
           </div>
         </div>
         {pi.photo && (
@@ -118,7 +118,9 @@ export function ShrineTemplate({ resume: propResume }: { resume?: Resume }) {
               {sections.projects.map((proj) => (
                 <div key={proj.id} style={{ marginBottom: '16px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '2px' }}>
-                    <span style={{ fontWeight: 600, fontSize: '10.5px', textTransform: 'uppercase' }}>{proj.name}</span>
+                    <span style={{ fontWeight: 600, fontSize: '10.5px', textTransform: 'uppercase' }}></span>
+                    {proj.liveUrl && <a href={formatUrl(proj.liveUrl)} target="_blank" rel="noopener noreferrer" style={{ fontSize: '9px', textDecoration: 'underline', color: 'inherit', marginLeft: '6px' }}>↗ Live</a>}
+                    {proj.githubUrl && <a href={formatUrl(proj.githubUrl)} target="_blank" rel="noopener noreferrer" style={{ fontSize: '9px', textDecoration: 'underline', color: 'inherit', marginLeft: '6px' }}>⌥ Code</a>}
                     {proj.technologies.length > 0 && (
                       <span style={{ fontSize: '8.5px', opacity: 0.8 }}>{proj.technologies.slice(0, 3).join(' · ')}</span>
                     )}
@@ -199,7 +201,8 @@ export function ShrineTemplate({ resume: propResume }: { resume?: Resume }) {
             <ShrineSection density={density} title={titles.certificates || "Certifications"}>
               {sections.certificates.map((cert) => (
                 <div key={cert.id} style={{ marginBottom: '10px' }}>
-                  <div style={{ fontWeight: 600, fontSize: '9.5px', textTransform: 'uppercase' }}>{cert.name}</div>
+                  <div style={{ fontWeight: 600, fontSize: '9.5px', textTransform: 'uppercase' }}></div>
+                    {cert.url && <a href={formatUrl(cert.url)} target="_blank" rel="noopener noreferrer" style={{ fontSize: '9px', textDecoration: 'underline', color: 'inherit', marginLeft: '6px' }}>↗ Verify</a>}
                   <div style={{ fontSize: '8.5px', opacity: 0.8 }}>{cert.issuer}</div>
                 </div>
               ))}

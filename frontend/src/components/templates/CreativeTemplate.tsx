@@ -1,6 +1,6 @@
 import { useResumeStore } from '../../store/resumeStore';
 import type { Resume } from '../../types';
-import { formatDate } from '../../utils/helpers';
+import { formatDate, formatUrl } from '../../utils/helpers';
 import { FONT_OPTIONS, getDensityConfig, type DensityConfig } from '../../utils/defaults';
 import { RichText } from '../builder/RichText';
 
@@ -95,7 +95,8 @@ export function CreativeTemplate({ resume: propResume }: { resume?: Resume }) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {sections.certificates.map((cert) => (
                 <div key={cert.id} style={{ fontSize: '8.5px', color: 'rgba(255,255,255,0.85)' }}>
-                  <div style={{ fontWeight: 600 }}>{cert.name}</div>
+                  <div style={{ fontWeight: 600 }}></div>
+                    {cert.url && <a href={formatUrl(cert.url)} target="_blank" rel="noopener noreferrer" style={{ fontSize: '9px', textDecoration: 'underline', color: 'inherit', marginLeft: '6px' }}>↗ Verify</a>}
                   {cert.issuer && <div style={{ color: 'rgba(255,255,255,0.6)' }}>{cert.issuer}</div>}
                   {cert.date && <div style={{ color: 'rgba(255,255,255,0.5)' }}>{cert.date}</div>}
                 </div>
@@ -193,7 +194,9 @@ export function CreativeTemplate({ resume: propResume }: { resume?: Resume }) {
             {sections.projects.map((proj) => (
               <div key={proj.id} style={{ marginBottom: '14px', paddingLeft: '14px', borderLeft: `3px solid ${primary}` }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '3px' }}>
-                  <span style={{ fontWeight: 700, color: accent }}>{proj.name}</span>
+                  <span style={{ fontWeight: 700, color: accent }}></span>
+                    {proj.liveUrl && <a href={formatUrl(proj.liveUrl)} target="_blank" rel="noopener noreferrer" style={{ fontSize: '9px', textDecoration: 'underline', color: 'inherit', marginLeft: '6px' }}>↗ Live</a>}
+                    {proj.githubUrl && <a href={formatUrl(proj.githubUrl)} target="_blank" rel="noopener noreferrer" style={{ fontSize: '9px', textDecoration: 'underline', color: 'inherit', marginLeft: '6px' }}>⌥ Code</a>}
                   {proj.technologies.length > 0 && (
                     <span style={{ fontSize: '9px', color: '#999' }}>{proj.technologies.slice(0, 3).join(' · ')}</span>
                   )}

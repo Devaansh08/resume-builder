@@ -1,6 +1,6 @@
 import { useResumeStore } from '../../store/resumeStore';
 import type { Resume } from '../../types';
-import { formatDate } from '../../utils/helpers';
+import { formatDate, formatUrl } from '../../utils/helpers';
 import { FONT_OPTIONS, getDensityConfig, type DensityConfig } from '../../utils/defaults';
 import { RichText } from '../builder/RichText';
 
@@ -36,9 +36,9 @@ export function ModernTemplate({ resume: propResume }: { resume?: Resume }) {
             {pi.email && <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>✉ {pi.email}</span>}
             {pi.phone && <span>📞 {pi.phone}</span>}
             {pi.address && <span>📍 {pi.address}</span>}
-            {pi.linkedin && <span>in {pi.linkedin}</span>}
-            {pi.github && <span>⌥ {pi.github}</span>}
-            {pi.portfolio && <span>🌐 {pi.portfolio}</span>}
+            {pi.linkedin && <a href={formatUrl(pi.linkedin)} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>in {pi.linkedin}</a>}
+            {pi.github && <a href={formatUrl(pi.github)} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>⌥ {pi.github}</a>}
+            {pi.portfolio && <a href={formatUrl(pi.portfolio)} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>🌐 {pi.portfolio}</a>}
           </div>
         </div>
         {pi.photo && (
@@ -94,8 +94,16 @@ export function ModernTemplate({ resume: propResume }: { resume?: Resume }) {
             <Section density={density} title={titles.projects || "Projects"} primary={primary}>
               {sections.projects.map((proj) => (
                 <div key={proj.id} style={{ marginBottom: '12px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontWeight: 600, fontSize: '11px', color: '#111827' }}>{proj.name}</span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ fontWeight: 600, fontSize: '11px', color: '#111827' }}>{proj.name}</span>
+                      {proj.liveUrl && (
+                        <a href={formatUrl(proj.liveUrl)} target="_blank" rel="noopener noreferrer" style={{ fontSize: '9px', color: primary, textDecoration: 'underline' }}>↗ Live</a>
+                      )}
+                      {proj.githubUrl && (
+                        <a href={formatUrl(proj.githubUrl)} target="_blank" rel="noopener noreferrer" style={{ fontSize: '9px', color: '#4b5563', textDecoration: 'underline' }}>⌥ Code</a>
+                      )}
+                    </div>
                     {proj.technologies.length > 0 && (
                       <span style={{ fontSize: '9px', color: '#6b7280' }}>{proj.technologies.slice(0, 4).join(' · ')}</span>
                     )}
@@ -174,7 +182,12 @@ export function ModernTemplate({ resume: propResume }: { resume?: Resume }) {
             <Section density={density} title={titles.certificates || "Certifications"} primary={primary}>
               {sections.certificates.map((cert) => (
                 <div key={cert.id} style={{ marginBottom: '8px' }}>
-                  <div style={{ fontWeight: 600, fontSize: '10px', color: '#111827' }}>{cert.name}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span style={{ fontWeight: 600, fontSize: '10px', color: '#111827' }}>{cert.name}</span>
+                    {cert.url && (
+                      <a href={formatUrl(cert.url)} target="_blank" rel="noopener noreferrer" style={{ fontSize: '9px', color: primary, textDecoration: 'underline' }}>↗ Verify</a>
+                    )}
+                  </div>
                   <div style={{ fontSize: '9.5px', color: '#6b7280' }}>{cert.issuer} · {formatDate(cert.date)}</div>
                 </div>
               ))}

@@ -1,6 +1,6 @@
 import { useResumeStore } from '../../store/resumeStore';
 import type { Resume } from '../../types';
-import { formatDate } from '../../utils/helpers';
+import { formatDate, formatUrl } from '../../utils/helpers';
 import { FONT_OPTIONS, getDensityConfig, type DensityConfig } from '../../utils/defaults';
 import { RichText } from '../builder/RichText';
 

@@ -1,6 +1,6 @@
 import { useResumeStore } from '../../store/resumeStore';
 import type { Resume } from '../../types';
-import { formatDate } from '../../utils/helpers';
+import { formatDate, formatUrl } from '../../utils/helpers';
 import { FONT_OPTIONS, getDensityConfig, type DensityConfig } from '../../utils/defaults';
 import { RichText } from '../builder/RichText';
 
@@ -126,7 +126,9 @@ export function ExecutiveTemplate({ resume: propResume }: { resume?: Resume }) {
             {sections.projects.map((proj) => (
               <div key={proj.id} style={{ marginBottom: '14px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                  <span style={{ fontWeight: 700, color: primary }}>{proj.name}</span>
+                  <span style={{ fontWeight: 700, color: primary }}></span>
+                    {proj.liveUrl && <a href={formatUrl(proj.liveUrl)} target="_blank" rel="noopener noreferrer" style={{ fontSize: '9px', textDecoration: 'underline', color: 'inherit', marginLeft: '6px' }}>↗ Live</a>}
+                    {proj.githubUrl && <a href={formatUrl(proj.githubUrl)} target="_blank" rel="noopener noreferrer" style={{ fontSize: '9px', textDecoration: 'underline', color: 'inherit', marginLeft: '6px' }}>⌥ Code</a>}
                   {proj.technologies.length > 0 && (
                     <span style={{ fontSize: '9px', color: '#888' }}>{proj.technologies.slice(0, 4).join(' · ')}</span>
                   )}
@@ -148,7 +150,8 @@ export function ExecutiveTemplate({ resume: propResume }: { resume?: Resume }) {
             {sections.certificates.map((cert) => (
               <div key={cert.id} style={{ marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
                 <div>
-                  <span style={{ fontWeight: 600, color: primary }}>{cert.name}</span>
+                  <span style={{ fontWeight: 600, color: primary }}></span>
+                    {cert.url && <a href={formatUrl(cert.url)} target="_blank" rel="noopener noreferrer" style={{ fontSize: '9px', textDecoration: 'underline', color: 'inherit', marginLeft: '6px' }}>↗ Verify</a>}
                   {cert.issuer && <span style={{ color: '#555', fontStyle: 'italic' }}> · {cert.issuer}</span>}
                 </div>
                 {cert.date && <span style={{ fontSize: '9px', color: '#888' }}>{cert.date}</span>}

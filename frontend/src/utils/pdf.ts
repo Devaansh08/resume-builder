@@ -55,6 +55,35 @@ export async function generatePDF(resumeId: string, title: string = 'Resume'): P
       page++;
     }
 
+    // Extract all clickable <a> anchor tags from the preview and overlay interactive links onto the PDF
+    const elemRect = element.getBoundingClientRect();
+    const pageDomHeight = element.offsetWidth * (pdfHeight / pdfWidth);
+    const anchors = element.querySelectorAll<HTMLAnchorElement>('a[href]');
+
+    anchors.forEach((anchor) => {
+      const href = anchor.getAttribute('href');
+      if (!href || href.startsWith('#') || href.startsWith('javascript:')) return;
+
+      const rect = anchor.getBoundingClientRect();
+      if (rect.width === 0 || rect.height === 0) return;
+
+      const domX = (rect.left - elemRect.left) * (element.offsetWidth / elemRect.width);
+      const domY = (rect.top - elemRect.top) * (element.offsetHeight / elemRect.height);
+      const domW = rect.width * (element.offsetWidth / elemRect.width);
+      const domH = rect.height * (element.offsetHeight / elemRect.height);
+
+      const pageIdx = Math.floor(domY / pageDomHeight);
+      if (pageIdx >= page) return; // out of bounds
+
+      const xMm = (domX / element.offsetWidth) * pdfWidth;
+      const yMm = ((domY % pageDomHeight) / pageDomHeight) * pdfHeight;
+      const wMm = (domW / element.offsetWidth) * pdfWidth;
+      const hMm = (domH / pageDomHeight) * pdfHeight;
+
+      pdf.setPage(pageIdx + 1);
+      pdf.link(xMm, yMm, wMm, hMm, { url: href });
+    });
+
     const fileName = `${title.replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, '_')}_Resume.pdf`;
     pdf.save(fileName);
 

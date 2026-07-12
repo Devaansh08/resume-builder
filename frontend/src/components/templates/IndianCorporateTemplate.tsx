@@ -1,6 +1,7 @@
 import { useResumeStore } from '../../store/resumeStore';
 import type { Education, Experience, Project, Skill, Resume } from '../../types';
 import { getDensityConfig, FONT_OPTIONS } from '../../utils/defaults';
+import { formatUrl } from '../../utils/helpers';
 
 export function IndianCorporateTemplate({ resume: propResume }: { resume?: Resume }) {
   const storeResume = useResumeStore((state) => propResume ? null : state.currentResume);
@@ -202,7 +203,9 @@ export function IndianCorporateTemplate({ resume: propResume }: { resume?: Resum
               {projects.map((proj: Project) => (
                 <div key={proj.id} className="space-y-1 text-xs">
                   <div className="flex justify-between items-baseline font-bold text-surface-800">
-                    <span>{proj.name}</span>
+                    <span></span>
+                    {proj.liveUrl && <a href={formatUrl(proj.liveUrl)} target="_blank" rel="noopener noreferrer" style={{ fontSize: '9px', textDecoration: 'underline', color: 'inherit', marginLeft: '6px' }}>↗ Live</a>}
+                    {proj.githubUrl && <a href={formatUrl(proj.githubUrl)} target="_blank" rel="noopener noreferrer" style={{ fontSize: '9px', textDecoration: 'underline', color: 'inherit', marginLeft: '6px' }}>⌥ Code</a>}
                     <span className="text-[10px] text-surface-500 font-semibold">{proj.startDate} – {proj.endDate}</span>
                   </div>
                   {proj.technologies && proj.technologies.length > 0 && (
@@ -233,7 +236,8 @@ export function IndianCorporateTemplate({ resume: propResume }: { resume?: Resum
             <div className="grid grid-cols-2 gap-2 text-xs text-surface-700">
               {certificates.map((cert) => (
                 <div key={cert.id} className="border-l-2 border-surface-200 pl-2 py-0.5">
-                  <div className="font-semibold text-surface-800 text-[11px] leading-tight">{cert.name}</div>
+                  <div className="font-semibold text-surface-800 text-[11px] leading-tight"></div>
+                    {cert.url && <a href={formatUrl(cert.url)} target="_blank" rel="noopener noreferrer" style={{ fontSize: '9px', textDecoration: 'underline', color: 'inherit', marginLeft: '6px' }}>↗ Verify</a>}
                   <div className="text-[10px] text-surface-500">{cert.issuer} ({cert.date})</div>
                 </div>
               ))}

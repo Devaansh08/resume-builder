@@ -1,6 +1,7 @@
 import { useResumeStore } from '../../store/resumeStore';
 import type { Education, Experience, Project, Skill, Resume } from '../../types';
 import { getDensityConfig, FONT_OPTIONS } from '../../utils/defaults';
+import { formatUrl } from '../../utils/helpers';
 
 export function IndianAcademicTemplate({ resume: propResume }: { resume?: Resume }) {
   const storeResume = useResumeStore((state) => propResume ? null : state.currentResume);
@@ -133,7 +134,9 @@ export function IndianAcademicTemplate({ resume: propResume }: { resume?: Resume
             {projects.map((proj: Project) => (
               <div key={proj.id} className="space-y-1 text-xs">
                 <div className="flex justify-between items-baseline font-semibold text-surface-800">
-                  <span className="text-sm font-bold">{proj.name}</span>
+                  <span className="text-sm font-bold"></span>
+                    {proj.liveUrl && <a href={formatUrl(proj.liveUrl)} target="_blank" rel="noopener noreferrer" style={{ fontSize: '9px', textDecoration: 'underline', color: 'inherit', marginLeft: '6px' }}>↗ Live</a>}
+                    {proj.githubUrl && <a href={formatUrl(proj.githubUrl)} target="_blank" rel="noopener noreferrer" style={{ fontSize: '9px', textDecoration: 'underline', color: 'inherit', marginLeft: '6px' }}>⌥ Code</a>}
                   <span>{proj.startDate} – {proj.endDate}</span>
                 </div>
                 {proj.technologies && proj.technologies.length > 0 && (
