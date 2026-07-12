@@ -25,7 +25,7 @@ export default function HowItWorksPage() {
     <div className="min-h-screen bg-white dark:bg-transparent flex flex-col justify-between">
       <PageHeader />
 
-      <main className="flex-grow py-16 px-4 sm:px-6 max-w-7xl mx-auto space-y-24">
+      <main className="flex-grow pt-28 pb-16 px-4 sm:px-6 max-w-7xl mx-auto space-y-24">
         <div className="text-center max-w-2xl mx-auto space-y-4">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-500/10 text-brand-600 dark:text-brand-400 font-semibold text-xs">
             <Sliders size={14} /> How It Works

@@ -76,7 +76,7 @@ export default function ReviewsPage() {
     <div className="min-h-screen bg-white dark:bg-transparent flex flex-col justify-between">
       <PageHeader />
 
-      <main className="flex-grow py-16 px-4 sm:px-6 max-w-7xl mx-auto space-y-20">
+      <main className="flex-grow pt-28 pb-16 px-4 sm:px-6 max-w-7xl mx-auto space-y-20">
         {/* Hero Header */}
         <div className="text-center max-w-3xl mx-auto space-y-4">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-500/10 text-brand-600 dark:text-brand-400 font-semibold text-xs">

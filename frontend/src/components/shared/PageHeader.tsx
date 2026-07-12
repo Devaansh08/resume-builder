@@ -30,7 +30,7 @@ export function PageHeader({ onUploadClick }: { onUploadClick?: () => void }) {
   ];
 
   return (
-    <nav className="sticky top-3 mx-3 sm:mx-6 max-w-7xl lg:mx-auto z-40 rounded-2xl backdrop-blur-md bg-white/80 dark:bg-surface-900/75 border border-white/40 dark:border-white/10 shadow-lg shadow-black/5 transition-all">
+    <nav className="fixed top-3 left-0 right-0 mx-auto w-[calc(100%-1.5rem)] sm:w-[calc(100%-3rem)] max-w-7xl z-50 rounded-2xl backdrop-blur-md bg-white/80 dark:bg-surface-900/75 border border-white/40 dark:border-white/10 shadow-lg shadow-black/5 transition-all">
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}

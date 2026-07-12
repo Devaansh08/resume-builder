@@ -327,7 +327,7 @@ export default function TemplatesPage() {
 
       <ImportModal isOpen={showImportModal} onClose={() => setShowImportModal(false)} onSuccess={() => navigate('/builder')} />
 
-      <div className="max-w-7xl mx-auto px-4 py-14">
+      <div className="max-w-7xl mx-auto px-4 pt-28 pb-14">
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-50 dark:bg-brand-950/50 border border-brand-200 dark:border-brand-800 text-brand-600 dark:text-brand-400 font-semibold text-xs mb-3 shadow-xs">
             <Sparkles size={14} /> All 12 Formats Real-Time ATS Tested & Verified
