@@ -56,7 +56,7 @@ export function BuilderNavbar({
 
   return (
     <>
-      <header className="h-14 bg-white/95 dark:bg-surface-900/95 border-b border-surface-200 dark:border-surface-800 px-3 sm:px-4 flex items-center justify-between gap-2 flex-shrink-0 z-30 sticky top-0 transition-colors backdrop-blur-md overflow-x-auto no-scrollbar">
+      <header className="h-14 bg-white/95 dark:bg-surface-900/95 border-b border-surface-200 dark:border-surface-800 px-3 sm:px-4 flex items-center justify-between gap-2 flex-shrink-0 z-30 sticky top-0 transition-all duration-300 backdrop-blur-md overflow-x-auto scroll-smooth no-scrollbar">
         <div className="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
           <button
             onClick={() => navigate('/')}
@@ -69,14 +69,14 @@ export function BuilderNavbar({
           <button
             type="button"
             onClick={() => window.history.length > 1 ? navigate(-1) : navigate('/')}
-            className="btn btn-ghost btn-sm gap-1 px-2.5 py-1 text-xs font-semibold text-surface-600 dark:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-800 rounded-lg border border-surface-200 dark:border-surface-700/60 transition-colors flex items-center"
+            className="btn btn-ghost btn-sm gap-1 px-2.5 py-1 text-xs font-semibold text-surface-600 dark:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-800 rounded-lg border border-surface-200 dark:border-surface-700/60 transition-colors flex items-center shrink-0"
             title="Navigate back to previous page"
           >
             <ArrowLeft size={13} />
             <span className="hidden md:inline">Back</span>
           </button>
 
-          <div className="w-px h-5 bg-surface-200 dark:bg-surface-800" />
+          <div className="w-px h-5 bg-surface-200 dark:bg-surface-800 shrink-0" />
 
           {/* Resume Title with Click-to-Rename */}
           <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -109,7 +109,7 @@ export function BuilderNavbar({
         </div>
 
         {/* Save status */}
-        <div className="hidden lg:flex items-center gap-1.5 text-xs text-surface-500 dark:text-surface-400">
+        <div className="hidden lg:flex items-center gap-1.5 text-xs text-surface-500 dark:text-surface-400 shrink-0">
           {isDirty ? (
             <><span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" /> Saving...</>
           ) : lastSaved ? (
@@ -119,9 +119,9 @@ export function BuilderNavbar({
           )}
         </div>
 
-        <div className="flex items-center gap-1 sm:gap-1.5 ml-auto shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-2 ml-auto shrink-0 w-max py-1 transition-all duration-300">
           {/* Undo / Redo Buttons */}
-          <div className="flex items-center gap-0.5 bg-surface-100 dark:bg-surface-800/60 rounded-lg p-0.5 border border-surface-200 dark:border-surface-700/50">
+          <div className="flex items-center gap-0.5 bg-surface-100 dark:bg-surface-800/60 rounded-lg p-0.5 border border-surface-200 dark:border-surface-700/50 shrink-0">
             <button
               type="button"
               onClick={undo}
@@ -141,6 +141,7 @@ export function BuilderNavbar({
               <Redo2 size={13} />
             </button>
           </div>
+
           {/* Fresh Blank Resume Button */}
           <button
             type="button"
@@ -149,23 +150,23 @@ export function BuilderNavbar({
                 loadSampleResume('blank');
               }
             }}
-            className="btn btn-sm gap-1 text-xs px-2.5 py-1.5 rounded-lg border border-amber-300 dark:border-amber-500/40 text-amber-700 dark:text-amber-400 bg-amber-50/80 dark:bg-amber-500/10 hover:bg-amber-100 dark:hover:bg-amber-500/20 font-bold transition-all shadow-xs shrink-0"
+            className="btn btn-sm gap-1 text-xs px-2.5 py-1.5 rounded-lg border border-amber-300 dark:border-amber-500/40 text-amber-700 dark:text-amber-400 bg-amber-50/80 dark:bg-amber-500/10 hover:bg-amber-100 dark:hover:bg-amber-500/20 font-bold transition-all shadow-xs shrink-0 whitespace-nowrap flex items-center"
             title="Create a fresh blank resume"
           >
             <PlusCircle size={13} />
-            <span className="hidden md:inline">Fresh Blank</span>
+            <span>Fresh Blank</span>
           </button>
 
           {/* Load Mock Resumes Dropdown */}
-          <div className="relative">
+          <div className="relative shrink-0">
             <button
               type="button"
               onClick={() => setShowMockMenu(!showMockMenu)}
-              className="btn btn-sm gap-1 text-xs px-2 sm:px-2.5 py-1.5 rounded-lg border border-brand-200 dark:border-brand-500/30 text-brand-600 dark:text-brand-400 bg-brand-50/50 dark:bg-brand-500/10 hover:bg-brand-50 dark:hover:bg-brand-500/20 font-medium transition-colors"
+              className="btn btn-sm gap-1 text-xs px-2.5 py-1.5 rounded-lg border border-brand-200 dark:border-brand-500/30 text-brand-600 dark:text-brand-400 bg-brand-50/50 dark:bg-brand-500/10 hover:bg-brand-50 dark:hover:bg-brand-500/20 font-medium transition-colors whitespace-nowrap flex items-center"
               title="Load authentic sample resume data"
             >
               <BookOpen size={13} />
-              <span className="hidden lg:inline">Load Mock Data</span>
+              <span>Load Mock Data</span>
             </button>
 
             {showMockMenu && (
@@ -201,16 +202,16 @@ export function BuilderNavbar({
           <button
             type="button"
             onClick={() => setShowImportModal(true)}
-            className="btn btn-sm gap-1.5 text-xs px-2 sm:px-2.5 py-1.5 rounded-lg border border-brand-500/30 text-brand-600 dark:text-brand-400 bg-brand-500/5 dark:bg-brand-500/10 hover:bg-brand-50 dark:hover:bg-brand-500/20 font-medium transition-colors"
+            className="btn btn-sm gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border border-brand-500/30 text-brand-600 dark:text-brand-400 bg-brand-500/5 dark:bg-brand-500/10 hover:bg-brand-50 dark:hover:bg-brand-500/20 font-medium transition-colors shrink-0 whitespace-nowrap flex items-center"
             title="Upload or import existing PDF / DOCX resume"
           >
             <Upload size={13} />
-            <span className="hidden xl:inline">Upload / Import</span>
+            <span>Upload / Import</span>
           </button>
 
           {/* Split Screen Slider */}
           {onSetLayoutRatio && (
-            <div className="hidden 2xl:flex items-center bg-surface-100 dark:bg-surface-800/60 rounded-lg p-0.5 border border-surface-200 dark:border-surface-700/50 text-[11px] font-semibold">
+            <div className="flex items-center bg-surface-100 dark:bg-surface-800/60 rounded-lg p-0.5 border border-surface-200 dark:border-surface-700/50 text-[11px] font-semibold shrink-0 whitespace-nowrap">
               {[
                 { label: 'Wide Editor', pct: 60 },
                 { label: '50 / 50', pct: 50 },
@@ -222,7 +223,7 @@ export function BuilderNavbar({
                   onClick={() => onSetLayoutRatio(opt.pct)}
                   className={`px-2 py-1 rounded-md transition-all ${
                     currentRatio === opt.pct
-                      ? 'bg-white dark:bg-surface-700 text-surface-900 dark:text-white shadow-sm'
+                      ? 'bg-white dark:bg-surface-700 text-surface-900 dark:text-white shadow-sm font-bold'
                       : 'text-surface-500 hover:text-surface-900 dark:hover:text-white'
                   }`}
                 >
@@ -235,51 +236,54 @@ export function BuilderNavbar({
           {/* Dark/Light Mode Toggle */}
           <button
             onClick={() => setThemeMode(isDark ? 'light' : 'dark')}
-            className="btn btn-sm p-1.5 sm:p-2 rounded-lg text-surface-600 dark:text-surface-300 border border-surface-300 dark:border-surface-700 hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors"
+            className="btn btn-sm p-1.5 sm:p-2 rounded-lg text-surface-600 dark:text-surface-300 border border-surface-300 dark:border-surface-700 hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors shrink-0"
             title="Toggle Dark / Light Theme"
           >
             {isDark ? <Sun size={15} className="text-amber-400" /> : <Moon size={15} />}
           </button>
 
-        {/* Mobile/Desktop toggle */}
-        <button
-          onClick={onToggleMobilePreview}
-          className={`btn btn-sm gap-1 px-2.5 py-1.5 rounded-lg transition-colors font-bold shrink-0 flex items-center shadow-xs ${
-            isMobilePreview
-              ? 'bg-brand-500 text-white'
-              : 'text-surface-700 dark:text-surface-200 border border-surface-300 dark:border-surface-700 hover:bg-surface-100 dark:hover:bg-surface-800'
-          }`}
-          title="Toggle Mobile Preview / Editor"
-        >
-          {isMobilePreview ? <Monitor size={15} /> : <Smartphone size={15} />}
-          <span className="text-xs">{isMobilePreview ? 'Edit Resume' : 'Live Preview'}</span>
-        </button>
+          {/* Mobile/Desktop toggle */}
+          <button
+            onClick={onToggleMobilePreview}
+            className={`btn btn-sm gap-1 px-2.5 py-1.5 rounded-lg transition-colors font-bold shrink-0 flex items-center shadow-xs whitespace-nowrap ${
+              isMobilePreview
+                ? 'bg-brand-500 text-white'
+                : 'text-surface-700 dark:text-surface-200 border border-surface-300 dark:border-surface-700 hover:bg-surface-100 dark:hover:bg-surface-800'
+            }`}
+            title="Toggle Mobile Preview / Editor"
+          >
+            {isMobilePreview ? <Monitor size={15} /> : <Smartphone size={15} />}
+            <span className="text-xs">{isMobilePreview ? 'Edit Resume' : 'Live Preview'}</span>
+          </button>
 
-        {/* ATS Score */}
-        <button
-          onClick={onToggleATS}
-          className={`btn btn-sm gap-1 sm:gap-1.5 text-xs px-2 sm:px-3 py-1.5 rounded-lg transition-colors font-semibold ${
-            showATS
-              ? 'bg-brand-500 text-white'
-              : 'text-surface-700 dark:text-surface-200 border border-surface-300 dark:border-surface-700 hover:bg-surface-100 dark:hover:bg-surface-800'
-          }`}
-        >
-          <BarChart3 size={14} />
-          <span className={`font-bold ${showATS ? 'text-white' : atsResult ? getScoreColor(atsResult.score).split(' ')[0] : 'text-surface-400'}`}>
-            {atsResult ? `${atsResult.score}` : '—'}
-          </span>
-          <span className="hidden lg:inline">ATS Score</span>
-        </button>
+          {/* ATS Score */}
+          <button
+            onClick={onToggleATS}
+            className={`btn btn-sm gap-1.5 text-xs px-2.5 py-1.5 rounded-lg transition-colors font-semibold shrink-0 whitespace-nowrap flex items-center ${
+              showATS
+                ? 'bg-brand-500 text-white'
+                : 'text-surface-700 dark:text-surface-200 border border-surface-300 dark:border-surface-700 hover:bg-surface-100 dark:hover:bg-surface-800'
+            }`}
+          >
+            <BarChart3 size={14} />
+            <span className={`font-bold ${showATS ? 'text-white' : atsResult ? getScoreColor(atsResult.score).split(' ')[0] : 'text-surface-400'}`}>
+              {atsResult ? `${atsResult.score}` : '—'}
+            </span>
+            <span>ATS Score</span>
+          </button>
 
-        {/* Download PDF */}
-        <button
-          onClick={handleDownloadPDF}
-          className="btn btn-sm gap-1.5 text-xs font-semibold px-2.5 sm:px-3.5 py-1.5 rounded-lg bg-brand-500 text-white hover:bg-brand-600 transition-colors shadow-sm"
-        >
-          <Download size={14} />
-          <span className="hidden sm:inline">Download PDF</span>
-        </button>
-      </div>
+          {/* Download PDF */}
+          <button
+            onClick={handleDownloadPDF}
+            className="btn btn-sm gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-brand-500 text-white hover:bg-brand-600 transition-colors shadow-sm shrink-0 whitespace-nowrap flex items-center"
+          >
+            <Download size={14} />
+            <span>Download PDF</span>
+          </button>
+
+          {/* Right trailing spacer to guarantee Download button is 100% visible with breathing room */}
+          <div className="w-3 sm:w-4 shrink-0" />
+        </div>
 
       <ImportModal isOpen={showImportModal} onClose={() => setShowImportModal(false)} />
     </header>
