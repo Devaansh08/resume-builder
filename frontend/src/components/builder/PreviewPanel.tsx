@@ -164,7 +164,7 @@ export function PreviewPanel({ isMobilePreview, onToggleMobilePreview }: { isMob
             <Maximize2 size={14} />
           </button>
           <button
-            onClick={() => window.open('/preview', '_blank')}
+            onClick={() => window.open(`${window.location.origin}/preview`, '_blank')}
             className="btn btn-ghost p-1.5 ml-0.5 rounded hover:bg-surface-200 dark:hover:bg-surface-800 text-surface-700 dark:text-surface-300"
             title="Open preview inside dedicated full browser tab"
           >
@@ -238,7 +238,7 @@ export function PreviewPanel({ isMobilePreview, onToggleMobilePreview }: { isMob
             <div className="flex items-center gap-2">
               <button
                 type="button"
-                onClick={() => window.open('/preview', '_blank')}
+                onClick={() => window.open(`${window.location.origin}/preview`, '_blank')}
                 className="px-3 py-1.5 rounded-lg bg-surface-800 hover:bg-surface-700 text-surface-200 text-xs font-semibold flex items-center gap-1.5 transition-colors border border-surface-700"
                 title="Open inside separate dedicated full browser tab"
               >
