@@ -18,6 +18,7 @@ export default function BuilderPage() {
   const [showATS, setShowATS] = useState(false);
   const [activeSection, setActiveSection] = useState('personalInfo');
   const [isMobilePreview, setIsMobilePreview] = useState(false);
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState(() => window.innerWidth >= 768);
   const atsTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   // Panel sizing
@@ -156,11 +157,23 @@ export default function BuilderPage() {
       {/* ── 3-Panel Layout ─────────────────────────────────────────── */}
       <div className="flex flex-col md:flex-row flex-1 overflow-hidden relative min-w-0 z-10">
 
+        {/* Mobile Sidebar Overlay */}
+        {isSidebarExpanded && (
+          <div
+            className="fixed inset-0 z-20 bg-black/25 backdrop-blur-xs md:hidden transition-opacity"
+            onClick={() => setIsSidebarExpanded(false)}
+          />
+        )}
+
         {/* Left/Top: Section Sidebar */}
-        <div className={`${isMobilePreview ? 'hidden' : 'flex'} w-full md:w-[220px] flex-shrink-0 bg-[#FAF7F2]/80 dark:bg-[#1a050b]/80 backdrop-blur-md border-b md:border-b-0 md:border-r border-surface-200/60 dark:border-surface-800/60 flex-col z-10 md:h-full h-auto max-h-[60px] md:max-h-none overflow-hidden`}>
+        <div className={`${isMobilePreview ? 'hidden' : 'flex'} flex-col bg-[#FAF7F2]/90 dark:bg-[#1a050b]/90 backdrop-blur-md border-r border-surface-200/60 dark:border-surface-800/60 z-20 shrink-0 h-full transition-all duration-300 ${
+          isSidebarExpanded ? 'w-[220px] absolute md:relative inset-y-0 left-0 shadow-2xl md:shadow-none' : 'w-[64px]'
+        } overflow-hidden`}>
           <SectionSidebar
             activeSection={activeSection}
             onSectionChange={setActiveSection}
+            isExpanded={isSidebarExpanded}
+            onToggleExpand={() => setIsSidebarExpanded(!isSidebarExpanded)}
           />
         </div>
 

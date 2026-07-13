@@ -120,7 +120,38 @@ export function BuilderNavbar({
           )}
         </div>
 
-        <div className="flex items-center gap-2 ml-auto shrink-0 relative py-1">
+        <div className="flex items-center gap-1.5 sm:gap-2 ml-auto shrink-0 relative py-1">
+          {/* Dark/Light Mode Toggle */}
+          <button
+            onClick={() => setThemeMode(isDark ? 'light' : 'dark')}
+            className="btn btn-sm p-1.5 sm:p-2 rounded-lg text-surface-600 dark:text-surface-300 border border-surface-300 dark:border-surface-700 hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors shrink-0"
+            title="Toggle Dark / Light Theme"
+          >
+            {isDark ? <Sun size={15} className="text-amber-400" /> : <Moon size={15} />}
+          </button>
+
+          {/* Undo / Redo Buttons */}
+          <div className="flex items-center gap-0.5 bg-surface-100 dark:bg-surface-800/60 rounded-lg p-0.5 border border-surface-200 dark:border-surface-700/50 shrink-0">
+            <button
+              type="button"
+              onClick={undo}
+              disabled={historyIndex <= 0 || !history?.length}
+              className="p-1.5 rounded-md text-surface-600 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              title="Undo (Ctrl+Z)"
+            >
+              <Undo2 size={13} />
+            </button>
+            <button
+              type="button"
+              onClick={redo}
+              disabled={historyIndex >= (history?.length ?? 0) - 1 || historyIndex < 0 || !history?.length}
+              className="p-1.5 rounded-md text-surface-600 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              title="Redo (Ctrl+Y)"
+            >
+              <Redo2 size={13} />
+            </button>
+          </div>
+
           {/* Download PDF (High-priority action, always visible and accessible) */}
           <button
             onClick={handleDownloadPDF}
@@ -192,31 +223,6 @@ export function BuilderNavbar({
                 </button>
               </div>
 
-              {/* Undo / Redo Row */}
-              <div className="flex items-center justify-between border-t border-surface-200 dark:border-surface-800/60 pt-3">
-                <span className="text-xs font-semibold text-surface-500 dark:text-surface-400">History Actions</span>
-                <div className="flex items-center gap-1 bg-surface-100 dark:bg-surface-800/60 rounded-lg p-0.5 border border-surface-200 dark:border-surface-700/50">
-                  <button
-                    type="button"
-                    onClick={() => { undo(); setIsMenuOpen(false); }}
-                    disabled={historyIndex <= 0 || !history?.length}
-                    className="p-1.5 rounded-md text-surface-600 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                    title="Undo (Ctrl+Z)"
-                  >
-                    <Undo2 size={13} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => { redo(); setIsMenuOpen(false); }}
-                    disabled={historyIndex >= (history?.length ?? 0) - 1 || historyIndex < 0 || !history?.length}
-                    className="p-1.5 rounded-md text-surface-600 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                    title="Redo (Ctrl+Y)"
-                  >
-                    <Redo2 size={13} />
-                  </button>
-                </div>
-              </div>
-
               {/* Fresh Blank Resume */}
               <div className="border-t border-surface-200 dark:border-surface-800/60 pt-3">
                 <button
@@ -272,19 +278,6 @@ export function BuilderNavbar({
                   </div>
                 </div>
               )}
-
-              {/* Dark/Light Theme Row */}
-              <div className="flex items-center justify-between border-t border-surface-200 dark:border-surface-800/60 pt-3">
-                <span className="text-xs font-semibold text-surface-500 dark:text-surface-400">Appearance Theme</span>
-                <button
-                  type="button"
-                  onClick={() => { setThemeMode(isDark ? 'light' : 'dark'); setIsMenuOpen(false); }}
-                  className="btn btn-sm px-2.5 py-1 rounded-lg text-surface-700 dark:text-surface-200 border border-surface-300 dark:border-surface-700 hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors flex items-center gap-1.5 font-semibold text-xs"
-                >
-                  {isDark ? <Sun size={13} className="text-amber-400" /> : <Moon size={13} />}
-                  <span>{isDark ? 'Light' : 'Dark'}</span>
-                </button>
-              </div>
 
               {/* Load Mock Resumes Sub-menu */}
               <div className="flex flex-col gap-1 border-t border-surface-200 dark:border-surface-800/60 pt-3">
