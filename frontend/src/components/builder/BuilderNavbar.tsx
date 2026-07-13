@@ -3,7 +3,7 @@ import { useResumeStore } from '../../store/resumeStore';
 import type { Resume } from '../../types';
 import {
   FileText, ChevronLeft, Download, BarChart3,
-  Check, Smartphone, Monitor, Columns, Upload, PenLine, BookOpen, Sparkles, Sun, Moon, ArrowLeft, PlusCircle, Undo2, Redo2
+  Check, Smartphone, Monitor, Columns, Upload, PenLine, BookOpen, Sparkles, Sun, Moon, ArrowLeft, PlusCircle, Undo2, Redo2, Menu, X
 } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { generatePDF } from '../../utils/pdf';
@@ -34,6 +34,7 @@ export function BuilderNavbar({
   const [titleInput, setTitleInput] = useState(resume.title);
   const [showImportModal, setShowImportModal] = useState(false);
   const [showMockMenu, setShowMockMenu] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const isDark = themeMode === 'dark';
 
@@ -56,14 +57,14 @@ export function BuilderNavbar({
 
   return (
     <>
-      <header className="h-14 bg-[#FAF7F2]/90 dark:bg-[#1a050b]/90 border-b border-surface-200/60 dark:border-surface-800/60 px-3 sm:px-4 flex items-center justify-between gap-2 flex-shrink-0 z-30 sticky top-0 transition-all duration-300 backdrop-blur-md overflow-x-auto scroll-smooth no-scrollbar">
+      <header className="h-14 bg-[#FAF7F2]/90 dark:bg-[#1a050b]/90 border-b border-surface-200/60 dark:border-surface-800/60 px-3 sm:px-4 flex items-center justify-between gap-2 flex-shrink-0 z-30 sticky top-0 transition-all duration-300 backdrop-blur-md relative overflow-visible">
         <div className="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
           <button
             onClick={() => navigate('/')}
-            className="flex items-center gap-1.5 transition-opacity hover:opacity-80 text-surface-900 dark:text-surface-100 group select-none font-bold text-sm"
+            className="flex items-center gap-1.5 transition-opacity hover:opacity-80 text-surface-900 dark:text-surface-100 group select-none font-bold text-sm shrink-0"
             title="Back to home"
           >
-            <span>Resume Alchemist</span>
+            <span className="hidden sm:inline">Resume Alchemist</span>
           </button>
 
           <button
@@ -119,147 +120,22 @@ export function BuilderNavbar({
           )}
         </div>
 
-        <div
-          className="flex items-center gap-1.5 sm:gap-2 ml-auto shrink-0 py-1 transition-all duration-300"
-          style={{ width: 'max-content', flexShrink: 0 }}
-        >
-          {/* Download PDF (High-priority action right next to Save status, 100% full visible without truncation) */}
+        <div className="flex items-center gap-2 ml-auto shrink-0 relative py-1">
+          {/* Download PDF (High-priority action, always visible and accessible) */}
           <button
             onClick={handleDownloadPDF}
-            style={{ flexShrink: 0, whiteSpace: 'nowrap' }}
-            className="btn btn-sm gap-1.5 text-xs font-bold px-3.5 py-1.5 rounded-lg bg-brand-500 text-white hover:bg-brand-600 transition-colors shadow-sm shrink-0 whitespace-nowrap flex items-center select-none"
+            className="btn btn-sm gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg bg-brand-500 text-white hover:bg-brand-600 transition-colors shadow-sm shrink-0 whitespace-nowrap flex items-center select-none"
             title="Download high-quality PDF resume"
           >
             <Download size={14} className="shrink-0" />
-            <span>Download PDF</span>
+            <span className="hidden sm:inline">Download PDF</span>
+            <span className="sm:hidden">PDF</span>
           </button>
 
-          {/* Undo / Redo Buttons */}
-          <div className="flex items-center gap-0.5 bg-surface-100 dark:bg-surface-800/60 rounded-lg p-0.5 border border-surface-200 dark:border-surface-700/50 shrink-0">
-            <button
-              type="button"
-              onClick={undo}
-              disabled={historyIndex <= 0 || !history?.length}
-              className="p-1.5 rounded-md text-surface-600 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-              title="Undo (Ctrl+Z)"
-            >
-              <Undo2 size={13} />
-            </button>
-            <button
-              type="button"
-              onClick={redo}
-              disabled={historyIndex >= (history?.length ?? 0) - 1 || historyIndex < 0 || !history?.length}
-              className="p-1.5 rounded-md text-surface-600 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-              title="Redo (Ctrl+Y)"
-            >
-              <Redo2 size={13} />
-            </button>
-          </div>
-
-          {/* Fresh Blank Resume Button */}
-          <button
-            type="button"
-            onClick={() => {
-              if (confirm('Start a fresh blank resume? Any unsaved changes in the current resume will be cleared.')) {
-                loadSampleResume('blank');
-              }
-            }}
-            className="btn btn-sm gap-1 text-xs px-2.5 py-1.5 rounded-lg border border-amber-300 dark:border-amber-500/40 text-amber-700 dark:text-amber-400 bg-amber-50/80 dark:bg-amber-500/10 hover:bg-amber-100 dark:hover:bg-amber-500/20 font-bold transition-all shadow-xs shrink-0 whitespace-nowrap flex items-center"
-            title="Create a fresh blank resume"
-          >
-            <PlusCircle size={13} />
-            <span>Fresh Blank</span>
-          </button>
-
-          {/* Load Mock Resumes Dropdown */}
-          <div className="relative shrink-0">
-            <button
-              type="button"
-              onClick={() => setShowMockMenu(!showMockMenu)}
-              className="btn btn-sm gap-1 text-xs px-2.5 py-1.5 rounded-lg border border-brand-200 dark:border-brand-500/30 text-brand-600 dark:text-brand-400 bg-brand-50/50 dark:bg-brand-500/10 hover:bg-brand-50 dark:hover:bg-brand-500/20 font-medium transition-colors whitespace-nowrap flex items-center"
-              title="Load authentic sample resume data"
-            >
-              <BookOpen size={13} />
-              <span>Load Mock Data</span>
-            </button>
-
-            {showMockMenu && (
-              <div
-                className="absolute right-0 top-full mt-1.5 w-60 rounded-xl shadow-xl py-1.5 z-50 bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-700 animate-in slide-in-from-top-1"
-              >
-                <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-surface-500 dark:text-surface-400 border-b border-surface-100 dark:border-surface-800 flex items-center gap-1">
-                  <Sparkles size={11} className="text-brand-500" />
-                  <span>Select Person & Field</span>
-                </div>
-                {[
-                  { label: '⚡ Fresh Blank Resume', type: 'blank' as const, desc: 'Start building from scratch' },
-                  { label: 'Alex Rivera — Software Architect', type: 'software' as const, desc: 'Full Stack & Cloud Architecture' },
-                  { label: 'Sarah Jenkins — VP Product', type: 'product' as const, desc: 'AI SaaS & Growth Leadership' },
-                  { label: 'David Chen — Lead Analyst', type: 'finance' as const, desc: 'Corporate Strategy & M&A' },
-                  { label: 'Aarav Sharma — SDE Graduate', type: 'fresher' as const, desc: 'B.Tech CS / Fresher SDE' },
-                ].map(({ label, type, desc }) => (
-                  <button
-                    key={type}
-                    type="button"
-                    onClick={() => { loadSampleResume(type); setShowMockMenu(false); }}
-                    className="w-full text-left px-3 py-2 transition-colors hover:bg-brand-50 dark:hover:bg-brand-500/10 border-b last:border-b-0 border-surface-50 dark:border-surface-800/50"
-                  >
-                    <div className="text-xs font-semibold text-surface-900 dark:text-surface-100">{label}</div>
-                    <div className="text-[10px] text-surface-500 dark:text-surface-400">{desc}</div>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Upload/Import Resume button */}
-          <button
-            type="button"
-            onClick={() => setShowImportModal(true)}
-            className="btn btn-sm gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border border-brand-500/30 text-brand-600 dark:text-brand-400 bg-brand-500/5 dark:bg-brand-500/10 hover:bg-brand-50 dark:hover:bg-brand-500/20 font-medium transition-colors shrink-0 whitespace-nowrap flex items-center"
-            title="Upload or import existing PDF / DOCX resume"
-          >
-            <Upload size={13} />
-            <span>Upload / Import</span>
-          </button>
-
-          {/* Split Screen Slider */}
-          {onSetLayoutRatio && (
-            <div className="flex items-center bg-surface-100 dark:bg-surface-800/60 rounded-lg p-0.5 border border-surface-200 dark:border-surface-700/50 text-[11px] font-semibold shrink-0 whitespace-nowrap">
-              {[
-                { label: 'Wide Editor', pct: 60 },
-                { label: '50 / 50', pct: 50 },
-                { label: 'Wide Preview', pct: 40 },
-              ].map((opt) => (
-                <button
-                  key={opt.pct}
-                  type="button"
-                  onClick={() => onSetLayoutRatio(opt.pct)}
-                  className={`px-2 py-1 rounded-md transition-all ${
-                    currentRatio === opt.pct
-                      ? 'bg-white dark:bg-surface-700 text-surface-900 dark:text-white shadow-sm font-bold'
-                      : 'text-surface-500 hover:text-surface-900 dark:hover:text-white'
-                  }`}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-          )}
-
-          {/* Dark/Light Mode Toggle */}
-          <button
-            onClick={() => setThemeMode(isDark ? 'light' : 'dark')}
-            className="btn btn-sm p-1.5 sm:p-2 rounded-lg text-surface-600 dark:text-surface-300 border border-surface-300 dark:border-surface-700 hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors shrink-0"
-            title="Toggle Dark / Light Theme"
-          >
-            {isDark ? <Sun size={15} className="text-amber-400" /> : <Moon size={15} />}
-          </button>
-
-          {/* Mobile/Desktop toggle */}
+          {/* Mobile/Desktop toggle for view selection (visible only on mobile/tablet) */}
           <button
             onClick={onToggleMobilePreview}
-            className={`btn btn-sm gap-1 px-2.5 py-1.5 rounded-lg transition-colors font-bold shrink-0 flex items-center shadow-xs whitespace-nowrap ${
+            className={`btn btn-sm gap-1 px-2.5 py-1.5 rounded-lg transition-colors font-bold shrink-0 flex items-center shadow-xs whitespace-nowrap lg:hidden ${
               isMobilePreview
                 ? 'bg-brand-500 text-white'
                 : 'text-surface-700 dark:text-surface-200 border border-surface-300 dark:border-surface-700 hover:bg-surface-100 dark:hover:bg-surface-800'
@@ -267,31 +143,179 @@ export function BuilderNavbar({
             title="Toggle Mobile Preview / Editor"
           >
             {isMobilePreview ? <Monitor size={15} /> : <Smartphone size={15} />}
-            <span className="text-xs">{isMobilePreview ? 'Edit Resume' : 'Live Preview'}</span>
+            <span className="text-xs">{isMobilePreview ? 'Edit' : 'Preview'}</span>
           </button>
 
-          {/* ATS Score */}
+          {/* Unified Hamburger Menu Button */}
           <button
-            onClick={onToggleATS}
-            className={`btn btn-sm gap-1.5 text-xs px-2.5 py-1.5 rounded-lg transition-colors font-semibold shrink-0 whitespace-nowrap flex items-center ${
-              showATS
-                ? 'bg-brand-500 text-white'
-                : 'text-surface-700 dark:text-surface-200 border border-surface-300 dark:border-surface-700 hover:bg-surface-100 dark:hover:bg-surface-800'
+            type="button"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className={`btn btn-sm p-2 rounded-lg border transition-colors shrink-0 ${
+              isMenuOpen
+                ? 'bg-brand-500 border-brand-500 text-white'
+                : 'text-surface-700 dark:text-surface-200 border-surface-300 dark:border-surface-700 hover:bg-surface-100 dark:hover:bg-surface-800'
             }`}
+            title="Open editing tools menu"
           >
-            <BarChart3 size={14} />
-            <span className={`font-bold ${showATS ? 'text-white' : atsResult ? getScoreColor(atsResult.score).split(' ')[0] : 'text-surface-400'}`}>
-              {atsResult ? `${atsResult.score}` : '—'}
-            </span>
-            <span>ATS Score</span>
+            {isMenuOpen ? <X size={15} /> : <Menu size={15} />}
           </button>
 
-          {/* Right trailing spacer to guarantee buttons are 100% visible with breathing room */}
-          <div className="w-3 sm:w-4 shrink-0" />
+          {/* Click Outside Overlay */}
+          {isMenuOpen && (
+            <div
+              className="fixed inset-0 z-40 bg-transparent"
+              onClick={() => setIsMenuOpen(false)}
+            />
+          )}
+
+          {/* Hamburger Tools Dropdown (Column) */}
+          {isMenuOpen && (
+            <div className="absolute right-0 top-full mt-2 w-72 rounded-xl shadow-2xl p-4 z-50 bg-white/95 dark:bg-surface-900/95 backdrop-blur-md border border-surface-200/60 dark:border-surface-800/60 animate-in slide-in-from-top-2 duration-200 flex flex-col gap-3.5">
+              {/* ATS Score Option */}
+              <div>
+                <button
+                  type="button"
+                  onClick={() => { onToggleATS(); setIsMenuOpen(false); }}
+                  className={`w-full flex items-center justify-between text-xs px-3 py-2 rounded-lg transition-colors font-semibold border ${
+                    showATS
+                      ? 'bg-brand-500 border-brand-500 text-white'
+                      : 'text-surface-700 dark:text-surface-200 border border-surface-300 dark:border-surface-700 hover:bg-surface-100 dark:hover:bg-surface-800'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <BarChart3 size={14} />
+                    <span>ATS Score Analysis</span>
+                  </div>
+                  <span className={`font-bold px-1.5 py-0.5 rounded ${showATS ? 'bg-white/20 text-white' : atsResult ? getScoreColor(atsResult.score).split(' ')[0] : 'text-surface-400'}`}>
+                    {atsResult ? `${atsResult.score}` : '—'}
+                  </span>
+                </button>
+              </div>
+
+              {/* Undo / Redo Row */}
+              <div className="flex items-center justify-between border-t border-surface-200 dark:border-surface-800/60 pt-3">
+                <span className="text-xs font-semibold text-surface-500 dark:text-surface-400">History Actions</span>
+                <div className="flex items-center gap-1 bg-surface-100 dark:bg-surface-800/60 rounded-lg p-0.5 border border-surface-200 dark:border-surface-700/50">
+                  <button
+                    type="button"
+                    onClick={() => { undo(); setIsMenuOpen(false); }}
+                    disabled={historyIndex <= 0 || !history?.length}
+                    className="p-1.5 rounded-md text-surface-600 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                    title="Undo (Ctrl+Z)"
+                  >
+                    <Undo2 size={13} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { redo(); setIsMenuOpen(false); }}
+                    disabled={historyIndex >= (history?.length ?? 0) - 1 || historyIndex < 0 || !history?.length}
+                    className="p-1.5 rounded-md text-surface-600 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                    title="Redo (Ctrl+Y)"
+                  >
+                    <Redo2 size={13} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Fresh Blank Resume */}
+              <div className="border-t border-surface-200 dark:border-surface-800/60 pt-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    if (confirm('Start a fresh blank resume? Any unsaved changes in the current resume will be cleared.')) {
+                      loadSampleResume('blank');
+                    }
+                  }}
+                  className="w-full flex items-center gap-2 text-xs px-3 py-2 rounded-lg border border-amber-300 dark:border-amber-500/40 text-amber-700 dark:text-amber-400 bg-amber-50/80 dark:bg-amber-500/10 hover:bg-amber-100 dark:hover:bg-amber-500/20 font-bold transition-all shadow-xs"
+                >
+                  <PlusCircle size={14} />
+                  <span>Fresh Blank Resume</span>
+                </button>
+              </div>
+
+              {/* Upload/Import Resume */}
+              <div>
+                <button
+                  type="button"
+                  onClick={() => { setIsMenuOpen(false); setShowImportModal(true); }}
+                  className="w-full flex items-center gap-2 text-xs px-3 py-2 rounded-lg border border-brand-500/30 text-brand-600 dark:text-brand-400 bg-brand-500/5 dark:bg-brand-500/10 hover:bg-brand-50 dark:hover:bg-brand-500/20 font-semibold transition-colors"
+                >
+                  <Upload size={14} />
+                  <span>Upload / Import Resume</span>
+                </button>
+              </div>
+
+              {/* Split Screen Slider (Desktop only) */}
+              {onSetLayoutRatio && (
+                <div className="flex flex-col gap-1.5 border-t border-surface-200 dark:border-surface-800/60 pt-3 hidden lg:flex">
+                  <span className="text-xs font-semibold text-surface-500 dark:text-surface-400">Layout Ratio</span>
+                  <div className="flex items-center bg-surface-100 dark:bg-surface-800/60 rounded-lg p-0.5 border border-surface-200 dark:border-surface-700/50 text-[10px] font-semibold w-full">
+                    {[
+                      { label: 'Wide Edit', pct: 60 },
+                      { label: '50 / 50', pct: 50 },
+                      { label: 'Wide Prev', pct: 40 },
+                    ].map((opt) => (
+                      <button
+                        key={opt.pct}
+                        type="button"
+                        onClick={() => { onSetLayoutRatio(opt.pct); setIsMenuOpen(false); }}
+                        className={`flex-1 py-1 rounded transition-all ${
+                          currentRatio === opt.pct
+                            ? 'bg-white dark:bg-surface-700 text-surface-900 dark:text-white shadow-sm font-bold'
+                            : 'text-surface-500 hover:text-surface-900 dark:hover:text-white'
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Dark/Light Theme Row */}
+              <div className="flex items-center justify-between border-t border-surface-200 dark:border-surface-800/60 pt-3">
+                <span className="text-xs font-semibold text-surface-500 dark:text-surface-400">Appearance Theme</span>
+                <button
+                  type="button"
+                  onClick={() => { setThemeMode(isDark ? 'light' : 'dark'); setIsMenuOpen(false); }}
+                  className="btn btn-sm px-2.5 py-1 rounded-lg text-surface-700 dark:text-surface-200 border border-surface-300 dark:border-surface-700 hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors flex items-center gap-1.5 font-semibold text-xs"
+                >
+                  {isDark ? <Sun size={13} className="text-amber-400" /> : <Moon size={13} />}
+                  <span>{isDark ? 'Light' : 'Dark'}</span>
+                </button>
+              </div>
+
+              {/* Load Mock Resumes Sub-menu */}
+              <div className="flex flex-col gap-1 border-t border-surface-200 dark:border-surface-800/60 pt-3">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-surface-400 px-1 mb-1">
+                  Load Authentic Sample Data
+                </div>
+                <div className="flex flex-col gap-0.5 max-h-40 overflow-y-auto pr-1">
+                  {[
+                    { label: 'Alex Rivera — Software Architect', type: 'software' as const },
+                    { label: 'Sarah Jenkins — VP Product', type: 'product' as const },
+                    { label: 'David Chen — Lead Analyst', type: 'finance' as const },
+                    { label: 'Aarav Sharma — SDE Graduate', type: 'fresher' as const },
+                  ].map(({ label, type }) => (
+                    <button
+                      key={type}
+                      type="button"
+                      onClick={() => { loadSampleResume(type); setIsMenuOpen(false); }}
+                      className="text-left px-2 py-1.5 transition-colors rounded hover:bg-brand-50 dark:hover:bg-brand-500/10 text-[11px] font-medium text-surface-700 dark:text-surface-300 truncate"
+                      title={label}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
-      <ImportModal isOpen={showImportModal} onClose={() => setShowImportModal(false)} />
-    </header>
+        <ImportModal isOpen={showImportModal} onClose={() => setShowImportModal(false)} />
+      </header>
     </>
   );
 }
