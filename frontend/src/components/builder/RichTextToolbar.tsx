@@ -73,7 +73,6 @@ export function RichTextToolbar({ value, onChange, inputRef, showWordCount = tru
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showHighlightPicker, setShowHighlightPicker] = useState(false);
   const [showSpacingPicker, setShowSpacingPicker] = useState(false);
-  const [showPhrases, setShowPhrases] = useState(false);
 
   // Count words
   const wordCount = value.trim() ? value.trim().split(/\s+/).length : 0;
@@ -276,7 +275,6 @@ export function RichTextToolbar({ value, onChange, inputRef, showWordCount = tru
         onChange(`${value}${sep}${phrase}`);
       }
     }
-    setShowPhrases(false);
   }, [value, onChange, getSelection]);
 
   const ToolButton = ({ onClick, title, children, active = false }: {
@@ -312,15 +310,13 @@ export function RichTextToolbar({ value, onChange, inputRef, showWordCount = tru
             <Type size={12} />
             <span>WORD</span>
           </div>
-          {(['home', 'insert', 'layout', 'styles', 'phrases'] as const).map((tab) => (
+          {(['home', 'insert', 'layout', 'styles'] as const).map((tab) => (
             <button
               key={tab}
               type="button"
               onClick={() => {
                 setActiveTab(tab);
                 setIsExpanded(true);
-                if (tab === 'phrases') setShowPhrases(true);
-                else setShowPhrases(false);
               }}
               className={`relative overflow-hidden px-2.5 py-1 rounded-t text-xs font-semibold capitalize transition-all duration-200 ease-out transform hover:-translate-y-0.5 active:translate-y-0 shrink-0 ${
                 activeTab === tab && isExpanded
@@ -328,7 +324,7 @@ export function RichTextToolbar({ value, onChange, inputRef, showWordCount = tru
                   : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200/60 dark:hover:bg-surface-800 before:absolute before:bottom-0 before:left-0 before:h-0.5 before:w-full before:bg-brand-400 before:scale-x-0 hover:before:scale-x-100 before:transition-transform before:duration-200 before:origin-left'
               }`}
             >
-              {tab === 'phrases' ? '✨ Quick Phrases' : tab}
+              {tab}
             </button>
           ))}
         </div>
@@ -336,14 +332,16 @@ export function RichTextToolbar({ value, onChange, inputRef, showWordCount = tru
           <button
             type="button"
             onClick={() => {
-              const next = !showPhrases;
-              setShowPhrases(next);
-              if (next) setActiveTab('phrases');
-              if (!isExpanded) setIsExpanded(true);
+              if (activeTab === 'phrases' && isExpanded) {
+                setActiveTab('home');
+              } else {
+                setActiveTab('phrases');
+                setIsExpanded(true);
+              }
             }}
             className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold transition-all shadow-sm border ${
-              showPhrases
-                ? 'bg-brand-600 text-white border-brand-700 shadow-brand-500/30'
+              activeTab === 'phrases' && isExpanded
+                ? 'bg-amber-500 text-white border-amber-600 shadow-amber-500/30 hover:bg-amber-600'
                 : 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-700/60 hover:bg-amber-100'
             }`}
             title="Toggle AI Suggestion Box"
@@ -368,49 +366,8 @@ export function RichTextToolbar({ value, onChange, inputRef, showWordCount = tru
         </div>
       </div>
 
-      {/* ── Floating AI Suggestion Box Overlay ────────────────────────────── */}
-      {showPhrases && (
-        <div className="p-3 bg-gradient-to-br from-amber-50/90 via-white to-brand-50/80 dark:from-surface-900 dark:via-surface-900 dark:to-brand-950/50 border-b-2 border-brand-500 animate-fade-in z-[100] relative">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
-            <div className="flex items-start gap-1.5 text-xs font-bold text-brand-600 dark:text-brand-400 min-w-0">
-              <Sparkles size={14} className="shrink-0 mt-0.5" />
-              <span className="leading-tight text-balance">AI Suggestion Box — Click any phrase to insert directly into your text box:</span>
-            </div>
-            <button
-              type="button"
-              onClick={() => setShowPhrases(false)}
-              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-xs font-bold px-2 py-0.5 rounded hover:bg-gray-200/50 shrink-0 self-end sm:self-auto"
-            >
-              Close ✕
-            </button>
-          </div>
-          <div className="max-h-60 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-2 pr-1">
-            {ATS_SUGGESTIONS.map((group) => (
-              <div key={group.category} className="bg-white/90 dark:bg-surface-800/90 rounded-lg p-2 border border-brand-200/60 dark:border-surface-700 shadow-sm">
-                <div className="text-[10px] font-extrabold uppercase tracking-wider text-brand-600 dark:text-brand-400 mb-1 px-1 flex items-center gap-1">
-                  <span>⚡</span> {group.category}
-                </div>
-                <div className="space-y-1">
-                  {group.sentences.map((phrase) => (
-                    <button
-                      key={phrase}
-                      type="button"
-                      onClick={() => insertPhrase(phrase)}
-                      className="w-full text-left p-1.5 text-xs rounded hover:bg-brand-500 hover:text-white dark:hover:bg-brand-600 text-gray-700 dark:text-gray-300 transition-colors border border-transparent hover:border-brand-600 flex items-start gap-1.5 group font-medium"
-                    >
-                      <span className="text-brand-500 group-hover:text-white mt-0.5 font-bold">•</span>
-                      <span>{phrase}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* ── Tab Panels Content ────────────────────────────────────────────── */}
-      {isExpanded && !showPhrases && (
+      {isExpanded && (
         <div key={activeTab} className="p-1.5 flex items-center overflow-x-auto no-scrollbar flex-nowrap md:flex-wrap gap-1 bg-gray-50/80 dark:bg-surface-900/90 text-xs border-b border-gray-100 dark:border-surface-800 animate-slide-down transition-all duration-200">
           {/* ── HOME TAB: Font, Size, Inline Formatting, Color, Alignment ───── */}
           {activeTab === 'home' && (
