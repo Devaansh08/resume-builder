@@ -26,12 +26,12 @@ export function ProfessionalTemplate({ resume: propResume }: { resume?: Resume }
             {pi.name || 'Your Name'}
           </h1>
           <div style={{ fontSize: '10px', color: '#4b5563', display: 'flex', justifyContent: pi.photo ? 'flex-start' : 'center', flexWrap: 'wrap', gap: '16px' }}>
-            {pi.email && <span>{pi.email}</span>}
+            {pi.email && <span><a href={`mailto:${pi.email}`} style={{ color: 'inherit', textDecoration: 'underline' }}>{pi.email}</a></span>}
             {pi.phone && <span>{pi.phone}</span>}
             {pi.address && <span>{pi.address}</span>}
-            {pi.linkedin && <span>{pi.linkedin}</span>}
-            {pi.github && <span>{pi.github}</span>}
-            {pi.portfolio && <span>{pi.portfolio}</span>}
+            {pi.linkedin && <span><a href={formatUrl(pi.linkedin)} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>{pi.linkedin}</a></span>}
+            {pi.github && <span><a href={formatUrl(pi.github)} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>{pi.github}</a></span>}
+            {pi.portfolio && <span><a href={formatUrl(pi.portfolio)} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>{pi.portfolio}</a></span>}
           </div>
         </div>
         {pi.photo && (

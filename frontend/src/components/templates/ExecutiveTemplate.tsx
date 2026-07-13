@@ -34,12 +34,12 @@ export function ExecutiveTemplate({ resume: propResume }: { resume?: Resume }) {
         )}
         {/* Contact row */}
         <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '6px 16px', fontSize: '9.5px', color: '#555' }}>
-          {pi.email && <span>✉ {pi.email}</span>}
+          {pi.email && <span>✉ <a href={`mailto:${pi.email}`} style={{ color: 'inherit', textDecoration: 'underline' }}>{pi.email}</a></span>}
           {pi.phone && <span>📞 {pi.phone}</span>}
           {pi.address && <span>📍 {pi.address}</span>}
-          {pi.linkedin && <span>{pi.linkedin}</span>}
-          {pi.github && <span>{pi.github}</span>}
-          {pi.portfolio && <span>{pi.portfolio}</span>}
+          {pi.linkedin && <span>in <a href={formatUrl(pi.linkedin)} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>{pi.linkedin}</a></span>}
+          {pi.github && <span>⌥ <a href={formatUrl(pi.github)} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>{pi.github}</a></span>}
+          {pi.portfolio && <span>🌐 <a href={formatUrl(pi.portfolio)} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>{pi.portfolio}</a></span>}
         </div>
       </div>
 

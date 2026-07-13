@@ -96,12 +96,32 @@ export function ProjectsForm() {
                   <input className="input" value={proj.name} onChange={(e) => updateProj(proj.id, 'name', e.target.value)} placeholder="ResumeAI" />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1 block">GitHub URL</label>
-                  <input className="input" value={proj.githubUrl} onChange={(e) => updateProj(proj.id, 'githubUrl', e.target.value)} placeholder="github.com/user/repo" />
+                  <div className="flex justify-between items-center mb-1">
+                    <label className="text-xs font-medium text-gray-600 dark:text-gray-400 block">GitHub URL</label>
+                    {proj.githubUrl && !/^(https?:\/\/)?(www\.)?github\.com\/.*$/i.test(proj.githubUrl) && (
+                      <span className="text-[10px] text-red-500 font-semibold">Must contain github.com</span>
+                    )}
+                  </div>
+                  <input
+                    className={`input ${proj.githubUrl && !/^(https?:\/\/)?(www\.)?github\.com\/.*$/i.test(proj.githubUrl) ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' : ''}`}
+                    value={proj.githubUrl || ''}
+                    onChange={(e) => updateProj(proj.id, 'githubUrl', e.target.value)}
+                    placeholder="github.com/user/repo"
+                  />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1 block">Live URL</label>
-                  <input className="input" value={proj.liveUrl} onChange={(e) => updateProj(proj.id, 'liveUrl', e.target.value)} placeholder="app.example.com" />
+                  <div className="flex justify-between items-center mb-1">
+                    <label className="text-xs font-medium text-gray-600 dark:text-gray-400 block">Live URL</label>
+                    {proj.liveUrl && !/^(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/i.test(proj.liveUrl) && (
+                      <span className="text-[10px] text-red-500 font-semibold">Must be a valid URL</span>
+                    )}
+                  </div>
+                  <input
+                    className={`input ${proj.liveUrl && !/^(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/i.test(proj.liveUrl) ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' : ''}`}
+                    value={proj.liveUrl || ''}
+                    onChange={(e) => updateProj(proj.id, 'liveUrl', e.target.value)}
+                    placeholder="app.example.com"
+                  />
                 </div>
               </div>
 

@@ -50,7 +50,7 @@ export function IndianCorporateTemplate({ resume: propResume }: { resume?: Resum
             {personalInfo.email && (
               <div>
                 <div className="font-semibold text-surface-500 text-[9px] uppercase">Email Address</div>
-                <div className="break-all">{personalInfo.email}</div>
+                <div className="break-all"><a href={`mailto:${personalInfo.email}`} style={{ color: 'inherit', textDecoration: 'underline' }}>{personalInfo.email}</a></div>
               </div>
             )}
             {personalInfo.address && (
@@ -62,13 +62,13 @@ export function IndianCorporateTemplate({ resume: propResume }: { resume?: Resum
             {personalInfo.linkedin && (
               <div>
                 <div className="font-semibold text-surface-500 text-[9px] uppercase">LinkedIn</div>
-                <div className="break-all">linkedin.com/in/{personalInfo.linkedin}</div>
+                <div className="break-all"><a href={formatUrl(personalInfo.linkedin)} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>{personalInfo.linkedin}</a></div>
               </div>
             )}
             {personalInfo.github && (
               <div>
                 <div className="font-semibold text-surface-500 text-[9px] uppercase">GitHub</div>
-                <div className="break-all">github.com/{personalInfo.github}</div>
+                <div className="break-all"><a href={formatUrl(personalInfo.github)} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>{personalInfo.github}</a></div>
               </div>
             )}
           </div>

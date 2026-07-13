@@ -298,7 +298,7 @@ export const useResumeStore = create<ResumeStore>()(
       }),
       {
         name: 'resumeai-store',
-        storage: createJSONStorage(() => sessionStorage),
+        storage: createJSONStorage(() => localStorage),
         partialize: (state) => ({
           themeMode: state.themeMode,
           zoomLevel: state.zoomLevel,

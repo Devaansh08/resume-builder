@@ -41,12 +41,12 @@ export function CreativeTemplate({ resume: propResume }: { resume?: Resume }) {
         <div>
           <CreativeSideHeading>Contact</CreativeSideHeading>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '9px', color: 'rgba(255,255,255,0.85)' }}>
-            {pi.email && <div>✉ {pi.email}</div>}
+            {pi.email && <div>✉ <a href={`mailto:${pi.email}`} style={{ color: 'inherit', textDecoration: 'underline' }}>{pi.email}</a></div>}
             {pi.phone && <div>📞 {pi.phone}</div>}
             {pi.address && <div>📍 {pi.address}</div>}
-            {pi.linkedin && <div>{pi.linkedin}</div>}
-            {pi.github && <div>{pi.github}</div>}
-            {pi.portfolio && <div>{pi.portfolio}</div>}
+            {pi.linkedin && <div>in <a href={formatUrl(pi.linkedin)} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>{pi.linkedin}</a></div>}
+            {pi.github && <div>⌥ <a href={formatUrl(pi.github)} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>{pi.github}</a></div>}
+            {pi.portfolio && <div>🌐 <a href={formatUrl(pi.portfolio)} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>{pi.portfolio}</a></div>}
           </div>
         </div>
 

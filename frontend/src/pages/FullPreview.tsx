@@ -45,6 +45,16 @@ export default function FullPreviewPage() {
   }, [currentResume, createNewResume, setCurrentResume]);
 
   useEffect(() => {
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === 'resumeai-store') {
+        useResumeStore.persist.rehydrate();
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
+
+  useEffect(() => {
     if (!containerRef.current) return;
     const observer = new ResizeObserver((entries) => {
       for (const entry of entries) {
@@ -185,6 +195,7 @@ export default function FullPreviewPage() {
             className="transition-transform duration-200 print:transform-none print:w-full"
           >
             <div
+              id="resume-preview"
               className="bg-white text-gray-900 rounded-sm print:shadow-none print:rounded-none"
               style={{
                 width: '794px',

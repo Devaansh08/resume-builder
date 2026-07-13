@@ -30,11 +30,11 @@ export function IndianAcademicTemplate({ resume: propResume }: { resume?: Resume
             {personalInfo.title || 'Professional Title'}
           </p>
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 mt-3 text-xs text-surface-700">
-            {personalInfo.email && <span>Email: {personalInfo.email}</span>}
+            {personalInfo.email && <span>Email: <a href={`mailto:${personalInfo.email}`} style={{ color: 'inherit', textDecoration: 'underline' }}>{personalInfo.email}</a></span>}
             {personalInfo.phone && <span>Mobile: {personalInfo.phone}</span>}
             {personalInfo.address && <span>Address: {personalInfo.address}</span>}
-            {personalInfo.linkedin && <span>LinkedIn: linkedin.com/in/{personalInfo.linkedin}</span>}
-            {personalInfo.github && <span>GitHub: github.com/{personalInfo.github}</span>}
+            {personalInfo.linkedin && <span>LinkedIn: <a href={formatUrl(personalInfo.linkedin)} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>{personalInfo.linkedin}</a></span>}
+            {personalInfo.github && <span>GitHub: <a href={formatUrl(personalInfo.github)} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>{personalInfo.github}</a></span>}
           </div>
         </div>
 

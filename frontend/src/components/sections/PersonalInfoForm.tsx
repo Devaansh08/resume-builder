@@ -9,19 +9,76 @@ import { SectionTitleEditor } from '../builder/SectionTitleEditor';
 const FIELDS = [
   { name: 'name', label: 'Full Name', placeholder: 'John Doe', icon: <User size={16} />, required: true },
   { name: 'title', label: 'Professional Title', placeholder: 'Senior Software Engineer', icon: <Sparkles size={16} /> },
-  { name: 'email', label: 'Email', placeholder: 'john@example.com', icon: <Mail size={16} />, type: 'email' },
+  { 
+    name: 'email', 
+    label: 'Email', 
+    placeholder: 'john@example.com', 
+    icon: <Mail size={16} />, 
+    type: 'email',
+    validation: {
+      pattern: {
+        value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/i,
+        message: "Must be a valid email"
+      }
+    }
+  },
   { name: 'phone', label: 'Phone', placeholder: '+1 (555) 000-0000', icon: <Phone size={16} /> },
   { name: 'address', label: 'Location', placeholder: 'San Francisco, CA', icon: <MapPin size={16} /> },
-  { name: 'linkedin', label: 'LinkedIn URL', placeholder: 'linkedin.com/in/johndoe', icon: <Linkedin size={16} /> },
-  { name: 'github', label: 'GitHub URL', placeholder: 'github.com/johndoe', icon: <Github size={16} /> },
-  { name: 'portfolio', label: 'Portfolio URL', placeholder: 'johndoe.dev', icon: <Globe size={16} /> },
-  { name: 'website', label: 'Website', placeholder: 'https://johndoe.com', icon: <Globe size={16} /> },
-] as const;
+  { 
+    name: 'linkedin', 
+    label: 'LinkedIn URL', 
+    placeholder: 'linkedin.com/in/johndoe', 
+    icon: <Linkedin size={16} />,
+    validation: {
+      pattern: {
+        value: /^(https?:\/\/)?(www\.)?linkedin\.com\/.*$/i,
+        message: "Must contain linkedin.com"
+      }
+    }
+  },
+  { 
+    name: 'github', 
+    label: 'GitHub URL', 
+    placeholder: 'github.com/johndoe', 
+    icon: <Github size={16} />,
+    validation: {
+      pattern: {
+        value: /^(https?:\/\/)?(www\.)?github\.com\/.*$/i,
+        message: "Must contain github.com"
+      }
+    }
+  },
+  { 
+    name: 'portfolio', 
+    label: 'Portfolio URL', 
+    placeholder: 'johndoe.dev', 
+    icon: <Globe size={16} />,
+    validation: {
+      pattern: {
+        value: /^(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/i,
+        message: "Must be a valid URL"
+      }
+    }
+  },
+  { 
+    name: 'website', 
+    label: 'Website', 
+    placeholder: 'https://johndoe.com', 
+    icon: <Globe size={16} />,
+    validation: {
+      pattern: {
+        value: /^(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/i,
+        message: "Must be a valid URL"
+      }
+    }
+  },
+];
 
 export function PersonalInfoForm() {
   const { currentResume, updateSection } = useResumeStore();
-  const { register, watch, reset, setValue } = useForm<PersonalInfo>({
+  const { register, watch, reset, setValue, formState: { errors } } = useForm<PersonalInfo>({
     defaultValues: currentResume?.sections.personalInfo,
+    mode: 'onChange',
   });
 
   const summaryRef = useRef<HTMLTextAreaElement>(null);
@@ -144,13 +201,13 @@ export function PersonalInfoForm() {
       {/* Grid fields */}
       <div className="grid grid-cols-1 gap-4">
         {FIELDS.slice(0, 2).map((field) => (
-          <FormField key={field.name} field={field} register={register} />
+          <FormField key={field.name} field={field} register={register} errors={errors} />
         ))}
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {FIELDS.slice(2, 5).map((field) => (
-          <FormField key={field.name} field={field} register={register} />
+          <FormField key={field.name} field={field} register={register} errors={errors} />
         ))}
       </div>
 
@@ -159,7 +216,7 @@ export function PersonalInfoForm() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {FIELDS.slice(5).map((field) => (
-          <FormField key={field.name} field={field} register={register} />
+          <FormField key={field.name} field={field} register={register} errors={errors} />
         ))}
       </div>
 
@@ -202,23 +259,28 @@ export function PersonalInfoForm() {
   );
 }
 
-function FormField({ field, register }: {
-  field: typeof FIELDS[number];
-  register: ReturnType<typeof useForm<PersonalInfo>>['register'];
+function FormField({ field, register, errors }: {
+  field: any;
+  register: any;
+  errors: any;
 }) {
+  const error = errors[field.name];
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-        {field.label}
-        {'required' in field && field.required && <span className="text-red-400 ml-0.5">*</span>}
-      </label>
+      <div className="flex justify-between items-center mb-1.5">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          {field.label}
+          {field.required && <span className="text-red-400 ml-0.5">*</span>}
+        </label>
+        {error && <span className="text-xs text-red-500 font-semibold">{error.message}</span>}
+      </div>
       <div className="relative">
         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">{field.icon}</span>
         <input
-          {...register(field.name as keyof PersonalInfo)}
-          type={('type' in field && field.type) || 'text'}
+          {...register(field.name, field.validation || {})}
+          type={field.type || 'text'}
           placeholder={field.placeholder}
-          className="input pl-10"
+          className={`input pl-10 ${error ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' : ''}`}
         />
       </div>
     </div>
