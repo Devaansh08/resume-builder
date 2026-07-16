@@ -1,9 +1,6 @@
 # Resume Alchemist — Advanced Full-Stack AI Resume Builder & Architecture Documentation
 
-[![Vercel Deployment](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel&logoColor=white)](https://resume-builder-devaansh08.vercel.app)
 [![GitHub Repository](https://img.shields.io/badge/GitHub-Devaansh08%2Fresume--builder-181717?style=for-the-badge&logo=github)](https://github.com/Devaansh08/resume-builder)
-
-> **🚀 Live Deployed Application**: [**https://resume-builder-devaansh08.vercel.app**](https://resume-builder-devaansh08.vercel.app) *(or check your active Vercel dashboard domain)*
 
 An enterprise-grade, highly customizable, full-stack resume builder featuring real-time ATS optimization, split-screen live previewing, multi-format file import (`.pdf`, `.docx`), dynamic PDF rendering, 3D interactive preview modes, and comprehensive undo/redo state management.
 
