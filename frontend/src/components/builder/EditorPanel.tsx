@@ -51,9 +51,9 @@ export function EditorPanel({ activeSection }: EditorPanelProps) {
     : (sectionLabels[activeSection] || activeSection);
 
   return (
-    <div className="flex flex-col h-full overflow-hidden">
+    <div className="flex flex-col h-full overflow-hidden min-w-0">
       {/* Section header */}
-      <div className="px-6 py-4 border-b border-gray-100 dark:border-surface-800 bg-white dark:bg-surface-900 flex-shrink-0">
+      <div className="px-3 sm:px-6 py-3 sm:py-4 border-b border-gray-100 dark:border-surface-800 bg-white dark:bg-surface-900 flex-shrink-0">
         <h2 className="font-display font-semibold text-gray-900 dark:text-white">{label}</h2>
         <p className="text-xs text-gray-500 mt-0.5">
           Changes save automatically every 5 seconds
@@ -61,7 +61,7 @@ export function EditorPanel({ activeSection }: EditorPanelProps) {
       </div>
 
       {/* Form area */}
-      <div className="flex-1 overflow-y-auto p-6">
+      <div className="flex-1 overflow-y-auto p-3 sm:p-6 min-w-0">
         {isCustom ? (
           <CustomSectionForm sectionId={activeSection} />
         ) : SectionComponent ? (

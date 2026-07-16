@@ -10,6 +10,7 @@ import { authRouter } from './routes/auth';
 import { resumeRouter } from './routes/resume';
 import { exportRouter } from './routes/export';
 import { shareRouter } from './routes/share';
+import { templatesRouter } from './routes/templates';
 
 dotenv.config();
 
@@ -70,6 +71,8 @@ app.use('/api/auth', authLimiter, authRouter);
 app.use('/api/resume', resumeRouter);
 app.use('/api/export', exportRouter);
 app.use('/api/share', shareRouter);
+app.use('/api/templates', templatesRouter);
+app.use('/api/resume/templates', templatesRouter);
 
 // ─── Health Check & Root Route ───────────────────────────────────────────────
 app.get('/', (_req, res) => {

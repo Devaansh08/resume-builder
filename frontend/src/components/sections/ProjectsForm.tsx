@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { useResumeStore } from '../../store/resumeStore';
 import type { Project } from '../../types';
 import { newProject } from '../../utils/defaults';
-import { Plus, Trash2, ChevronDown, ChevronUp, Code, X, ArrowUp, ArrowDown } from 'lucide-react';
-import { RichTextToolbar } from '../builder/RichTextToolbar';
+import { Plus, Trash2, ChevronDown, ChevronUp, Code, X } from 'lucide-react';
+import { WYSIWYGEditor } from '../builder/WYSIWYGEditor';
 import { SectionTitleEditor } from '../builder/SectionTitleEditor';
 
 export function ProjectsForm() {
@@ -31,28 +31,8 @@ export function ProjectsForm() {
     if (!proj) return;
     updateProj(id, 'technologies', proj.technologies.filter((t) => t !== tech));
   };
-  const updateBullet = (id: string, idx: number, value: string) => {
-    const proj = projects.find((p) => p.id === id);
-    if (!proj) return;
-    const bullets = [...proj.bullets];
-    bullets[idx] = value;
-    updateProj(id, 'bullets', bullets);
-  };
-
-  const moveBullet = (id: string, idx: number, direction: 'up' | 'down') => {
-    const proj = projects.find((p) => p.id === id);
-    if (!proj) return;
-    const targetIdx = direction === 'up' ? idx - 1 : idx + 1;
-    if (targetIdx < 0 || targetIdx >= proj.bullets.length) return;
-    const bullets = [...proj.bullets];
-    const temp = bullets[idx];
-    bullets[idx] = bullets[targetIdx];
-    bullets[targetIdx] = temp;
-    updateProj(id, 'bullets', bullets);
-  };
-
   const handleToolbarChange = (id: string, val: string) => {
-    const lines = val.split('\n').map((l) => l.replace(/^[•\-–—*]\s*/, '')).filter(Boolean);
+    const lines = val.split('\n').map((l) => l.replace(/^[•\-–—*]\s*/, ''));
     updateProj(id, 'bullets', lines.length ? lines : ['']);
   };
 
@@ -155,50 +135,18 @@ export function ProjectsForm() {
                 </div>
               </div>
 
-              {/* Bullets with Toolbar */}
+              {/* Bullets with WYSIWYG Editor */}
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Description / Key Features</label>
-                  <button onClick={() => updateProj(proj.id, 'bullets', [...proj.bullets, ''])} className="text-xs text-brand-500 hover:text-brand-600 flex items-center gap-1 font-semibold">
-                    <Plus size={12} /> Add bullet
-                  </button>
                 </div>
 
-                <RichTextToolbar
+                <WYSIWYGEditor
                   value={proj.bullets.map((b) => `• ${b}`).join('\n')}
                   onChange={(val: string) => handleToolbarChange(proj.id, val)}
+                  placeholder="• Built real-time collaboration using WebSockets...&#10;• Reduced latency by 45% using Redis caching... (Press Enter for new line)"
+                  minHeight="120px"
                 />
-
-                <div className="space-y-2 mt-2">
-                  {proj.bullets.map((bullet, idx) => (
-                    <div key={idx} className="flex items-start gap-1.5 group">
-                      <span className="mt-3 text-brand-500 font-bold text-sm select-none">•</span>
-                      <input
-                        className="input flex-1 text-sm"
-                        value={bullet}
-                        onChange={(e) => updateBullet(proj.id, idx, e.target.value)}
-                        placeholder="Built real-time collaboration using WebSockets..."
-                      />
-                      <div className="flex items-center opacity-70 group-hover:opacity-100 transition-opacity">
-                        {idx > 0 && (
-                          <button type="button" onClick={() => moveBullet(proj.id, idx, 'up')} className="btn btn-ghost p-1 text-gray-400 hover:text-gray-600" title="Move up">
-                            <ArrowUp size={14} />
-                          </button>
-                        )}
-                        {idx < proj.bullets.length - 1 && (
-                          <button type="button" onClick={() => moveBullet(proj.id, idx, 'down')} className="btn btn-ghost p-1 text-gray-400 hover:text-gray-600" title="Move down">
-                            <ArrowDown size={14} />
-                          </button>
-                        )}
-                        {proj.bullets.length > 1 && (
-                          <button type="button" onClick={() => updateProj(proj.id, 'bullets', proj.bullets.filter((_, i) => i !== idx))} className="btn btn-ghost p-1 text-red-400 hover:text-red-600" title="Delete bullet">
-                            <Trash2 size={14} />
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
               </div>
             </div>
           )}

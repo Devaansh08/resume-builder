@@ -119,6 +119,30 @@ const TEMPLATES_LIST = [
   { id: 'shrine' as TemplateId, name: 'Shrine (Material Pink)' },
   { id: 'indian-academic' as TemplateId, name: 'Indian Academic (Tabular)' },
   { id: 'indian-corporate' as TemplateId, name: 'Indian Corporate (Sidebar)' },
+  { id: 'tech-hacker' as TemplateId, name: 'Tech Hacker (Terminal Mono)' },
+  { id: 'data-science-ai' as TemplateId, name: 'Data Science & AI/ML' },
+  { id: 'devops-sre' as TemplateId, name: 'DevOps & SRE Cloud' },
+  { id: 'engineering-ops' as TemplateId, name: 'Hardware & Systems' },
+  { id: 'banking-finance' as TemplateId, name: 'Wall Street Banking' },
+  { id: 'consulting-mckinsey' as TemplateId, name: 'McKinsey & Bain Strategy' },
+  { id: 'sales-impact' as TemplateId, name: 'Sales Revenue Closer' },
+  { id: 'product-manager' as TemplateId, name: 'Product Manager Sprint' },
+  { id: 'marketing-brand' as TemplateId, name: 'Growth & Brand Marketing' },
+  { id: 'academic-cv' as TemplateId, name: 'Full Academic CV' },
+  { id: 'medical-clinical' as TemplateId, name: 'Medical & Clinical Practice' },
+  { id: 'legal-formal' as TemplateId, name: 'Legal & Attorney Formal' },
+  { id: 'design-portfolio' as TemplateId, name: 'Design Studio Portfolio' },
+  { id: 'dark-matrix' as TemplateId, name: 'Dark High-Contrast Studio' },
+  { id: 'pastel-warmth' as TemplateId, name: 'Subtle Pastel Warmth' },
+  { id: 'europass-clean' as TemplateId, name: 'European Europass Standard' },
+  { id: 'canadian-ats' as TemplateId, name: 'Canadian ATS Standard' },
+  { id: 'australian-standard' as TemplateId, name: 'Australian Standard Flow' },
+  { id: 'uk-graduate' as TemplateId, name: 'UK Corporate Graduate' },
+  { id: 'fresher-compact' as TemplateId, name: 'Fresher & Graduate Impact' },
+  { id: 'startup-founder' as TemplateId, name: 'Startup Founder Traction' },
+  { id: 'infographic-charts' as TemplateId, name: 'Infographic & Visuals' },
+  { id: 'tabular-grid' as TemplateId, name: 'Structured Tabular Matrix' },
+  { id: 'executive-board' as TemplateId, name: 'Board Member & Advisory' },
 ];
 
 export function ThemeForm() {
@@ -190,7 +214,7 @@ export function ThemeForm() {
         <div className="flex items-center gap-2 mb-3">
           <LayoutGrid size={16} className="text-brand-500" />
           <h3 className="section-label text-[11px] font-bold tracking-wider uppercase text-gray-800 dark:text-gray-200">
-            Select Template Layout (12 Formats)
+            Select Template Layout (36 Free Spectrum Formats)
           </h3>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">

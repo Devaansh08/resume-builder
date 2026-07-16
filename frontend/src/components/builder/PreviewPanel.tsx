@@ -17,15 +17,39 @@ const TEMPLATE_MAP: Record<TemplateId, React.ComponentType<{ resume?: Resume }>>
   modern: ModernTemplate,
   professional: ProfessionalTemplate,
   minimal: MinimalTemplate,
-  google: MinimalTemplate,         // Google: clean minimal style (ATS friendly)
-  harvard: ExecutiveTemplate,      // Harvard: centered executive academic
-  stanford: ExecutiveTemplate,     // Stanford: centered academic style
-  microsoft: ProfessionalTemplate, // Microsoft: clean professional corporate
-  creative: CreativeTemplate,      // Creative: bold sidebar layout
-  executive: ExecutiveTemplate,    // Executive: navy centered leadership
-  shrine: ShrineTemplate,          // Shrine: Material Design warmth
+  google: MinimalTemplate,
+  harvard: ExecutiveTemplate,
+  stanford: ExecutiveTemplate,
+  microsoft: ProfessionalTemplate,
+  creative: CreativeTemplate,
+  executive: ExecutiveTemplate,
+  shrine: ShrineTemplate,
   'indian-academic': IndianAcademicTemplate,
   'indian-corporate': IndianCorporateTemplate,
+  'tech-hacker': MinimalTemplate,
+  'data-science-ai': ModernTemplate,
+  'devops-sre': ModernTemplate,
+  'engineering-ops': ProfessionalTemplate,
+  'banking-finance': ProfessionalTemplate,
+  'consulting-mckinsey': ExecutiveTemplate,
+  'sales-impact': ModernTemplate,
+  'product-manager': ModernTemplate,
+  'marketing-brand': CreativeTemplate,
+  'academic-cv': ExecutiveTemplate,
+  'medical-clinical': MinimalTemplate,
+  'legal-formal': ProfessionalTemplate,
+  'design-portfolio': CreativeTemplate,
+  'dark-matrix': ModernTemplate,
+  'pastel-warmth': ShrineTemplate,
+  'europass-clean': MinimalTemplate,
+  'canadian-ats': MinimalTemplate,
+  'australian-standard': ModernTemplate,
+  'uk-graduate': ProfessionalTemplate,
+  'fresher-compact': ModernTemplate,
+  'startup-founder': ExecutiveTemplate,
+  'infographic-charts': CreativeTemplate,
+  'tabular-grid': IndianAcademicTemplate,
+  'executive-board': ExecutiveTemplate,
 };
 
 const MemoizedTemplateContainer = memo(({ template, resume }: { template: TemplateId; resume: Resume }) => {
@@ -62,7 +86,8 @@ export function PreviewPanel({ isMobilePreview, onToggleMobilePreview }: { isMob
   const fontFamilyCss = fontObj ? fontObj.family : activeResume.theme.fontFamily || 'Inter, sans-serif';
 
   // Ensure 100% zoom perfectly fits the whole A4 page centered with standard structure inside the live preview pane!
-  const baseScale = Math.max(Math.min((containerWidth - 48) / 794, 1), 0.35);
+  const pad = containerWidth < 640 ? 16 : 48;
+  const baseScale = Math.max(Math.min((containerWidth - pad) / 794, 1), containerWidth < 640 ? 0.25 : 0.35);
   const effectiveScale = baseScale * (zoomLevel / 100);
 
   const handleZoomIn = () => setZoomLevel(Math.min(zoomLevel + 10, 200));
@@ -81,6 +106,30 @@ export function PreviewPanel({ isMobilePreview, onToggleMobilePreview }: { isMob
     shrine: 'Shrine',
     'indian-academic': 'Indian Academic',
     'indian-corporate': 'Indian Corporate',
+    'tech-hacker': 'Tech Hacker Mono',
+    'data-science-ai': 'Data Science & AI/ML',
+    'devops-sre': 'DevOps & SRE Cloud',
+    'engineering-ops': 'Hardware & Systems',
+    'banking-finance': 'Wall Street Banking',
+    'consulting-mckinsey': 'McKinsey Strategy',
+    'sales-impact': 'Sales Revenue Closer',
+    'product-manager': 'Product Manager Sprint',
+    'marketing-brand': 'Growth & Brand Marketing',
+    'academic-cv': 'Academic CV',
+    'medical-clinical': 'Medical & Clinical',
+    'legal-formal': 'Legal & Attorney Formal',
+    'design-portfolio': 'Design Portfolio Studio',
+    'dark-matrix': 'Dark Matrix Cyber',
+    'pastel-warmth': 'Subtle Pastel Warmth',
+    'europass-clean': 'European Europass Standard',
+    'canadian-ats': 'Canadian ATS Standard',
+    'australian-standard': 'Australian Standard Flow',
+    'uk-graduate': 'UK Graduate Corporate',
+    'fresher-compact': 'Fresher & Graduate Impact',
+    'startup-founder': 'Startup Founder Traction',
+    'infographic-charts': 'Infographic & Visuals',
+    'tabular-grid': 'Structured Tabular Matrix',
+    'executive-board': 'Board Member Advisory',
   };
 
   return (
@@ -176,7 +225,7 @@ export function PreviewPanel({ isMobilePreview, onToggleMobilePreview }: { isMob
       {/* Preview area */}
       <div
         ref={containerRef}
-        className="flex-1 overflow-auto flex justify-center p-4 sm:p-6 bg-surface-200/60 dark:bg-surface-950 transition-colors"
+        className="flex-1 overflow-auto flex justify-center p-2 sm:p-6 bg-surface-200/60 dark:bg-surface-950 transition-colors"
       >
         <div
           style={{

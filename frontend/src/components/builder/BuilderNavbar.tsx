@@ -17,6 +17,7 @@ interface BuilderNavbarProps {
   onToggleMobilePreview: () => void;
   onSetLayoutRatio?: (pct: number) => void;
   currentRatio?: number;
+  onNavigateBack?: () => void;
 }
 
 export function BuilderNavbar({
@@ -27,6 +28,7 @@ export function BuilderNavbar({
   onToggleMobilePreview,
   onSetLayoutRatio,
   currentRatio = 50,
+  onNavigateBack,
 }: BuilderNavbarProps) {
   const navigate = useNavigate();
   const { isDirty, lastSaved, atsResult, updateResumeTitle, loadSampleResume, themeMode = 'light', setThemeMode, undo, redo, history, historyIndex } = useResumeStore();
@@ -57,31 +59,32 @@ export function BuilderNavbar({
 
   return (
     <>
-      <header className="h-14 bg-[#FAF7F2]/90 dark:bg-[#1a050b]/90 border-b border-surface-200/60 dark:border-surface-800/60 px-3 sm:px-4 flex items-center justify-between gap-2 flex-shrink-0 z-30 sticky top-0 transition-all duration-300 backdrop-blur-md relative overflow-visible">
-        <div className="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
+      <header className="min-h-14 py-1.5 sm:py-2 bg-[#FAF7F2]/90 dark:bg-[#1a050b]/90 border-b border-surface-200/60 dark:border-surface-800/60 px-2 sm:px-4 flex flex-wrap items-center justify-between gap-1.5 sm:gap-2 flex-shrink-0 z-30 sticky top-0 transition-all duration-300 backdrop-blur-md relative overflow-visible">
+        <div className="flex items-center gap-1 sm:gap-2 md:gap-3 flex-shrink-0 max-w-[50%] sm:max-w-[60%]">
           <button
             onClick={() => navigate('/')}
-            className="flex items-center gap-1.5 transition-opacity hover:opacity-80 text-surface-900 dark:text-surface-100 group select-none font-bold text-sm shrink-0"
+            className="flex items-center gap-1 transition-opacity hover:opacity-80 text-surface-900 dark:text-surface-100 group select-none font-bold text-xs sm:text-sm shrink-0"
             title="Back to home"
           >
-            <span className="hidden sm:inline">Resume Alchemist</span>
+            <span className="hidden md:inline">Resume Alchemist</span>
+            <span className="md:hidden font-display">RA</span>
           </button>
 
           <button
             type="button"
-            onClick={() => window.history.length > 1 ? navigate(-1) : navigate('/')}
-            className="btn btn-ghost btn-sm gap-1 px-2.5 py-1 text-xs font-semibold text-surface-600 dark:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-800 rounded-lg border border-surface-200 dark:border-surface-700/60 transition-colors flex items-center shrink-0"
-            title="Navigate back to previous page"
+            onClick={() => onNavigateBack ? onNavigateBack() : (window.history.length > 1 ? navigate(-1) : navigate('/'))}
+            className="btn btn-ghost btn-sm gap-1 px-1.5 sm:px-2.5 py-1 text-xs font-semibold text-surface-600 dark:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-800 rounded-lg border border-surface-200 dark:border-surface-700/60 transition-colors flex items-center shrink-0"
+            title="Navigate back to previous section or page"
           >
             <ArrowLeft size={13} />
-            <span className="hidden md:inline">Back</span>
+            <span className="hidden sm:inline">Back</span>
           </button>
 
-          <div className="w-px h-5 bg-surface-200 dark:bg-surface-800 shrink-0" />
+          <div className="w-px h-4 sm:h-5 bg-surface-200 dark:bg-surface-800 shrink-0" />
 
           {/* Resume Title with Click-to-Rename */}
-          <div className="flex items-center gap-2 flex-1 min-w-0">
-            <div className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 bg-brand-500/10 dark:bg-brand-500/20">
+          <div className="flex items-center gap-1 sm:gap-2 flex-1 min-w-0">
+            <div className="hidden xs:flex w-5 h-5 sm:w-6 sm:h-6 rounded-md items-center justify-center flex-shrink-0 bg-brand-500/10 dark:bg-brand-500/20">
               <FileText size={12} className="text-brand-500" />
             </div>
             {isEditingTitle ? (
@@ -92,18 +95,18 @@ export function BuilderNavbar({
                 onBlur={handleTitleSubmit}
                 onKeyDown={(e) => e.key === 'Enter' && handleTitleSubmit()}
                 autoFocus
-                className="text-sm font-semibold bg-white dark:bg-surface-800 border border-brand-500 rounded px-2 py-0.5 text-surface-900 dark:text-surface-100 focus:outline-none w-full max-w-[100px] sm:max-w-[160px] md:max-w-[280px]"
+                className="text-xs sm:text-sm font-semibold bg-white dark:bg-surface-800 border border-brand-500 rounded px-1.5 sm:px-2 py-0.5 text-surface-900 dark:text-surface-100 focus:outline-none w-full max-w-[90px] xs:max-w-[130px] sm:max-w-[180px] md:max-w-[280px]"
               />
             ) : (
               <div
                 onClick={() => { setTitleInput(resume.title); setIsEditingTitle(true); }}
-                className="flex items-center gap-1.5 cursor-pointer group rounded px-1.5 py-0.5 hover:bg-surface-100 dark:hover:bg-surface-800 max-w-[100px] sm:max-w-[160px] md:max-w-[280px] truncate transition-colors"
+                className="flex items-center gap-1 sm:gap-1.5 cursor-pointer group rounded px-1 sm:px-1.5 py-0.5 hover:bg-surface-100 dark:hover:bg-surface-800 max-w-[90px] xs:max-w-[130px] sm:max-w-[180px] md:max-w-[280px] truncate transition-colors"
                 title="Click to rename resume"
               >
-                <span className="font-semibold text-sm truncate text-surface-900 dark:text-surface-100">
+                <span className="font-semibold text-xs sm:text-sm truncate text-surface-900 dark:text-surface-100">
                   {resume.title}
                 </span>
-                <PenLine size={12} className="text-surface-400 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
+                <PenLine size={11} className="text-surface-400 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
               </div>
             )}
           </div>
@@ -120,23 +123,23 @@ export function BuilderNavbar({
           )}
         </div>
 
-        <div className="flex items-center gap-1.5 sm:gap-2 ml-auto shrink-0 relative py-1">
+        <div className="flex items-center gap-1 sm:gap-2 ml-auto shrink-0 relative py-0.5 flex-wrap justify-end">
           {/* Dark/Light Mode Toggle */}
           <button
             onClick={() => setThemeMode(isDark ? 'light' : 'dark')}
             className="btn btn-sm p-1.5 sm:p-2 rounded-lg text-surface-600 dark:text-surface-300 border border-surface-300 dark:border-surface-700 hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors shrink-0"
             title="Toggle Dark / Light Theme"
           >
-            {isDark ? <Sun size={15} className="text-amber-400" /> : <Moon size={15} />}
+            {isDark ? <Sun size={14} className="text-amber-400" /> : <Moon size={14} />}
           </button>
 
           {/* Undo / Redo Buttons */}
-          <div className="flex items-center gap-0.5 bg-surface-100 dark:bg-surface-800/60 rounded-lg p-0.5 border border-surface-200 dark:border-surface-700/50 shrink-0">
+          <div className="hidden sm:flex items-center gap-0.5 bg-surface-100 dark:bg-surface-800/60 rounded-lg p-0.5 border border-surface-200 dark:border-surface-700/50 shrink-0">
             <button
               type="button"
               onClick={undo}
               disabled={historyIndex <= 0 || !history?.length}
-              className="p-1.5 rounded-md text-surface-600 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="p-1 sm:p-1.5 rounded-md text-surface-600 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               title="Undo (Ctrl+Z)"
             >
               <Undo2 size={13} />
@@ -145,7 +148,7 @@ export function BuilderNavbar({
               type="button"
               onClick={redo}
               disabled={historyIndex >= (history?.length ?? 0) - 1 || historyIndex < 0 || !history?.length}
-              className="p-1.5 rounded-md text-surface-600 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="p-1 sm:p-1.5 rounded-md text-surface-600 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               title="Redo (Ctrl+Y)"
             >
               <Redo2 size={13} />
@@ -155,26 +158,26 @@ export function BuilderNavbar({
           {/* Download PDF (High-priority action, always visible and accessible) */}
           <button
             onClick={handleDownloadPDF}
-            className="btn btn-sm gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg bg-brand-500 text-white hover:bg-brand-600 transition-colors shadow-sm shrink-0 whitespace-nowrap flex items-center select-none"
+            className="btn btn-sm gap-1 sm:gap-1.5 text-xs font-bold px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg bg-brand-500 text-white hover:bg-brand-600 transition-colors shadow-sm shrink-0 whitespace-nowrap flex items-center select-none"
             title="Download high-quality PDF resume"
           >
-            <Download size={14} className="shrink-0" />
+            <Download size={13} className="shrink-0" />
             <span className="hidden sm:inline">Download PDF</span>
-            <span className="sm:hidden">PDF</span>
+            <span className="sm:hidden text-[11px]">PDF</span>
           </button>
 
           {/* Mobile/Desktop toggle for view selection (visible only on mobile/tablet) */}
           <button
             onClick={onToggleMobilePreview}
-            className={`btn btn-sm gap-1 px-2.5 py-1.5 rounded-lg transition-colors font-bold shrink-0 flex items-center shadow-xs whitespace-nowrap lg:hidden ${
+            className={`btn btn-sm gap-1 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg transition-colors font-bold shrink-0 flex items-center shadow-xs whitespace-nowrap lg:hidden ${
               isMobilePreview
                 ? 'bg-brand-500 text-white'
                 : 'text-surface-700 dark:text-surface-200 border border-surface-300 dark:border-surface-700 hover:bg-surface-100 dark:hover:bg-surface-800'
             }`}
             title="Toggle Mobile Preview / Editor"
           >
-            {isMobilePreview ? <Monitor size={15} /> : <Smartphone size={15} />}
-            <span className="text-xs">{isMobilePreview ? 'Edit' : 'Preview'}</span>
+            {isMobilePreview ? <Monitor size={14} /> : <Smartphone size={14} />}
+            <span className="text-[11px] sm:text-xs">{isMobilePreview ? 'Edit' : 'Preview'}</span>
           </button>
 
           {/* Unified Hamburger Menu Button */}
@@ -201,7 +204,7 @@ export function BuilderNavbar({
 
           {/* Hamburger Tools Dropdown (Column) */}
           {isMenuOpen && (
-            <div className="absolute right-0 top-full mt-2 w-72 rounded-xl shadow-2xl p-4 z-50 bg-white/95 dark:bg-surface-900/95 backdrop-blur-md border border-surface-200/60 dark:border-surface-800/60 animate-in slide-in-from-top-2 duration-200 flex flex-col gap-3.5">
+            <div className="absolute right-0 top-full mt-2 w-72 rounded-xl shadow-2xl p-4 z-50 bg-white/95 dark:bg-surface-900/95 backdrop-blur-md border border-surface-200/60 dark:border-surface-800/60 animate-in slide-in-from-top-2 duration-200 flex flex-col gap-3.5 max-h-[calc(100vh-5rem)] overflow-y-auto">
               {/* ATS Score Option */}
               <div>
                 <button

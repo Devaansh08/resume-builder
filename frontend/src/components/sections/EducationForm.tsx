@@ -3,7 +3,7 @@ import { useResumeStore } from '../../store/resumeStore';
 import type { Education } from '../../types';
 import { newEducation } from '../../utils/defaults';
 import { Plus, Trash2, ChevronDown, ChevronUp, GraduationCap } from 'lucide-react';
-import { RichTextToolbar } from '../builder/RichTextToolbar';
+import { WYSIWYGEditor } from '../builder/WYSIWYGEditor';
 import { SectionTitleEditor } from '../builder/SectionTitleEditor';
 
 export function EducationForm() {
@@ -104,16 +104,11 @@ export function EducationForm() {
               {/* Coursework & Honors description */}
               <div>
                 <label className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5 block">Additional Details (Coursework, Honors, Thesis)</label>
-                <RichTextToolbar
+                <WYSIWYGEditor
                   value={edu.description || ''}
                   onChange={(val: string) => updateEdu(edu.id, 'description', val)}
-                />
-                <textarea
-                  className="input resize-none rounded-t-none border-t-0 focus:ring-0 text-sm"
-                  rows={3}
-                  value={edu.description || ''}
-                  onChange={(e) => updateEdu(edu.id, 'description', e.target.value)}
                   placeholder="Dean's List, Relevant Coursework: Algorithms, Operating Systems, Machine Learning..."
+                  minHeight="120px"
                 />
               </div>
             </div>

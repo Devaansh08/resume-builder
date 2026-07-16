@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'react';
 import { useResumeStore } from '../../store/resumeStore';
 import type { PersonalInfo } from '../../types';
 import { User, Mail, Phone, MapPin, Linkedin, Github, Globe, Sparkles, Upload, Trash2, Image as ImageIcon } from 'lucide-react';
-import { RichTextToolbar } from '../builder/RichTextToolbar';
+import { WYSIWYGEditor } from '../builder/WYSIWYGEditor';
 import { SectionTitleEditor } from '../builder/SectionTitleEditor';
 
 const FIELDS = [
@@ -81,7 +81,6 @@ export function PersonalInfoForm() {
     mode: 'onChange',
   });
 
-  const summaryRef = useRef<HTMLTextAreaElement>(null);
   const photoInputRef = useRef<HTMLInputElement>(null);
   const photoVal = watch('photo');
 
@@ -148,12 +147,10 @@ export function PersonalInfoForm() {
     updateSection('personalInfo', { ...watch(), photo: '' } as PersonalInfo);
   };
 
-  const registerSummary = register('summary');
-
   return (
     <div className="space-y-6">
       {/* ── Profile Photo Upload Area ── */}
-      <div className="bg-white dark:bg-surface-900 border border-gray-200 dark:border-surface-800 rounded-2xl p-4 flex items-center justify-between gap-4">
+      <div className="bg-white dark:bg-surface-900 border border-gray-200 dark:border-surface-800 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3.5">
           <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100 dark:bg-surface-800 border-2 border-brand-500/20 flex items-center justify-center flex-shrink-0 relative">
             {photoVal ? (
@@ -232,24 +229,14 @@ export function PersonalInfoForm() {
           </span>
         </div>
 
-        <RichTextToolbar
+        <WYSIWYGEditor
           value={watch('summary') || ''}
           onChange={(val: string) => {
             setValue('summary', val);
             updateSection('personalInfo', { ...watch(), summary: val } as PersonalInfo);
           }}
-          inputRef={summaryRef}
-        />
-
-        <textarea
-          {...registerSummary}
-          ref={(e) => {
-            registerSummary.ref(e);
-            summaryRef.current = e;
-          }}
-          rows={5}
-          className="input resize-none rounded-t-none border-t-0 focus:ring-0"
           placeholder="Write a compelling professional summary that highlights your key achievements and value proposition..."
+          minHeight="140px"
         />
         <div className="mt-2 flex items-center gap-2">
           <span className="text-xs text-gray-400">💡 Tip: 30–100 words works best for ATS</span>

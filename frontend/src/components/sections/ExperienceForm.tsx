@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { useResumeStore } from '../../store/resumeStore';
 import type { Experience } from '../../types';
 import { newExperience } from '../../utils/defaults';
-import { Plus, Trash2, ChevronDown, ChevronUp, Briefcase, ArrowUp, ArrowDown } from 'lucide-react';
-import { RichTextToolbar } from '../builder/RichTextToolbar';
+import { Plus, Trash2, ChevronDown, ChevronUp, Briefcase } from 'lucide-react';
+import { WYSIWYGEditor } from '../builder/WYSIWYGEditor';
 import { SectionTitleEditor } from '../builder/SectionTitleEditor';
 
 export function ExperienceForm() {
@@ -34,41 +34,8 @@ export function ExperienceForm() {
     }));
   };
 
-  const updateBullet = (id: string, idx: number, value: string) => {
-    const exp = experiences.find((e) => e.id === id);
-    if (!exp) return;
-    const bullets = [...exp.bullets];
-    bullets[idx] = value;
-    update(experiences.map((e) => e.id === id ? { ...e, bullets } : e));
-  };
-
-  const addBullet = (id: string) => {
-    const exp = experiences.find((e) => e.id === id);
-    if (!exp) return;
-    update(experiences.map((e) => e.id === id ? { ...e, bullets: [...exp.bullets, ''] } : e));
-  };
-
-  const removeBullet = (id: string, idx: number) => {
-    const exp = experiences.find((e) => e.id === id);
-    if (!exp) return;
-    const next = exp.bullets.filter((_, i) => i !== idx);
-    update(experiences.map((e) => e.id === id ? { ...e, bullets: next.length ? next : [''] } : e));
-  };
-
-  const moveBullet = (id: string, idx: number, direction: 'up' | 'down') => {
-    const exp = experiences.find((e) => e.id === id);
-    if (!exp) return;
-    const targetIdx = direction === 'up' ? idx - 1 : idx + 1;
-    if (targetIdx < 0 || targetIdx >= exp.bullets.length) return;
-    const bullets = [...exp.bullets];
-    const temp = bullets[idx];
-    bullets[idx] = bullets[targetIdx];
-    bullets[targetIdx] = temp;
-    update(experiences.map((e) => e.id === id ? { ...e, bullets } : e));
-  };
-
   const handleToolbarChange = (id: string, val: string) => {
-    const lines = val.split('\n').map((l) => l.replace(/^[•\-–—*]\s*/, '')).filter(Boolean);
+    const lines = val.split('\n').map((l) => l.replace(/^[•\-–—*]\s*/, ''));
     updateExp(id, 'bullets', lines.length ? lines : ['']);
   };
 
@@ -147,51 +114,19 @@ export function ExperienceForm() {
                 </div>
               </div>
 
-              {/* Bullet points area with toolbar */}
+              {/* Bullet points area with WYSIWYG editor */}
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Key Achievements / Responsibilities</label>
-                  <button onClick={() => addBullet(exp.id)} className="text-xs text-brand-500 hover:text-brand-600 flex items-center gap-1 font-semibold">
-                    <Plus size={12} /> Add bullet
-                  </button>
                 </div>
 
-                <RichTextToolbar
+                <WYSIWYGEditor
                   value={exp.bullets.map((b) => `• ${b}`).join('\n')}
                   onChange={(val: string) => handleToolbarChange(exp.id, val)}
+                  placeholder="• Increased sales by 30% by implementing high-concurrency architecture...&#10;• Spearheaded cross-functional team... (Press Enter for new line)"
+                  minHeight="130px"
                 />
-
-                <div className="space-y-2 mt-2">
-                  {exp.bullets.map((bullet, idx) => (
-                    <div key={idx} className="flex items-start gap-1.5 group">
-                      <span className="mt-3 text-brand-500 font-bold text-sm select-none">•</span>
-                      <input
-                        className="input flex-1 text-sm"
-                        value={bullet}
-                        onChange={(e) => updateBullet(exp.id, idx, e.target.value)}
-                        placeholder="Increased sales by 30% by implementing high-concurrency architecture..."
-                      />
-                      <div className="flex items-center opacity-70 group-hover:opacity-100 transition-opacity">
-                        {idx > 0 && (
-                          <button type="button" onClick={() => moveBullet(exp.id, idx, 'up')} className="btn btn-ghost p-1 text-gray-400 hover:text-gray-600" title="Move up">
-                            <ArrowUp size={14} />
-                          </button>
-                        )}
-                        {idx < exp.bullets.length - 1 && (
-                          <button type="button" onClick={() => moveBullet(exp.id, idx, 'down')} className="btn btn-ghost p-1 text-gray-400 hover:text-gray-600" title="Move down">
-                            <ArrowDown size={14} />
-                          </button>
-                        )}
-                        {exp.bullets.length > 1 && (
-                          <button type="button" onClick={() => removeBullet(exp.id, idx)} className="btn btn-ghost p-1 text-red-400 hover:text-red-600" title="Delete bullet">
-                            <Trash2 size={14} />
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <p className="text-xs text-gray-400 mt-2">💡 Tip: Use the Rich Toolbar above for quick action phrases ("Spearheaded...", "Engineered...").</p>
+                <p className="text-xs text-gray-400 mt-2">💡 Tip: Highlight words and click Bold/Size/Color on the toolbar above to format directly right inside the box.</p>
               </div>
             </div>
           )}

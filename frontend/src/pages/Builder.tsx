@@ -16,10 +16,49 @@ export default function BuilderPage() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [showATS, setShowATS] = useState(false);
-  const [activeSection, setActiveSection] = useState('personalInfo');
+  const [activeSection, setActiveSection] = useState(() => {
+    const hashSection = window.location.hash.replace('#section=', '');
+    return hashSection || 'personalInfo';
+  });
+  const [sectionHistory, setSectionHistory] = useState<string[]>([]);
   const [isMobilePreview, setIsMobilePreview] = useState(false);
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(() => window.innerWidth >= 768);
   const atsTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  const handleSectionChange = useCallback((newSection: string) => {
+    if (newSection !== activeSection) {
+      setSectionHistory((prev) => [...prev, activeSection]);
+      setActiveSection(newSection);
+      window.history.pushState({ section: newSection }, '', `#section=${newSection}`);
+    }
+  }, [activeSection]);
+
+  const handleBackNavigation = useCallback(() => {
+    if (sectionHistory.length > 0) {
+      const prevSection = sectionHistory[sectionHistory.length - 1];
+      setSectionHistory((prev) => prev.slice(0, -1));
+      setActiveSection(prevSection);
+      window.history.pushState({ section: prevSection }, '', `#section=${prevSection}`);
+    } else {
+      window.history.length > 1 ? window.history.back() : (window.location.href = '/');
+    }
+  }, [sectionHistory]);
+
+  useEffect(() => {
+    const handlePopState = () => {
+      const hashSection = window.location.hash.replace('#section=', '');
+      if (hashSection && hashSection !== activeSection) {
+        setActiveSection(hashSection);
+        setSectionHistory((prev) => prev.slice(0, -1));
+      } else if (sectionHistory.length > 0) {
+        const prevSection = sectionHistory[sectionHistory.length - 1];
+        setActiveSection(prevSection);
+        setSectionHistory((prev) => prev.slice(0, -1));
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [activeSection, sectionHistory]);
 
   // Panel sizing
   const [editorPct, setEditorPct] = useState<number>(() => {
@@ -152,10 +191,11 @@ export default function BuilderPage() {
         onToggleMobilePreview={() => setIsMobilePreview(!isMobilePreview)}
         onSetLayoutRatio={handleSetRatio}
         currentRatio={editorPct}
+        onNavigateBack={handleBackNavigation}
       />
 
       {/* ── 3-Panel Layout ─────────────────────────────────────────── */}
-      <div className="flex flex-col md:flex-row flex-1 overflow-hidden relative min-w-0 z-10">
+      <div className="flex flex-row flex-1 overflow-hidden relative min-w-0 z-10">
 
         {/* Mobile Sidebar Overlay */}
         {isSidebarExpanded && (
@@ -166,12 +206,12 @@ export default function BuilderPage() {
         )}
 
         {/* Left/Top: Section Sidebar */}
-        <div className={`${isMobilePreview ? 'hidden' : 'flex'} flex-col bg-[#FAF7F2]/90 dark:bg-[#1a050b]/90 backdrop-blur-md border-r border-surface-200/60 dark:border-surface-800/60 z-20 shrink-0 h-full transition-all duration-300 ${
-          isSidebarExpanded ? 'w-[220px] absolute md:relative inset-y-0 left-0 shadow-2xl md:shadow-none' : 'w-[64px]'
+        <div className={`${isMobilePreview ? 'hidden' : 'flex'} flex-col bg-[#FAF7F2]/90 dark:bg-[#1a050b]/90 backdrop-blur-md border-r border-surface-200/60 dark:border-surface-800/60 z-30 shrink-0 h-full transition-all duration-300 ${
+          isSidebarExpanded ? 'w-[240px] absolute md:relative inset-y-0 left-0 shadow-2xl md:shadow-none z-40' : 'w-[46px] sm:w-[56px] md:w-[64px]'
         } overflow-hidden`}>
           <SectionSidebar
             activeSection={activeSection}
-            onSectionChange={setActiveSection}
+            onSectionChange={handleSectionChange}
             isExpanded={isSidebarExpanded}
             onToggleExpand={() => setIsSidebarExpanded(!isSidebarExpanded)}
           />
@@ -190,7 +230,7 @@ export default function BuilderPage() {
           >
             <EditorPanel
               activeSection={activeSection}
-              onSectionChange={setActiveSection}
+              onSectionChange={handleSectionChange}
             />
           </div>
 

@@ -2,6 +2,7 @@ import { useResumeStore } from '../../store/resumeStore';
 import type { Education, Experience, Project, Skill, Resume } from '../../types';
 import { getDensityConfig, FONT_OPTIONS } from '../../utils/defaults';
 import { formatUrl } from '../../utils/helpers';
+import { RichText } from '../builder/RichText';
 
 export function IndianCorporateTemplate({ resume: propResume }: { resume?: Resume }) {
   const storeResume = useResumeStore((state) => propResume ? null : state.currentResume);
@@ -135,7 +136,7 @@ export function IndianCorporateTemplate({ resume: propResume }: { resume?: Resum
             <h2 className="text-xs font-bold uppercase tracking-widest text-surface-500">
               Executive Profile
             </h2>
-            <p className="text-xs text-surface-700 text-justify leading-relaxed whitespace-pre-wrap">{personalInfo.summary}</p>
+            <RichText content={personalInfo.summary} className="text-xs text-surface-700 text-justify leading-relaxed" />
           </div>
         )}
 
@@ -156,11 +157,11 @@ export function IndianCorporateTemplate({ resume: propResume }: { resume?: Resum
                     <span>{exp.company}</span>
                     <span className="text-surface-400 font-normal italic">{exp.location}</span>
                   </div>
-                  <p className="text-[11px] text-surface-600 text-justify">{exp.description}</p>
+                  {exp.description && <RichText content={exp.description} className="text-[11px] text-surface-600 text-justify" />}
                   {exp.bullets && exp.bullets.length > 0 && (
-                    <ul className="list-disc list-inside pl-1 text-[11px] text-surface-700 space-y-0.5">
+                    <ul className="list-disc list-inside pl-1 text-[11px] text-surface-700 space-y-0.5 animate-slide-down">
                       {exp.bullets.map((bullet, idx) => (
-                        <li key={idx} className="text-justify">{bullet}</li>
+                        <li key={idx} className="text-justify"><RichText content={bullet} className="inline" /></li>
                       ))}
                     </ul>
                   )}
@@ -213,11 +214,11 @@ export function IndianCorporateTemplate({ resume: propResume }: { resume?: Resum
                       Technologies: {proj.technologies.join(', ')}
                     </div>
                   )}
-                  <p className="text-[11px] text-surface-600 text-justify">{proj.description}</p>
+                  {proj.description && <RichText content={proj.description} className="text-[11px] text-surface-600 text-justify" />}
                   {proj.bullets && proj.bullets.length > 0 && (
                     <ul className="list-disc list-inside pl-1 text-[11px] text-surface-700 space-y-0.5">
                       {proj.bullets.map((bullet, idx) => (
-                        <li key={idx} className="text-justify">{bullet}</li>
+                        <li key={idx} className="text-justify"><RichText content={bullet} className="inline" /></li>
                       ))}
                     </ul>
                   )}

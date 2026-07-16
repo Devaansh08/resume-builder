@@ -6,37 +6,19 @@ interface RichTextProps {
   style?: React.CSSProperties;
 }
 
-export function RichText({ content, className = '', style = {} }: RichTextProps) {
-  if (!content) return null;
+export function parseTagsToHtml(content: string): string {
+  if (!content) return '';
 
-  let align: 'left' | 'center' | 'right' | 'justify' = 'left';
-  let lineSpacing = '1.4';
   let text = content;
 
   // Extract alignment markers
-  if (text.includes('[CENTER]')) {
-    align = 'center';
-    text = text.replace(/\[CENTER\]/g, '');
-  }
-  if (text.includes('[LEFT]')) {
-    align = 'left';
-    text = text.replace(/\[LEFT\]/g, '');
-  }
-  if (text.includes('[RIGHT]')) {
-    align = 'right';
-    text = text.replace(/\[RIGHT\]/g, '');
-  }
-  if (text.includes('[JUSTIFY]')) {
-    align = 'justify';
-    text = text.replace(/\[JUSTIFY\]/g, '');
-  }
+  if (text.includes('[CENTER]')) text = text.replace(/\[CENTER\]/g, '');
+  if (text.includes('[LEFT]')) text = text.replace(/\[LEFT\]/g, '');
+  if (text.includes('[RIGHT]')) text = text.replace(/\[RIGHT\]/g, '');
+  if (text.includes('[JUSTIFY]')) text = text.replace(/\[JUSTIFY\]/g, '');
 
   // Extract line spacing markers
-  const spacingMatch = text.match(/\[SPACING:([0-9.]+)\]/);
-  if (spacingMatch) {
-    lineSpacing = spacingMatch[1];
-    text = text.replace(/\[SPACING:[0-9.]+\]/g, '');
-  }
+  text = text.replace(/\[SPACING:[0-9.]+\]/g, '');
 
   // Clean any nested/duplicate tags before parsing
   text = text
@@ -96,6 +78,69 @@ export function RichText({ content, className = '', style = {} }: RichTextProps)
 
   // Final cleanup: strip any residual unclosed/malformed tags so they never show as raw text
   html = html.replace(/\[\/?(?:SIZE|COLOR|FONT|HL|SPACING|LEFT|CENTER|RIGHT|JUSTIFY|HR)[^\]]*\]/g, '');
+
+  // Convert bullet point text lines (• or - at start of lines) into clean <ul><li> lists when not already HTML lists
+  if (!html.includes('<ul') && !html.includes('<ol') && (html.includes('•') || /^\s*[\-\*]\s+/m.test(html))) {
+    const lines = html.split('\n');
+    let inList = false;
+    let newHtml = '';
+    for (const line of lines) {
+      const trimmed = line.trim();
+      const isBullet = /^[•\-–—*]\s+/.test(trimmed) || trimmed.startsWith('•');
+      if (isBullet) {
+        if (!inList) {
+          newHtml += '<ul style="list-style-type: disc; padding-left: 20px; margin: 4px 0;">';
+          inList = true;
+        }
+        const cleanContent = trimmed.replace(/^[•\-–—*]\s*/, '');
+        newHtml += `<li style="margin-bottom: 4px;">${cleanContent}</li>`;
+      } else {
+        if (inList) {
+          newHtml += '</ul>';
+          inList = false;
+        }
+        if (trimmed) {
+          newHtml += line + '\n';
+        }
+      }
+    }
+    if (inList) {
+      newHtml += '</ul>';
+    }
+    html = newHtml.trim();
+  }
+
+  return html;
+}
+
+export function RichText({ content, className = '', style = {} }: RichTextProps) {
+  if (!content) return null;
+
+  let align: 'left' | 'center' | 'right' | 'justify' = 'left';
+  let lineSpacing = '1.4';
+  let text = content;
+
+  // Extract alignment markers
+  if (text.includes('[CENTER]')) {
+    align = 'center';
+  }
+  if (text.includes('[LEFT]')) {
+    align = 'left';
+  }
+  if (text.includes('[RIGHT]')) {
+    align = 'right';
+  }
+  if (text.includes('[JUSTIFY]')) {
+    align = 'justify';
+  }
+
+  // Extract line spacing markers
+  const spacingMatch = text.match(/\[SPACING:([0-9.]+)\]/);
+  if (spacingMatch) {
+    lineSpacing = spacingMatch[1];
+  }
+
+  const html = parseTagsToHtml(content);
 
   return (
     <span

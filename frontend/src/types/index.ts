@@ -142,7 +142,31 @@ export type TemplateId =
   | 'shrine'
   | 'executive'
   | 'indian-academic'
-  | 'indian-corporate';
+  | 'indian-corporate'
+  | 'tech-hacker'
+  | 'data-science-ai'
+  | 'devops-sre'
+  | 'engineering-ops'
+  | 'banking-finance'
+  | 'consulting-mckinsey'
+  | 'sales-impact'
+  | 'product-manager'
+  | 'marketing-brand'
+  | 'academic-cv'
+  | 'medical-clinical'
+  | 'legal-formal'
+  | 'design-portfolio'
+  | 'dark-matrix'
+  | 'pastel-warmth'
+  | 'europass-clean'
+  | 'canadian-ats'
+  | 'australian-standard'
+  | 'uk-graduate'
+  | 'fresher-compact'
+  | 'startup-founder'
+  | 'infographic-charts'
+  | 'tabular-grid'
+  | 'executive-board';
 
 export type ThemeMode = 'light' | 'dark';
 

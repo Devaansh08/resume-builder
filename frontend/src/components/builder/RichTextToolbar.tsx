@@ -1,9 +1,7 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import {
-  Bold, Italic, Underline, List, ListOrdered, AlignLeft, AlignCenter, AlignRight, AlignJustify,
-  Sparkles, ChevronDown, Indent, Outdent, Minus, Type, Strikethrough, Subscript as SubscriptIcon,
-  Superscript as SuperscriptIcon, Paintbrush, Palette, Highlighter, Heading1, Heading2,
-  Check, ArrowUpRight, ArrowDownRight, CornerDownLeft
+  Bold, Italic, Underline, List, ListOrdered, AlignLeft, AlignCenter, AlignRight,
+  ChevronDown, Minus, Type, Strikethrough
 } from 'lucide-react';
 import { FONT_OPTIONS } from '../../utils/defaults';
 
@@ -15,656 +13,292 @@ interface RichTextToolbarProps {
   showWordCount?: boolean;
 }
 
-const ATS_SUGGESTIONS = [
-  {
-    category: 'Leadership & Impact',
-    sentences: [
-      'Spearheaded the development and launch of a multi-tenant cloud platform, driving $1.2M in annual recurring revenue.',
-      'Led a cross-functional team of 14 engineers to deliver a scalable architecture, reducing deployment times by 40%.',
-      'Orchestrated a comprehensive corporate rebrand across 18 international markets, driving a 140% surge in brand awareness.',
-    ],
-  },
-  {
-    category: 'Engineering & Performance',
-    sentences: [
-      'Architected high-concurrency microservices scaling to over 18 million active daily users with sub-85ms latency.',
-      'Optimized database queries and indexing strategies, reducing query latency by 310% under high concurrent load.',
-      'Implemented robust CI/CD pipelines using GitHub Actions, decreasing median deployment time from hours to minutes.',
-    ],
-  },
-  {
-    category: 'Data & Analytics',
-    sentences: [
-      'Engineered real-time data pipelines processing over 1.2 terabytes of metadata daily without system degradation.',
-      'Leveraged predictive modeling and machine learning to improve customer retention rates by 15% year-over-year.',
-      'Built automated dashboards tracking KPIs across 12 business units, reducing manual reporting time by 85%.',
-    ],
-  },
-  {
-    category: 'Product & Growth',
-    sentences: [
-      'Engineered a product-led growth onboarding funnel that increased free-to-paid conversion rates from 3.2% to 8.7%.',
-      'Collaborated closely with product and design to map out user journeys, resulting in a 25% increase in engagement.',
-      'Drove the go-to-market strategy for flagship products, generating $28M in incremental Annual Recurring Revenue.',
-    ],
-  },
-];
-
 const PRESET_COLORS = [
-  { label: 'Crimson Red', hex: '#ef4444' },
-  { label: 'Royal Blue', hex: '#2563eb' },
-  { label: 'Emerald Green', hex: '#10b981' },
-  { label: 'Executive Navy', hex: '#1e3a8a' },
-  { label: 'Amber Gold', hex: '#d97706' },
-  { label: 'Amethyst Purple', hex: '#8b5cf6' },
-  { label: 'Obsidian Dark', hex: '#1f2937' },
+  { label: 'Brand Red', hex: '#C41E3A' },
+  { label: 'Crimson', hex: '#ef4444' },
+  { label: 'Teal', hex: '#34C759' },
+  { label: 'Royal Blue', hex: '#007AFF' },
+  { label: 'Navy', hex: '#1e3a8a' },
+  { label: 'Amber', hex: '#d97706' },
+  { label: 'Purple', hex: '#8b5cf6' },
+  { label: 'Dark', hex: '#1f2937' },
 ];
 
 const PRESET_HIGHLIGHTS = [
-  { label: 'Yellow Gold', hex: '#fef08a' },
-  { label: 'Mint Green', hex: '#bbf7d0' },
-  { label: 'Sky Blue', hex: '#bfdbfe' },
-  { label: 'Rose Pink', hex: '#fbcfe8' },
+  { label: 'Yellow', hex: '#fef08a' },
+  { label: 'Green', hex: '#bbf7d0' },
+  { label: 'Blue', hex: '#bfdbfe' },
+  { label: 'Pink', hex: '#fbcfe8' },
 ];
 
 export function RichTextToolbar({ value, onChange, inputRef, showWordCount = true }: RichTextToolbarProps) {
-  const [activeTab, setActiveTab] = useState<'home' | 'insert' | 'layout' | 'styles' | 'phrases'>('home');
-  const [isExpanded, setIsExpanded] = useState(true);
   const [showColorPicker, setShowColorPicker] = useState(false);
-  const [showHighlightPicker, setShowHighlightPicker] = useState(false);
-  const [showSpacingPicker, setShowSpacingPicker] = useState(false);
+  const [showFontPicker, setShowFontPicker] = useState(false);
+  const [showSizePicker, setShowSizePicker] = useState(false);
+  const [activeColor, setActiveColor] = useState('#C41E3A');
+  const colorRef = useRef<HTMLDivElement>(null);
+  const fontRef = useRef<HTMLDivElement>(null);
+  const sizeRef = useRef<HTMLDivElement>(null);
 
-  // Count words
   const wordCount = value.trim() ? value.trim().split(/\s+/).length : 0;
+
+  // Close dropdowns on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (colorRef.current && !colorRef.current.contains(e.target as Node)) setShowColorPicker(false);
+      if (fontRef.current && !fontRef.current.contains(e.target as Node)) setShowFontPicker(false);
+      if (sizeRef.current && !sizeRef.current.contains(e.target as Node)) setShowSizePicker(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
 
   const getSelection = useCallback(() => {
     const el = inputRef?.current;
     if (!el || typeof el.selectionStart !== 'number') return null;
-    return {
-      el,
-      start: el.selectionStart,
-      end: typeof el.selectionEnd === 'number' ? el.selectionEnd : el.selectionStart,
-    };
+    return { el, start: el.selectionStart, end: typeof el.selectionEnd === 'number' ? el.selectionEnd : el.selectionStart };
   }, [inputRef]);
 
   const applyInline = useCallback((prefix: string, suffix: string = '', tagType?: 'SIZE' | 'FONT' | 'COLOR' | 'HL') => {
     const sel = getSelection();
-    let target = value;
-    let start = 0;
-    let end = value.length;
-
-    if (sel && sel.start !== sel.end) {
-      target = value.substring(sel.start, sel.end);
-      start = sel.start;
-      end = sel.end;
-    } else if (suffix !== '') {
-      target = value || 'Text';
-      start = 0;
-      end = value.length;
-    } else {
-      target = value;
-      start = 0;
-      end = value.length;
-    }
+    let target = value, start = 0, end = value.length;
+    if (sel && sel.start !== sel.end) { target = value.substring(sel.start, sel.end); start = sel.start; end = sel.end; }
+    else if (suffix !== '') { target = value || 'Text'; start = 0; end = value.length; }
 
     let cleaned = target;
-    if (tagType === 'SIZE' || prefix.startsWith('[SIZE:')) {
-      cleaned = cleaned.replace(/\[SIZE:[^\]]+\]/g, '').replace(/\[\/SIZE\]/g, '');
-    } else if (tagType === 'FONT' || prefix.startsWith('[FONT:')) {
-      cleaned = cleaned.replace(/\[FONT:[^\]]+\]/g, '').replace(/\[\/FONT\]/g, '');
-    } else if (tagType === 'COLOR' || prefix.startsWith('[COLOR:')) {
-      cleaned = cleaned.replace(/\[COLOR:[^\]]+\]/g, '').replace(/\[\/COLOR\]/g, '');
-    } else if (tagType === 'HL' || prefix.startsWith('[HL:')) {
-      cleaned = cleaned.replace(/\[HL:[^\]]+\]/g, '').replace(/\[\/HL\]/g, '');
-    } else if (prefix === '**' && suffix === '**') {
-      cleaned = cleaned.replace(/\*\*/g, '');
-    } else if (prefix === '*' && suffix === '*') {
-      cleaned = cleaned.replace(/\*/g, '');
-    } else if (prefix === '__' && suffix === '__') {
-      cleaned = cleaned.replace(/__/g, '');
-    } else if (suffix === '') {
-      if (prefix.startsWith('[SPACING:')) {
-        cleaned = cleaned.replace(/\[SPACING:[^\]]+\]/g, '');
-      } else if (['[LEFT]', '[CENTER]', '[RIGHT]', '[JUSTIFY]'].includes(prefix)) {
-        cleaned = cleaned.replace(/\[LEFT\]|\[CENTER\]|\[RIGHT\]|\[JUSTIFY\]/g, '');
-      }
+    if (tagType === 'SIZE' || prefix.startsWith('[SIZE:')) cleaned = cleaned.replace(/\[SIZE:[^\]]+\]/g, '').replace(/\[\/SIZE\]/g, '');
+    else if (tagType === 'FONT' || prefix.startsWith('[FONT:')) cleaned = cleaned.replace(/\[FONT:[^\]]+\]/g, '').replace(/\[\/FONT\]/g, '');
+    else if (tagType === 'COLOR' || prefix.startsWith('[COLOR:')) cleaned = cleaned.replace(/\[COLOR:[^\]]+\]/g, '').replace(/\[\/COLOR\]/g, '');
+    else if (tagType === 'HL' || prefix.startsWith('[HL:')) cleaned = cleaned.replace(/\[HL:[^\]]+\]/g, '').replace(/\[\/HL\]/g, '');
+    else if (prefix === '**' && suffix === '**') cleaned = cleaned.replace(/\*\*/g, '');
+    else if (prefix === '*' && suffix === '*') cleaned = cleaned.replace(/\*/g, '');
+    else if (prefix === '__' && suffix === '__') cleaned = cleaned.replace(/__/g, '');
+    else if (prefix === '~~' && suffix === '~~') cleaned = cleaned.replace(/~~/g, '');
+    else if (suffix === '') {
+      if (prefix.startsWith('[SPACING:')) cleaned = cleaned.replace(/\[SPACING:[^\]]+\]/g, '');
+      else if (['[LEFT]', '[CENTER]', '[RIGHT]', '[JUSTIFY]'].includes(prefix)) cleaned = cleaned.replace(/\[LEFT\]|\[CENTER\]|\[RIGHT\]|\[JUSTIFY\]/g, '');
     }
-
-    const replacement = `${prefix}${cleaned}${suffix}`;
-    const next = value.substring(0, start) + replacement + value.substring(end);
-    onChange(next);
-  }, [value, onChange, getSelection]);
-
-  const changeFontSize = useCallback((direction: 'up' | 'down') => {
-    const SIZES = ['10px', '11px', '12px', '13px', '14px', '15px', '16px', '18px', '20px', '24px'];
-    const sel = getSelection();
-    let target = value || 'Text';
-    let start = 0;
-    let end = value.length;
-
-    if (sel && sel.start !== sel.end) {
-      target = value.substring(sel.start, sel.end);
-      start = sel.start;
-      end = sel.end;
-    }
-
-    const match = target.match(/\[SIZE:([0-9]+px)\]/);
-    const currentSize = match ? match[1] : '13px';
-    let idx = SIZES.indexOf(currentSize);
-    if (idx === -1) idx = 3;
-
-    if (direction === 'up' && idx < SIZES.length - 1) {
-      idx++;
-    } else if (direction === 'down' && idx > 0) {
-      idx--;
-    }
-
-    const newSize = SIZES[idx];
-    const cleaned = target.replace(/\[SIZE:[^\]]+\]/g, '').replace(/\[\/SIZE\]/g, '');
-    const replacement = `[SIZE:${newSize}]${cleaned}[/SIZE]`;
-    const next = value.substring(0, start) + replacement + value.substring(end);
-    onChange(next);
+    onChange(value.substring(0, start) + `${prefix}${cleaned}${suffix}` + value.substring(end));
   }, [value, onChange, getSelection]);
 
   const applyLinePrefix = useCallback((prefixChar: string) => {
     const sel = getSelection();
     if (sel && sel.start !== sel.end) {
       const { start, end } = sel;
-      const before = value.substring(0, start);
-      const selected = value.substring(start, end);
-      const after = value.substring(end);
-      const modified = selected
-        .split('\n')
-        .map((line) => (line.startsWith(prefixChar) ? line.substring(prefixChar.length) : `${prefixChar}${line}`))
-        .join('\n');
-      onChange(before + modified + after);
+      const modified = value.substring(start, end).split('\n')
+        .map((line) => line.startsWith(prefixChar) ? line.substring(prefixChar.length) : `${prefixChar}${line}`).join('\n');
+      onChange(value.substring(0, start) + modified + value.substring(end));
     } else {
-      const lines = value.split('\n');
-      if (!value) {
-        onChange(prefixChar);
-        return;
-      }
-      const last = lines.length - 1;
-      lines[last] = lines[last].startsWith(prefixChar)
-        ? lines[last].substring(prefixChar.length)
-        : `${prefixChar}${lines[last]}`;
-      onChange(lines.join('\n'));
-    }
-  }, [value, onChange, getSelection]);
-
-  const applyIndent = useCallback((direction: 'in' | 'out') => {
-    const indent = '    '; // 4 spaces
-    const sel = getSelection();
-    if (sel && sel.start !== sel.end) {
-      const { start, end } = sel;
-      const before = value.substring(0, start);
-      const selected = value.substring(start, end);
-      const after = value.substring(end);
-      const modified = selected
-        .split('\n')
-        .map((line) => direction === 'in' ? `${indent}${line}` : line.startsWith(indent) ? line.substring(indent.length) : line)
-        .join('\n');
-      onChange(before + modified + after);
-    } else {
+      if (!value) { onChange(prefixChar); return; }
       const lines = value.split('\n');
       const last = lines.length - 1;
-      lines[last] = direction === 'in'
-        ? `${indent}${lines[last]}`
-        : lines[last].startsWith(indent) ? lines[last].substring(indent.length) : lines[last];
+      lines[last] = lines[last].startsWith(prefixChar) ? lines[last].substring(prefixChar.length) : `${prefixChar}${lines[last]}`;
       onChange(lines.join('\n'));
     }
   }, [value, onChange, getSelection]);
 
   const insertHorizontalRule = useCallback(() => {
     const sel = getSelection();
-    if (sel) {
-      const { start, end } = sel;
-      const prevChar = start > 0 ? value[start - 1] : '\n';
-      const prefix = prevChar === '\n' ? '[HR]\n' : '\n[HR]\n';
-      onChange(value.substring(0, start) + prefix + value.substring(end));
-    } else {
-      const prevChar = value.length > 0 ? value[value.length - 1] : '\n';
-      const prefix = prevChar === '\n' ? '[HR]\n' : '\n[HR]\n';
-      onChange(value + prefix);
-    }
+    const pos = sel ? sel.start : value.length;
+    const prevChar = pos > 0 ? value[pos - 1] : '\n';
+    const prefix = prevChar === '\n' ? '[HR]\n' : '\n[HR]\n';
+    onChange(value.substring(0, pos) + prefix + value.substring(sel ? sel.end : value.length));
   }, [value, onChange, getSelection]);
 
   const clearFormatting = useCallback(() => {
-    const cleaned = value
-      .replace(/\*\*(.*?)\*\*/g, '$1')
-      .replace(/\*(.*?)\*/g, '$1')
-      .replace(/__(.*?)__/g, '$1')
-      .replace(/~~(.*?)~~/g, '$1')
-      .replace(/\[COLOR:.*?\](.*?)\[\/COLOR\]/gs, '$1')
-      .replace(/\[HL:.*?\](.*?)\[\/HL\]/gs, '$1')
-      .replace(/\[SIZE:.*?\](.*?)\[\/SIZE\]/gs, '$1')
-      .replace(/\[FONT:.*?\](.*?)\[\/FONT\]/gs, '$1')
-      .replace(/\[LEFT\]|\[CENTER\]|\[RIGHT\]|\[JUSTIFY\]/g, '')
-      .replace(/\[SPACING:.*?\]/g, '')
-      .replace(/^[•✓›\-]\s/gm, '')
-      .replace(/^\d+\.\s/gm, '')
-      .replace(/^###\s|^##\s/gm, '')
-      .replace(/^    /gm, '');
-    onChange(cleaned);
+    onChange(value
+      .replace(/\*\*(.*?)\*\*/g, '$1').replace(/\*(.*?)\*/g, '$1').replace(/__(.*?)__/g, '$1').replace(/~~(.*?)~~/g, '$1')
+      .replace(/\[COLOR:.*?\](.*?)\[\/COLOR\]/gs, '$1').replace(/\[HL:.*?\](.*?)\[\/HL\]/gs, '$1')
+      .replace(/\[SIZE:.*?\](.*?)\[\/SIZE\]/gs, '$1').replace(/\[FONT:.*?\](.*?)\[\/FONT\]/gs, '$1')
+      .replace(/\[LEFT\]|\[CENTER\]|\[RIGHT\]|\[JUSTIFY\]/g, '').replace(/\[SPACING:.*?\]/g, '')
+      .replace(/^[•✓›\-]\s/gm, '').replace(/^\d+\.\s/gm, '').replace(/^###\s|^##\s/gm, '').replace(/^    /gm, ''));
   }, [value, onChange]);
 
-  const insertPhrase = useCallback((phrase: string) => {
-    const sel = getSelection();
-    if (sel && sel.start !== sel.end) {
-      const { el, start, end } = sel;
-      const next = value.substring(0, start) + phrase + value.substring(end);
-      onChange(next);
-      setTimeout(() => {
-        el.focus();
-        el.setSelectionRange(start + phrase.length, start + phrase.length);
-      }, 0);
-    } else {
-      if (value && (value.includes('•') || value.includes('\n'))) {
-        const lines = value.split('\n').filter(Boolean);
-        const lastLine = lines[lines.length - 1] || '';
-        if (lastLine.trim() === '•' || lastLine.trim() === '') {
-          lines[lines.length - 1] = `• ${phrase}`;
-        } else {
-          lines.push(`• ${phrase}`);
-        }
-        onChange(lines.join('\n'));
-      } else if (!value || !value.trim()) {
-        onChange(phrase);
-      } else {
-        const sep = !value.endsWith(' ') && !value.endsWith('\n') ? ' \n\n' : '';
-        onChange(`${value}${sep}${phrase}`);
-      }
-    }
-  }, [value, onChange, getSelection]);
-
-  const ToolButton = ({ onClick, title, children, active = false }: {
-    onClick: () => void;
-    title: string;
-    children: React.ReactNode;
-    active?: boolean;
-  }) => (
-    <button
-      type="button"
-      onClick={onClick}
-      title={title}
-      className={`relative group overflow-hidden p-1.5 rounded-lg transition-all duration-200 ease-out transform hover:-translate-y-0.5 active:translate-y-0 active:scale-95 flex items-center justify-center shrink-0 ${
-        active 
-          ? 'bg-brand-500 text-white shadow-md scale-105' 
-          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-surface-700 hover:shadow-xs before:absolute before:bottom-0 before:left-0 before:h-0.5 before:w-full before:bg-brand-500 before:scale-x-0 group-hover:before:scale-x-100 before:transition-transform before:duration-200 before:origin-left'
-      }`}
-    >
-      <span className="relative z-10 flex items-center justify-center">{children}</span>
-    </button>
-  );
-
-  const Separator = () => (
-    <div className="h-4 w-px mx-1 flex-shrink-0 bg-gray-300 dark:bg-surface-700" />
-  );
+  const getActiveFont = () => (value.match(/\[FONT:([^\]]+)\]/)?.[1] || 'Calibri');
+  const getActiveSize = () => (value.match(/\[SIZE:([^\]]+)\]/)?.[1] || '12px');
 
   return (
-    <div className="bg-gray-50 dark:bg-surface-900 border border-gray-200 dark:border-surface-800 rounded-t-lg select-none relative z-20 shadow-sm">
-      {/* ── MS Word Top Ribbon Header ───────────────────────────────────── */}
-      <div className="flex flex-wrap items-center justify-between gap-2 px-2.5 py-1.5 border-b border-gray-200 dark:border-surface-800 bg-gray-100 dark:bg-surface-950">
-        <div className="flex items-center gap-1 overflow-x-auto no-scrollbar flex-1 min-w-[260px]">
-          <div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-brand-500 text-white text-[11px] font-bold tracking-wider mr-1 shadow-sm shrink-0">
-            <Type size={12} />
-            <span>WORD</span>
+    <div className="relative select-none w-full">
+      {/* ═══ Main Toolbar Bar ═══ */}
+      <div className="bg-[#FAF7F2] dark:bg-surface-900 border border-gray-200 dark:border-surface-800 rounded-t-xl transition-colors">
+        {/* ── Row: Formatting Controls ── */}
+        <div className="flex items-center gap-0 px-2 py-1.5 flex-wrap">
+
+          {/* B / I / U large buttons with labels */}
+          <div className="flex items-center mr-2">
+            {[
+              { icon: <Bold size={16} />, label: 'BOLD', action: () => applyInline('**', '**') },
+              { icon: <Italic size={16} />, label: 'ITALIC', action: () => applyInline('*', '*') },
+              { icon: <Underline size={16} />, label: 'UNDERLINE', action: () => applyInline('__', '__') },
+            ].map(btn => (
+              <button key={btn.label} type="button" onClick={btn.action} title={btn.label}
+                className="flex flex-col items-center justify-center w-12 h-12 rounded-lg text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-surface-800 active:bg-gray-200 dark:active:bg-surface-700 transition-all">
+                <span className="mb-0.5">{btn.icon}</span>
+                <span className="text-[8px] font-bold tracking-wider opacity-60">{btn.label}</span>
+              </button>
+            ))}
           </div>
-          {(['home', 'insert', 'layout', 'styles'] as const).map((tab) => (
-            <button
-              key={tab}
-              type="button"
-              onClick={() => {
-                setActiveTab(tab);
-                setIsExpanded(true);
-              }}
-              className={`relative overflow-hidden px-2.5 py-1 rounded-t text-xs font-semibold capitalize transition-all duration-200 ease-out transform hover:-translate-y-0.5 active:translate-y-0 shrink-0 ${
-                activeTab === tab && isExpanded
-                  ? 'bg-white dark:bg-surface-900 text-brand-600 dark:text-brand-400 border-t-2 border-brand-500 shadow-sm'
-                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200/60 dark:hover:bg-surface-800 before:absolute before:bottom-0 before:left-0 before:h-0.5 before:w-full before:bg-brand-400 before:scale-x-0 hover:before:scale-x-100 before:transition-transform before:duration-200 before:origin-left'
-              }`}
-            >
-              {tab}
+
+          {/* Separator */}
+          <div className="w-px h-8 bg-gray-300 dark:bg-surface-700 mx-1.5 shrink-0" />
+
+          {/* COLOR picker */}
+          <div ref={colorRef} className="relative mr-1.5">
+            <div className="flex flex-col items-center">
+              <span className="text-[8px] font-bold text-gray-400 dark:text-gray-500 tracking-wider mb-0.5">COLOR</span>
+              <button type="button" onClick={() => { setShowColorPicker(!showColorPicker); setShowFontPicker(false); setShowSizePicker(false); }}
+                className="flex items-center gap-1 px-2 py-1.5 rounded-md bg-white dark:bg-surface-800 hover:bg-gray-50 dark:hover:bg-surface-700 border border-gray-200 dark:border-surface-700 transition-all">
+                <div className="w-4 h-4 rounded" style={{ backgroundColor: activeColor }} />
+                <ChevronDown size={10} className="text-gray-400" />
+              </button>
+            </div>
+            {showColorPicker && (
+              <div className="absolute left-0 top-full mt-1.5 z-[999] bg-white dark:bg-surface-800 border border-gray-200 dark:border-surface-700 rounded-lg shadow-xl p-2.5 min-w-[150px]">
+                <span className="text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider block mb-1.5">Text Color</span>
+                <div className="grid grid-cols-4 gap-1.5 mb-2">
+                  {PRESET_COLORS.map(c => (
+                    <button key={c.hex} type="button" title={c.label}
+                      onClick={() => { applyInline(`[COLOR:${c.hex}]`, '[/COLOR]', 'COLOR'); setActiveColor(c.hex); setShowColorPicker(false); }}
+                      className="w-6 h-6 rounded-full border-2 border-gray-200 dark:border-surface-700 hover:border-gray-900 dark:hover:border-white hover:scale-110 transition-all shadow-sm"
+                      style={{ backgroundColor: c.hex }} />
+                  ))}
+                </div>
+                <span className="text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider block mb-1.5">Highlight</span>
+                <div className="grid grid-cols-4 gap-1.5">
+                  {PRESET_HIGHLIGHTS.map(h => (
+                    <button key={h.hex} type="button" title={h.label}
+                      onClick={() => { applyInline(`[HL:${h.hex}]`, '[/HL]', 'HL'); setShowColorPicker(false); }}
+                      className="w-6 h-6 rounded border-2 border-gray-200 dark:border-surface-700 hover:border-gray-900 dark:hover:border-white hover:scale-110 transition-all shadow-sm"
+                      style={{ backgroundColor: h.hex }} />
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Separator */}
+          <div className="w-px h-8 bg-gray-300 dark:bg-surface-700 mx-1.5 shrink-0" />
+
+          {/* FONT picker */}
+          <div ref={fontRef} className="relative mr-1.5">
+            <div className="flex flex-col items-center">
+              <span className="text-[8px] font-bold text-gray-400 dark:text-gray-500 tracking-wider mb-0.5">FONT</span>
+              <button type="button" onClick={() => { setShowFontPicker(!showFontPicker); setShowColorPicker(false); setShowSizePicker(false); }}
+                className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-white dark:bg-surface-800 hover:bg-gray-50 dark:hover:bg-surface-700 border border-gray-200 dark:border-surface-700 text-xs text-gray-700 dark:text-gray-200 font-medium min-w-[100px] transition-all">
+                <span className="truncate">{getActiveFont()}</span>
+                <ChevronDown size={10} className="text-gray-400 ml-auto shrink-0" />
+              </button>
+            </div>
+            {showFontPicker && (
+              <div className="absolute left-0 top-full mt-1.5 z-[999] bg-white dark:bg-surface-800 border border-gray-200 dark:border-surface-700 rounded-lg shadow-xl p-1.5 w-64 max-h-60 overflow-y-auto">
+                <div className="grid grid-cols-2 gap-0.5">
+                  {FONT_OPTIONS.map(f => (
+                    <button key={f.id} type="button" style={{ fontFamily: f.family }}
+                      onClick={() => { applyInline(`[FONT:${f.id}]`, '[/FONT]', 'FONT'); setShowFontPicker(false); }}
+                      className="text-left px-2.5 py-1.5 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-surface-700 hover:text-gray-900 dark:hover:text-white transition-colors font-medium rounded truncate">
+                      {f.id}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Separator */}
+          <div className="w-px h-8 bg-gray-300 dark:bg-surface-700 mx-1.5 shrink-0" />
+
+          {/* SIZE */}
+          <div ref={sizeRef} className="relative mr-1.5">
+            <div className="flex flex-col items-center">
+              <span className="text-[8px] font-bold text-gray-400 dark:text-gray-500 tracking-wider mb-0.5">SIZE</span>
+              <button type="button" onClick={() => { setShowSizePicker(!showSizePicker); setShowColorPicker(false); setShowFontPicker(false); }}
+                className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-white dark:bg-surface-800 hover:bg-gray-50 dark:hover:bg-surface-700 border border-gray-200 dark:border-surface-700 text-xs text-gray-700 dark:text-gray-200 font-mono transition-all">
+                <span>{getActiveSize()}</span>
+                <ChevronDown size={10} className="text-gray-400" />
+              </button>
+            </div>
+            {showSizePicker && (
+              <div className="absolute left-0 top-full mt-1.5 z-[999] bg-white dark:bg-surface-800 border border-gray-200 dark:border-surface-700 rounded-lg shadow-xl p-1.5 w-32">
+                <div className="grid grid-cols-2 gap-0.5">
+                {['10px', '11px', '12px', '13px', '14px', '16px', '18px', '20px', '24px'].map(sz => (
+                  <button key={sz} type="button"
+                    onClick={() => { applyInline(`[SIZE:${sz}]`, '[/SIZE]', 'SIZE'); setShowSizePicker(false); }}
+                    className="w-full text-center px-2 py-1 text-xs font-mono text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-surface-700 hover:text-gray-900 dark:hover:text-white transition-colors">
+                    {sz}
+                  </button>
+                ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Separator */}
+          <div className="w-px h-8 bg-gray-300 dark:bg-surface-700 mx-1.5 shrink-0" />
+
+          {/* ALIGNMENT */}
+          <div className="flex flex-col items-center mr-1.5">
+            <span className="text-[8px] font-bold text-gray-400 dark:text-gray-500 tracking-wider mb-0.5">ALIGNMENT</span>
+            <div className="flex items-center gap-0.5">
+              {[
+                { icon: <AlignLeft size={13} />, p: '[LEFT]' },
+                { icon: <AlignCenter size={13} />, p: '[CENTER]' },
+                { icon: <AlignRight size={13} />, p: '[RIGHT]' },
+              ].map((a, i) => (
+                <button key={i} type="button" onClick={() => applyInline(a.p)}
+                  className="p-1.5 rounded text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-surface-800 transition-all">
+                  {a.icon}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Separator */}
+          <div className="w-px h-8 bg-gray-300 dark:bg-surface-700 mx-1.5 shrink-0" />
+
+          {/* LIST */}
+          <div className="flex flex-col items-center mr-1.5">
+            <span className="text-[8px] font-bold text-gray-400 dark:text-gray-500 tracking-wider mb-0.5">LIST</span>
+            <div className="flex items-center gap-0.5">
+              <button type="button" onClick={() => applyLinePrefix('• ')} title="Bullet List"
+                className="p-1.5 rounded text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-surface-800 transition-all">
+                <List size={13} />
+              </button>
+              <button type="button" onClick={() => applyLinePrefix('1. ')} title="Numbered List"
+                className="p-1.5 rounded text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-surface-800 transition-all">
+                <ListOrdered size={13} />
+              </button>
+            </div>
+          </div>
+
+          {/* Separator */}
+          <div className="w-px h-8 bg-gray-300 dark:bg-surface-700 mx-1.5 shrink-0" />
+
+          {/* EXTRAS: Strikethrough, Divider, Clear */}
+          <div className="flex items-center gap-0.5 mr-1.5">
+            <button type="button" onClick={() => applyInline('~~', '~~')} title="Strikethrough"
+              className="p-1.5 rounded text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-surface-800 transition-all">
+              <Strikethrough size={14} />
             </button>
-          ))}
-        </div>
-        <div className="flex items-center gap-1.5 shrink-0 ml-auto">
-          <button
-            type="button"
-            onClick={() => {
-              if (activeTab === 'phrases' && isExpanded) {
-                setActiveTab('home');
-              } else {
-                setActiveTab('phrases');
-                setIsExpanded(true);
-              }
-            }}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold transition-all shadow-sm border ${
-              activeTab === 'phrases' && isExpanded
-                ? 'bg-amber-500 text-white border-amber-600 shadow-amber-500/30 hover:bg-amber-600'
-                : 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-700/60 hover:bg-amber-100'
-            }`}
-            title="Toggle AI Suggestion Box"
-          >
-            <Sparkles size={13} className="animate-pulse text-amber-500 dark:text-amber-400 shrink-0" />
-            <span className="hidden sm:inline">AI Suggestion Box</span>
-            <span className="sm:hidden">AI Suggestions</span>
-          </button>
-          {showWordCount && (
-            <span className="text-[10px] font-mono uppercase font-bold text-gray-500 dark:text-gray-400 bg-white dark:bg-surface-800 px-2 py-0.5 rounded border border-gray-200 dark:border-surface-700 shrink-0">
-              {wordCount} words
-            </span>
-          )}
-          <button
-            type="button"
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="p-1 rounded text-gray-500 hover:bg-gray-200 dark:hover:bg-surface-800 shrink-0"
-            title={isExpanded ? 'Collapse Ribbon' : 'Expand Ribbon'}
-          >
-            <ChevronDown size={14} className={`transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} />
-          </button>
+            <button type="button" onClick={insertHorizontalRule} title="Divider Line"
+              className="p-1.5 rounded text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-surface-800 transition-all">
+              <Minus size={14} />
+            </button>
+            <button type="button" onClick={clearFormatting} title="Clear Formatting"
+              className="p-1.5 rounded text-gray-500 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-surface-800 transition-all">
+              <Type size={14} />
+            </button>
+          </div>
+
+          {/* Right side: Word count */}
+          <div className="flex items-center gap-2 ml-auto shrink-0">
+            {showWordCount && (
+              <span className="text-[10px] font-mono font-bold text-gray-500 dark:text-gray-400 px-2 py-1 rounded bg-white dark:bg-surface-800 border border-gray-200 dark:border-surface-700">
+                {wordCount} words
+              </span>
+            )}
+          </div>
         </div>
       </div>
-
-      {/* ── Tab Panels Content ────────────────────────────────────────────── */}
-      {isExpanded && (
-        <div key={activeTab} className="p-1.5 flex items-center overflow-x-auto no-scrollbar flex-nowrap md:flex-wrap gap-1 bg-gray-50/80 dark:bg-surface-900/90 text-xs border-b border-gray-100 dark:border-surface-800 animate-slide-down transition-all duration-200">
-          {/* ── HOME TAB: Font, Size, Inline Formatting, Color, Alignment ───── */}
-          {activeTab === 'home' && (
-            <div className="flex items-center flex-nowrap md:flex-wrap gap-1 shrink-0">
-              {/* Font Family Selector */}
-              <select
-                onChange={(e) => applyInline(`[FONT:${e.target.value}]`, '[/FONT]', 'FONT')}
-                className="text-xs bg-white dark:bg-surface-800 border border-gray-200 dark:border-surface-700 rounded px-1.5 py-1 text-gray-800 dark:text-gray-200 cursor-pointer max-w-[110px] truncate font-medium shrink-0"
-                defaultValue="Calibri"
-                title="Font Family"
-              >
-                {FONT_OPTIONS.map((f) => (
-                  <option key={f.id} value={f.id}>{f.id}</option>
-                ))}
-              </select>
-
-              {/* Font Size Selector */}
-              <select
-                onChange={(e) => applyInline(`[SIZE:${e.target.value}]`, '[/SIZE]', 'SIZE')}
-                className="text-xs bg-white dark:bg-surface-800 border border-gray-200 dark:border-surface-700 rounded px-1 py-1 text-gray-800 dark:text-gray-200 cursor-pointer w-[60px] font-mono shrink-0"
-                defaultValue="13px"
-                title="Font Size"
-              >
-                {['10px', '11px', '12px', '13px', '14px', '16px', '18px', '20px', '24px'].map((sz) => (
-                  <option key={sz} value={sz}>{sz.replace('px', '')}</option>
-                ))}
-              </select>
-
-              <ToolButton onClick={() => changeFontSize('up')} title="Increase Font Size (A+)">
-                <span className="font-bold text-[13px]">A⁺</span>
-              </ToolButton>
-              <ToolButton onClick={() => changeFontSize('down')} title="Decrease Font Size (A-)">
-                <span className="font-bold text-[11px]">A⁻</span>
-              </ToolButton>
-
-              <Separator />
-
-              {/* Inline Styles */}
-              <div className="flex items-center gap-0.5 shrink-0">
-                <ToolButton onClick={() => applyInline('**', '**')} title="Bold (**text**)">
-                  <Bold size={14} />
-                </ToolButton>
-                <ToolButton onClick={() => applyInline('*', '*')} title="Italic (*text*)">
-                  <Italic size={14} />
-                </ToolButton>
-                <ToolButton onClick={() => applyInline('__', '__')} title="Underline (__text__)">
-                  <Underline size={14} />
-                </ToolButton>
-                <ToolButton onClick={() => applyInline('~~', '~~')} title="Strikethrough (~~text~~)">
-                  <Strikethrough size={14} />
-                </ToolButton>
-                <ToolButton onClick={() => applyInline('~', '~')} title="Subscript (~sub~)">
-                  <SubscriptIcon size={14} />
-                </ToolButton>
-                <ToolButton onClick={() => applyInline('^', '^')} title="Superscript (^sup^)">
-                  <SuperscriptIcon size={14} />
-                </ToolButton>
-              </div>
-
-              <Separator />
-
-              {/* Font Color Picker Dropdown */}
-              <div className="relative shrink-0">
-                <button
-                  type="button"
-                  onClick={() => { setShowColorPicker(!showColorPicker); setShowHighlightPicker(false); }}
-                  className="p-1 rounded flex items-center gap-0.5 hover:bg-gray-200 dark:hover:bg-surface-800 text-gray-700 dark:text-gray-300"
-                  title="Font Color"
-                >
-                  <Palette size={14} className="text-rose-500" />
-                  <ChevronDown size={10} />
-                </button>
-                {showColorPicker && (
-                  <div className="absolute left-0 top-full mt-1 z-50 p-2 rounded-lg shadow-xl bg-white dark:bg-surface-900 border border-gray-200 dark:border-surface-700 grid grid-cols-4 gap-1 min-w-[130px]">
-                    {PRESET_COLORS.map((col) => (
-                      <button
-                        key={col.hex}
-                        type="button"
-                        onClick={() => { applyInline(`[COLOR:${col.hex}]`, '[/COLOR]', 'COLOR'); setShowColorPicker(false); }}
-                        className="w-6 h-6 rounded border border-gray-300 dark:border-surface-700 transition-transform hover:scale-110"
-                        style={{ backgroundColor: col.hex }}
-                        title={col.label}
-                      />
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Highlight Picker Dropdown */}
-              <div className="relative shrink-0">
-                <button
-                  type="button"
-                  onClick={() => { setShowHighlightPicker(!showHighlightPicker); setShowColorPicker(false); }}
-                  className="p-1 rounded flex items-center gap-0.5 hover:bg-gray-200 dark:hover:bg-surface-800 text-gray-700 dark:text-gray-300"
-                  title="Highlight Color"
-                >
-                  <Highlighter size={14} className="text-amber-500" />
-                  <ChevronDown size={10} />
-                </button>
-                {showHighlightPicker && (
-                  <div className="absolute left-0 top-full mt-1 z-50 p-2 rounded-lg shadow-xl bg-white dark:bg-surface-900 border border-gray-200 dark:border-surface-700 grid grid-cols-4 gap-1 min-w-[110px]">
-                    {PRESET_HIGHLIGHTS.map((hl) => (
-                      <button
-                        key={hl.hex}
-                        type="button"
-                        onClick={() => { applyInline(`[HL:${hl.hex}]`, '[/HL]', 'HL'); setShowHighlightPicker(false); }}
-                        className="w-6 h-6 rounded border border-gray-300 dark:border-surface-700 transition-transform hover:scale-110"
-                        style={{ backgroundColor: hl.hex }}
-                        title={hl.label}
-                      />
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <Separator />
-
-              {/* Alignment Group */}
-              <div className="flex items-center gap-0.5 shrink-0">
-                <ToolButton onClick={() => applyInline('[LEFT]')} title="Align Left">
-                  <AlignLeft size={14} />
-                </ToolButton>
-                <ToolButton onClick={() => applyInline('[CENTER]')} title="Align Center">
-                  <AlignCenter size={14} />
-                </ToolButton>
-                <ToolButton onClick={() => applyInline('[RIGHT]')} title="Align Right">
-                  <AlignRight size={14} />
-                </ToolButton>
-                <ToolButton onClick={() => applyInline('[JUSTIFY]')} title="Justify Text">
-                  <AlignJustify size={14} />
-                </ToolButton>
-              </div>
-
-              <Separator />
-
-              {/* Format Painter / Clear Formatting */}
-              <ToolButton onClick={clearFormatting} title="Clear All Formatting / Reset">
-                <Type size={14} className="text-red-500" />
-              </ToolButton>
-            </div>
-          )}
-
-          {/* ── INSERT TAB: Horizontal Rule, Lists, Checkmarks, Line Spacing ── */}
-          {activeTab === 'insert' && (
-            <div className="flex items-center flex-nowrap md:flex-wrap gap-1.5 shrink-0">
-              <ToolButton onClick={() => applyLinePrefix('• ')} title="Bullet List (•)">
-                <List size={14} />
-              </ToolButton>
-              <ToolButton onClick={() => applyLinePrefix('1. ')} title="Numbered List (1.)">
-                <ListOrdered size={14} />
-              </ToolButton>
-              <ToolButton onClick={() => applyLinePrefix('✓ ')} title="Checkmark List (✓)">
-                <span className="font-bold text-sm">✓</span>
-              </ToolButton>
-              <Separator />
-              <button
-                type="button"
-                onClick={insertHorizontalRule}
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-white dark:bg-surface-800 border border-gray-200 dark:border-surface-700 hover:bg-gray-100 dark:hover:bg-surface-700 text-xs font-medium text-gray-700 dark:text-gray-300 shrink-0"
-                title="Insert Horizontal Rule Divider"
-              >
-                <Minus size={14} />
-                <span>Divider Line</span>
-              </button>
-              <Separator />
-              {/* Line Spacing Selector */}
-              <div className="relative flex items-center gap-1 shrink-0">
-                <span className="text-gray-500 dark:text-gray-400 text-[11px] font-medium">Spacing:</span>
-                <button
-                  type="button"
-                  onClick={() => setShowSpacingPicker(!showSpacingPicker)}
-                  className="px-2 py-0.5 rounded bg-white dark:bg-surface-800 border border-gray-200 dark:border-surface-700 text-xs font-mono flex items-center gap-1"
-                >
-                  <span>1.4x</span>
-                  <ChevronDown size={10} />
-                </button>
-                {showSpacingPicker && (
-                  <div className="absolute top-full left-0 mt-1 z-50 bg-white dark:bg-surface-900 border border-gray-200 dark:border-surface-700 rounded-lg shadow-lg py-1 min-w-[80px]">
-                    {['1.0', '1.15', '1.4', '1.6', '2.0'].map((sp) => (
-                      <button
-                        key={sp}
-                        type="button"
-                        onClick={() => { applyInline(`[SPACING:${sp}]`); setShowSpacingPicker(false); }}
-                        className="w-full text-left px-3 py-1 text-xs hover:bg-gray-100 dark:hover:bg-surface-800 font-mono"
-                      >
-                        {sp}x
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* ── LAYOUT TAB: Indentation, Margin adjustment ─────────────────── */}
-          {activeTab === 'layout' && (
-            <div className="flex items-center flex-nowrap md:flex-wrap gap-2 shrink-0">
-              <div className="flex items-center gap-1 shrink-0">
-                <span className="text-gray-500 dark:text-gray-400 text-[11px]">Indentation:</span>
-                <button
-                  type="button"
-                  onClick={() => applyIndent('out')}
-                  className="flex items-center gap-1 px-2.5 py-1 rounded bg-white dark:bg-surface-800 border border-gray-200 dark:border-surface-700 hover:bg-gray-100 dark:hover:bg-surface-700 text-xs font-medium text-gray-700 dark:text-gray-300 shrink-0"
-                  title="Shift Content Left (Outdent)"
-                >
-                  <Outdent size={14} />
-                  <span>Outdent</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => applyIndent('in')}
-                  className="flex items-center gap-1 px-2.5 py-1 rounded bg-white dark:bg-surface-800 border border-gray-200 dark:border-surface-700 hover:bg-gray-100 dark:hover:bg-surface-700 text-xs font-medium text-gray-700 dark:text-gray-300 shrink-0"
-                  title="Shift Content Right (Indent)"
-                >
-                  <Indent size={14} />
-                  <span>Indent</span>
-                </button>
-              </div>
-              <Separator />
-              <button
-                type="button"
-                onClick={clearFormatting}
-                className="flex items-center gap-1 px-2.5 py-1 rounded bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800 text-xs font-medium shrink-0"
-              >
-                <Type size={14} />
-                <span>Reset Layout & Spacing</span>
-              </button>
-            </div>
-          )}
-
-          {/* ── STYLES TAB: Normal, No spacing, Headings ───────────────────── */}
-          {activeTab === 'styles' && (
-            <div className="flex items-center flex-nowrap md:flex-wrap gap-1.5 shrink-0">
-              <button
-                type="button"
-                onClick={() => applyLinePrefix('')}
-                className="px-2.5 py-1 rounded border border-gray-300 dark:border-surface-700 bg-white dark:bg-surface-800 text-xs font-medium hover:border-brand-500 transition-colors shrink-0"
-              >
-                AaBbCc — Regular
-              </button>
-              <button
-                type="button"
-                onClick={() => applyInline('[SPACING:1.0]')}
-                className="px-2.5 py-1 rounded border border-gray-300 dark:border-surface-700 bg-white dark:bg-surface-800 text-xs font-medium leading-tight hover:border-brand-500 transition-colors shrink-0"
-              >
-                AaBbCc — No Spacing
-              </button>
-              <button
-                type="button"
-                onClick={() => applyLinePrefix('### ')}
-                className="px-2.5 py-1 rounded border border-gray-300 dark:border-surface-700 bg-brand-50/50 dark:bg-brand-950/30 text-xs font-bold text-brand-700 dark:text-brand-300 flex items-center gap-1 hover:border-brand-500 transition-colors shrink-0"
-              >
-                <Heading1 size={13} />
-                <span>Heading 1</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => applyLinePrefix('## ')}
-                className="px-2.5 py-1 rounded border border-gray-300 dark:border-surface-700 bg-brand-50/30 dark:bg-brand-950/20 text-xs font-semibold text-brand-600 dark:text-brand-400 flex items-center gap-1 hover:border-brand-500 transition-colors shrink-0"
-              >
-                <Heading2 size={13} />
-                <span>Heading 2</span>
-              </button>
-            </div>
-          )}
-
-          {/* ── QUICK PHRASES TAB: ATS Action bullet points ────────────────── */}
-          {activeTab === 'phrases' && (
-            <div className="w-full">
-              <div className="flex items-start gap-1.5 mb-1.5 text-[11px] font-bold text-brand-600 dark:text-brand-400">
-                <Sparkles size={13} className="shrink-0 mt-0.5" />
-                <span className="leading-tight text-balance">Click any phrase to insert directly into your resume section:</span>
-              </div>
-              <div className="max-h-56 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-1.5 pr-1">
-                {ATS_SUGGESTIONS.map((group) => (
-                  <div key={group.category} className="bg-white dark:bg-surface-800 rounded p-1.5 border border-gray-200 dark:border-surface-700">
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1 px-1">
-                      {group.category}
-                    </div>
-                    {group.sentences.map((phrase) => (
-                      <button
-                        key={phrase}
-                        type="button"
-                        onClick={() => insertPhrase(phrase)}
-                        className="w-full text-left p-1.5 text-xs rounded hover:bg-brand-50 dark:hover:bg-brand-950/40 text-gray-700 dark:text-gray-300 transition-colors border-b last:border-b-0 border-gray-100 dark:border-surface-700/50 flex items-start gap-1.5"
-                      >
-                        <span className="text-brand-500 mt-0.5">•</span>
-                        <span>{phrase}</span>
-                      </button>
-                    ))}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
     </div>
   );
 }
